@@ -1,0 +1,16 @@
+{
+  "extends": "../packages/configs/tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "declaration": false,
+    "declarationMap": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "paths": {
+      "@sai-physio/types": ["../packages/types/src/index.ts"],
+      "@sai-physio/utils": ["../packages/utils/src/index.ts"]
+    }
+  },
+  "include": ["src/**/*", "scripts/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

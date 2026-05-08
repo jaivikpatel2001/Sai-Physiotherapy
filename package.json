@@ -1,0 +1,25 @@
+{
+  "name": "sai-physiotherapy",
+  "version": "1.0.0",
+  "private": true,
+  "description": "SAI Physiotherapy Spine Care & Paralysis Centre — Enterprise Clinic Management Platform",
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "clean": "turbo run clean && rimraf node_modules",
+    "backend:dev": "turbo run dev --filter=backend",
+    "frontend:dev": "turbo run dev --filter=frontend",
+    "seed": "pnpm --filter=backend run seed"
+  },
+  "devDependencies": {
+    "turbo": "^2.0.0",
+    "rimraf": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "packageManager": "pnpm@9.0.0"
+}

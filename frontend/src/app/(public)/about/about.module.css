@@ -1,0 +1,299 @@
+.page {}
+
+/* ── Hero ──────────────────────────────────────────────────────────────── */
+.hero {
+  background: var(--gradient-hero);
+  padding: calc(var(--header-height) + var(--space-16)) 0 var(--space-20);
+}
+
+.heroInner {
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: var(--space-16);
+  align-items: center;
+}
+
+.heroText { display: flex; flex-direction: column; gap: var(--space-6); }
+
+.heroTitle {
+  font-family: var(--font-display);
+  font-size: var(--text-h1);
+  font-weight: 800;
+  color: white;
+  line-height: 1.15;
+}
+.heroTitle span { color: var(--color-accent-light); }
+
+.heroDesc {
+  font-size: var(--text-lg);
+  color: rgba(255,255,255,0.75);
+  line-height: var(--leading-relaxed);
+  max-width: 540px;
+}
+
+.heroStats {
+  display: flex;
+  gap: var(--space-8);
+  padding-top: var(--space-4);
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.heroStat { display: flex; flex-direction: column; gap: 2px; }
+.heroStatNum { font-family: var(--font-display); font-size: var(--text-2xl); font-weight: 800; color: var(--color-accent-light); }
+.heroStatLabel { font-size: var(--text-xs); color: rgba(255,255,255,0.5); }
+
+/* ── Clinic Card ────────────────────────────────────────────────────────── */
+.heroVisual {}
+
+.clinicCard {
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: var(--radius-xl);
+  padding: var(--space-8);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.clinicEmoji { font-size: 64px; }
+.clinicCard h2 { font-family: var(--font-display); font-size: var(--text-xl); font-weight: 700; color: white; }
+.clinicCard p { font-size: var(--text-sm); color: rgba(255,255,255,0.6); }
+
+.certList { display: flex; flex-direction: column; gap: var(--space-2); text-align: left; }
+
+.certItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  color: rgba(255,255,255,0.75);
+}
+.certItem svg { color: #4ade80; flex-shrink: 0; }
+
+/* ── Mission ────────────────────────────────────────────────────────────── */
+.missionSection { background: var(--color-white); }
+
+.missionGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-8);
+}
+
+.missionCard {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-10);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  position: relative;
+  overflow: hidden;
+}
+
+.missionCard::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 4px;
+  background: var(--gradient-primary);
+}
+
+.missionIcon { font-size: 48px; }
+
+.missionCard h2 {
+  font-family: var(--font-display);
+  font-size: var(--text-h3);
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.missionCard p {
+  font-size: var(--text-base);
+  color: var(--color-text-muted);
+  line-height: var(--leading-relaxed);
+}
+
+/* ── Values ─────────────────────────────────────────────────────────────── */
+.valuesSection { background: var(--color-bg); }
+
+.valuesGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-6);
+}
+
+.valueCard {
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-7);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
+}
+.valueCard:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+
+.valueIcon {
+  width: 56px;
+  height: 56px;
+  background: var(--color-primary-50);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-primary);
+}
+
+.valueTitle { font-size: var(--text-lg); font-weight: 700; color: var(--color-text); }
+.valueDesc { font-size: var(--text-sm); color: var(--color-text-muted); line-height: var(--leading-relaxed); }
+
+/* ── Timeline ───────────────────────────────────────────────────────────── */
+.timelineSection { background: white; }
+
+.timeline {
+  position: relative;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: var(--space-6) 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.timelineLine {
+  position: absolute;
+  top: 0; bottom: 0;
+  left: 50%;
+  width: 2px;
+  background: var(--color-border);
+  transform: translateX(-50%);
+}
+
+.timelineItem {
+  display: flex;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+.left { flex-direction: row; }
+.right { flex-direction: row-reverse; }
+
+.left .timelineCard { margin-right: calc(50% + var(--space-8)); text-align: right; }
+.right .timelineCard { margin-left: calc(50% + var(--space-8)); }
+
+.timelineCard {
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5) var(--space-6);
+  box-shadow: var(--shadow-sm);
+  flex: 1;
+}
+
+.timelineYear {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: 800;
+  color: var(--color-primary);
+  display: block;
+  margin-bottom: 4px;
+}
+
+.timelineTitle { font-size: var(--text-base); font-weight: 700; color: var(--color-text); margin-bottom: var(--space-1); }
+.timelineDesc { font-size: var(--text-sm); color: var(--color-text-muted); line-height: 1.5; }
+
+.timelineDot {
+  position: absolute;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  background: var(--gradient-primary);
+  border: 3px solid white;
+  border-radius: 50%;
+  transform: translateX(-50%);
+  box-shadow: var(--shadow-blue);
+}
+
+/* ── Certifications ─────────────────────────────────────────────────────── */
+.certSection { background: var(--color-bg); }
+
+.certGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-4);
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.certCard {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4) var(--space-5);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.certCheck { color: var(--color-success); flex-shrink: 0; margin-top: 1px; }
+
+/* ── CTA ────────────────────────────────────────────────────────────────── */
+.ctaSection { padding: var(--space-16) 0; background: white; }
+
+.ctaBox {
+  background: var(--gradient-primary);
+  border-radius: var(--radius-xl);
+  padding: var(--space-16);
+  text-align: center;
+  color: white;
+}
+.ctaBox h2 { font-family: var(--font-display); font-size: var(--text-h2); color: white; margin-bottom: var(--space-3); }
+.ctaBox p { color: rgba(255,255,255,0.75); font-size: var(--text-lg); margin-bottom: var(--space-8); }
+.ctaBtns { display: flex; gap: var(--space-4); justify-content: center; flex-wrap: wrap; }
+
+.ctaPrimary {
+  padding: var(--space-4) var(--space-8);
+  background: var(--gradient-accent);
+  color: white;
+  border-radius: var(--radius-full);
+  font-weight: 700;
+  box-shadow: var(--shadow-gold);
+}
+
+.ctaSecondary {
+  padding: var(--space-4) var(--space-8);
+  border: 2px solid rgba(255,255,255,0.4);
+  color: white;
+  border-radius: var(--radius-full);
+  font-weight: 600;
+  transition: background var(--transition-fast);
+}
+.ctaSecondary:hover { background: rgba(255,255,255,0.15); }
+
+@media (max-width: 1024px) {
+  .heroInner { grid-template-columns: 1fr; }
+  .heroVisual { max-width: 400px; }
+  .missionGrid { grid-template-columns: 1fr; }
+  .valuesGrid { grid-template-columns: repeat(2, 1fr); }
+  .left .timelineCard { margin-right: 0; text-align: left; }
+  .right .timelineCard { margin-left: 0; }
+  .timelineLine { display: none; }
+  .timelineDot { display: none; }
+  .certGrid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 640px) {
+  .valuesGrid { grid-template-columns: 1fr; }
+  .heroStats { flex-wrap: wrap; gap: var(--space-4); }
+  .certGrid { grid-template-columns: 1fr; }
+  .ctaBox { padding: var(--space-8); }
+}

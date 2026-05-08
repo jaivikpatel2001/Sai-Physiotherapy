@@ -1,0 +1,6 @@
+.imgPlaceholder {
+  height: 140px;
+  background: var(--gradient-primary);
+  display: flex; align-items: center; justify-content: center;
+  color: rgba(255,255,255,0.5);
+}
