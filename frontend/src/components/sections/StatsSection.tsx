@@ -1,14 +1,13 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { motion, useInView } from 'framer-motion';
-import { Users, Calendar, Star, Activity } from 'lucide-react';
 import styles from './StatsSection.module.css';
 
 const STATS = [
-  { icon: <Users size={28} />, num: 10000, suffix: '+', label: 'Patients Healed', desc: 'Across all conditions' },
-  { icon: <Calendar size={28} />, num: 15, suffix: '+', label: 'Years of Excellence', desc: 'Trusted since 2009' },
-  { icon: <Star size={28} />, num: 95, suffix: '%', label: 'Recovery Rate', desc: 'Evidence-based outcomes' },
-  { icon: <Activity size={28} />, num: 12, suffix: '+', label: 'Specializations', desc: 'Covering all conditions' },
+  { icon: 'ri-team-line', num: 10000, suffix: '+', label: 'Patients Healed', desc: 'Across all conditions', surface: 'var(--color-primary-50)' },
+  { icon: 'ri-calendar-line', num: 15, suffix: '+', label: 'Years of Excellence', desc: 'Trusted since 2009', surface: 'var(--color-mint-50)' },
+  { icon: 'ri-star-line', num: 95, suffix: '%', label: 'Recovery Rate', desc: 'Evidence-based outcomes', surface: 'var(--color-blush-50)' },
+  { icon: 'ri-pulse-line', num: 12, suffix: '+', label: 'Specializations', desc: 'Covering all conditions', surface: 'var(--color-lavender-50)' },
 ];
 
 function Counter({ target, suffix }: { target: number; suffix: string }) {
@@ -46,11 +45,14 @@ export default function StatsSection() {
             <motion.div
               key={s.label}
               className={styles.card}
+              style={{ background: s.surface }}
               initial={{ opacity: 0, y: 40 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ delay: i * 0.1, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             >
-              <div className={styles.iconWrap}>{s.icon}</div>
+              <div className={styles.iconWrap}>
+                <i className={s.icon} style={{ fontSize: 28 }} />
+              </div>
               <div className={styles.num}>
                 {inView ? <Counter target={s.num} suffix={s.suffix} /> : `0${s.suffix}`}
               </div>

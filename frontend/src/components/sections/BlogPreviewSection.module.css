@@ -36,7 +36,12 @@
 
 .card:hover .cardThumb { transform: scale(1.03); }
 
-.thumbEmoji { font-size: 64px; line-height: 1; }
+.thumbIcon {
+  font-size: 64px;
+  line-height: 1;
+  color: var(--color-primary);
+  opacity: 0.55;
+}
 
 .category {
   position: absolute;
@@ -46,12 +51,12 @@
   align-items: center;
   gap: 4px;
   padding: 4px 12px;
-  background: rgba(27,79,138,0.85);
-  color: white;
+  background: var(--color-white);
+  color: var(--color-primary);
   border-radius: var(--radius-full);
   font-size: var(--text-xs);
   font-weight: 600;
-  backdrop-filter: blur(8px);
+  border: 1px solid var(--color-border);
 }
 
 .cardBody {

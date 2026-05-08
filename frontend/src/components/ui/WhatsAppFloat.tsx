@@ -1,7 +1,6 @@
 'use client';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
-import { MessageCircle, X } from 'lucide-react';
 import styles from './WhatsAppFloat.module.css';
 
 const WHATSAPP = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '919999999999';
@@ -43,7 +42,7 @@ export default function WhatsAppFloat() {
             onClick={() => setVisible(false)}
             aria-label="Close WhatsApp button"
           >
-            <X size={10} />
+            <i className="ri-close-line" style={{ fontSize: 10 }} />
           </button>
         </motion.div>
       )}

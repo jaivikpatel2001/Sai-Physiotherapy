@@ -9,8 +9,8 @@
 .shellCollapsed { grid-template-columns: 72px 1fr; }
 
 .sidebar {
-  background: var(--gradient-dark);
-  color: white;
+  background: var(--color-primary-50);
+  color: var(--color-primary-dark);
   display: flex;
   flex-direction: column;
   position: sticky;
@@ -18,6 +18,7 @@
   height: 100vh;
   overflow-y: auto;
   z-index: var(--z-sticky);
+  border-right: 1px solid var(--color-border-light);
 }
 
 .sidebarHeader {
@@ -25,20 +26,21 @@
   align-items: center;
   gap: var(--space-3);
   padding: var(--space-5) var(--space-5);
-  border-bottom: 1px solid rgba(255,255,255,0.08);
+  border-bottom: 1px solid var(--color-border-light);
   min-height: 72px;
 }
 
 .sidebarLogo {
   width: 40px; height: 40px;
-  background: rgba(255,255,255,0.1);
+  background: var(--gradient-primary);
   border-radius: var(--radius-md);
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
+  box-shadow: var(--shadow-blue);
 }
 
-.sidebarBrand { font-family: var(--font-display); font-weight: 700; font-size: var(--text-base); line-height: 1.2; }
-.sidebarBrandSub { font-size: var(--text-xs); color: rgba(255,255,255,0.5); }
+.sidebarBrand { font-family: var(--font-display); font-weight: 700; font-size: var(--text-base); line-height: 1.2; color: var(--color-primary-dark); }
+.sidebarBrandSub { font-size: var(--text-xs); color: var(--color-text-muted); }
 
 .sidebarNav {
   display: flex; flex-direction: column;
@@ -53,24 +55,24 @@
   gap: var(--space-3);
   padding: var(--space-3) var(--space-4);
   border-radius: var(--radius-md);
-  color: rgba(255,255,255,0.7);
+  color: var(--color-text-muted);
   font-size: var(--text-sm);
   font-weight: 500;
   transition: background var(--transition-fast), color var(--transition-fast);
   cursor: pointer;
 }
 
-.navItem:hover { background: rgba(255,255,255,0.06); color: white; }
-.navItem.active { background: rgba(46,114,196,0.25); color: white; }
+.navItem:hover { background: rgba(255,255,255,0.6); color: var(--color-primary-dark); }
+.navItem.active { background: var(--color-white); color: var(--color-primary); font-weight: 600; box-shadow: var(--shadow-xs); }
 
-.navIcon { flex-shrink: 0; }
+.navIcon { flex-shrink: 0; display: inline-flex; align-items: center; }
 .navLabel { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 .sidebarFooter {
   padding: var(--space-4);
-  border-top: 1px solid rgba(255,255,255,0.08);
+  border-top: 1px solid var(--color-border-light);
   font-size: var(--text-xs);
-  color: rgba(255,255,255,0.4);
+  color: var(--color-text-light);
 }
 
 /* ── Topbar ──────────────────────────────────────────────────────── */

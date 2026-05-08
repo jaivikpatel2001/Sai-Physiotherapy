@@ -1,6 +1,5 @@
 'use client';
 import { useState } from 'react';
-import { Calendar, User, Phone, Mail, FileText, CheckCircle2, ChevronRight, ChevronLeft } from 'lucide-react';
 import styles from './book.module.css';
 
 const SERVICES = [
@@ -56,7 +55,7 @@ export default function BookAppointmentPage() {
       <div className={styles.page}>
         <div className="container">
           <div className={styles.successCard}>
-            <div className={styles.successIcon}><CheckCircle2 size={64} /></div>
+            <div className={styles.successIcon}><i className="ri-checkbox-circle-line" style={{ fontSize: 64 }} /></div>
             <h1 className={styles.successTitle}>Appointment Booked!</h1>
             <p className={styles.successDesc}>
               Your appointment has been requested for <strong>{form.date}</strong> at <strong>{form.time}</strong>.
@@ -99,7 +98,7 @@ export default function BookAppointmentPage() {
             {STEPS.map((s, i) => (
               <div key={s} className={`${styles.stepperItem} ${i === step ? styles.stepActive : ''} ${i < step ? styles.stepDone : ''}`}>
                 <div className={styles.stepCircle}>
-                  {i < step ? <CheckCircle2 size={16} /> : <span>{i + 1}</span>}
+                  {i < step ? <i className="ri-checkbox-circle-fill" style={{ fontSize: 16 }} /> : <span>{i + 1}</span>}
                 </div>
                 <span className={styles.stepLabel}>{s}</span>
                 {i < STEPS.length - 1 && <div className={styles.stepLine} />}
@@ -110,7 +109,7 @@ export default function BookAppointmentPage() {
           {/* Step 0: Service */}
           {step === 0 && (
             <div className={styles.stepContent}>
-              <h2 className={styles.stepTitle}><FileText size={22} /> Select Your Condition</h2>
+              <h2 className={styles.stepTitle}><i className="ri-file-text-line" style={{ fontSize: 22 }} /> Select Your Condition</h2>
               <div className={styles.serviceGrid}>
                 {SERVICES.map((s) => (
                   <button
@@ -120,7 +119,7 @@ export default function BookAppointmentPage() {
                     type="button"
                   >
                     {s}
-                    {form.service === s && <CheckCircle2 size={16} className={styles.selectedCheck} />}
+                    {form.service === s && <i className={`ri-checkbox-circle-fill ${styles.selectedCheck}`} style={{ fontSize: 16 }} />}
                   </button>
                 ))}
               </div>
@@ -136,7 +135,7 @@ export default function BookAppointmentPage() {
           {/* Step 1: Date & Time */}
           {step === 1 && (
             <div className={styles.stepContent}>
-              <h2 className={styles.stepTitle}><Calendar size={22} /> Choose Date & Time</h2>
+              <h2 className={styles.stepTitle}><i className="ri-calendar-line" style={{ fontSize: 22 }} /> Choose Date & Time</h2>
               <div className={styles.dateTimeGrid}>
                 <div className="form-group">
                   <label className="form-label">Preferred Date *</label>
@@ -171,7 +170,7 @@ export default function BookAppointmentPage() {
           {/* Step 2: Patient Details */}
           {step === 2 && (
             <div className={styles.stepContent}>
-              <h2 className={styles.stepTitle}><User size={22} /> Your Details</h2>
+              <h2 className={styles.stepTitle}><i className="ri-user-line" style={{ fontSize: 22 }} /> Your Details</h2>
               <div className={styles.formGrid}>
                 <div className="form-group">
                   <label className="form-label">Full Name *</label>
@@ -207,7 +206,7 @@ export default function BookAppointmentPage() {
           {/* Step 3: Confirm */}
           {step === 3 && (
             <div className={styles.stepContent}>
-              <h2 className={styles.stepTitle}><CheckCircle2 size={22} /> Review & Confirm</h2>
+              <h2 className={styles.stepTitle}><i className="ri-checkbox-circle-line" style={{ fontSize: 22 }} /> Review & Confirm</h2>
               <div className={styles.reviewCard}>
                 {[
                   { label: 'Service', value: form.service },
@@ -226,7 +225,8 @@ export default function BookAppointmentPage() {
                 ))}
               </div>
               <p className={styles.confirmNote}>
-                📞 Our team will call you at <strong>{form.phone}</strong> within 30 minutes to confirm your appointment.
+                <i className="ri-phone-line" style={{ fontSize: 16, marginRight: 6, verticalAlign: 'middle' }} />
+                Our team will call you at <strong>{form.phone}</strong> within 30 minutes to confirm your appointment.
               </p>
             </div>
           )}
@@ -235,16 +235,16 @@ export default function BookAppointmentPage() {
           <div className={styles.navBtns}>
             {step > 0 && (
               <button className={styles.prevBtn} onClick={() => setStep(step - 1)} type="button">
-                <ChevronLeft size={18} /> Back
+                <i className="ri-arrow-left-s-line" style={{ fontSize: 18 }} /> Back
               </button>
             )}
             {step < 3 ? (
               <button className={styles.nextBtn} onClick={() => setStep(step + 1)} disabled={!canNext()} type="button">
-                Continue <ChevronRight size={18} />
+                Continue <i className="ri-arrow-right-s-line" style={{ fontSize: 18 }} />
               </button>
             ) : (
               <button className={styles.submitBtn} onClick={handleSubmit} disabled={loading} type="button">
-                {loading ? <span className={styles.spinner} /> : <><CheckCircle2 size={18} /> Confirm Appointment</>}
+                {loading ? <span className={styles.spinner} /> : <><i className="ri-checkbox-circle-line" style={{ fontSize: 18 }} /> Confirm Appointment</>}
               </button>
             )}
           </div>

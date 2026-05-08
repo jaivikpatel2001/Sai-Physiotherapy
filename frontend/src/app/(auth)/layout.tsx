@@ -1,6 +1,5 @@
 import styles from './auth.module.css';
 import Link from 'next/link';
-import { Activity } from 'lucide-react';
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -8,7 +7,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       {/* Left panel */}
       <div className={styles.left}>
         <div className={styles.brand}>
-          <div className={styles.logoIcon}><Activity size={24} strokeWidth={2.5} /></div>
+          <div className={styles.logoIcon}><i className="ri-pulse-line" style={{ fontSize: 24 }} /></div>
           <div>
             <p className={styles.logoName}>SAI Physiotherapy</p>
             <p className={styles.logoTag}>Staff Portal</p>

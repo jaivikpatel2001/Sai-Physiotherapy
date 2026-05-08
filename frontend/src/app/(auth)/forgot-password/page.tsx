@@ -1,7 +1,6 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
-import { Mail, AlertCircle, CheckCircle2, ArrowLeft } from 'lucide-react';
 import { authApi } from '@/lib/api';
 import styles from '../login.module.css';
 
@@ -34,7 +33,7 @@ export default function ForgotPasswordPage() {
       <div className={styles.card}>
         <div className={styles.cardHeader}>
           <div style={{ color: 'var(--color-success)', marginBottom: 'var(--space-3)' }}>
-            <CheckCircle2 size={48} />
+            <i className="ri-checkbox-circle-line" style={{ fontSize: 48 }} />
           </div>
           <h1 className={styles.cardTitle}>Check Your Email</h1>
           <p className={styles.cardSub}>
@@ -42,7 +41,7 @@ export default function ForgotPasswordPage() {
           </p>
         </div>
         <Link href="/login" className={styles.forgotLink} style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-          <ArrowLeft size={16} /> Back to login
+          <i className="ri-arrow-left-line" style={{ fontSize: 16 }} /> Back to login
         </Link>
       </div>
     );
@@ -57,7 +56,7 @@ export default function ForgotPasswordPage() {
 
       {error && (
         <div className={styles.errorAlert}>
-          <AlertCircle size={16} />
+          <i className="ri-error-warning-line" style={{ fontSize: 16 }} />
           {error}
         </div>
       )}
@@ -76,13 +75,13 @@ export default function ForgotPasswordPage() {
         </div>
 
         <button type="submit" className={styles.submitBtn} disabled={loading}>
-          {loading ? <span className={styles.spinner} /> : <><Mail size={18} /> Send Reset Link</>}
+          {loading ? <span className={styles.spinner} /> : <><i className="ri-mail-line" style={{ fontSize: 18 }} /> Send Reset Link</>}
         </button>
       </form>
 
       <div style={{ marginTop: 'var(--space-6)', textAlign: 'center' }}>
         <Link href="/login" className={styles.forgotLink} style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-          <ArrowLeft size={16} /> Back to login
+          <i className="ri-arrow-left-line" style={{ fontSize: 16 }} /> Back to login
         </Link>
       </div>
     </div>

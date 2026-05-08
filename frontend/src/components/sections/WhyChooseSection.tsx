@@ -1,16 +1,15 @@
 'use client';
 import { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
-import { CheckCircle2, Microscope, Clock, Star, Heart, Stethoscope } from 'lucide-react';
 import styles from './WhyChooseSection.module.css';
 
 const FEATURES = [
-  { icon: <Stethoscope size={22} />, title: 'Expert Physiotherapists', desc: 'BPT & MPT qualified doctors with 10+ years experience each.' },
-  { icon: <Microscope size={22} />, title: 'Advanced Technology', desc: 'IFT, TENS, Ultrasound Therapy, Laser, Traction & more.' },
-  { icon: <CheckCircle2 size={22} />, title: 'Evidence-Based Treatment', desc: 'All protocols backed by international research and clinical guidelines.' },
-  { icon: <Clock size={22} />, title: 'Flexible Appointment Times', desc: 'Open 7 days a week, 8 AM to 8 PM including Sundays.' },
-  { icon: <Heart size={22} />, title: 'Patient-Centric Care', desc: 'Personalized treatment plans tailored to each patient\'s unique needs.' },
-  { icon: <Star size={22} />, title: '4.9★ Google Rating', desc: '500+ five-star reviews from satisfied patients across Gujarat.' },
+  { icon: 'ri-stethoscope-line', title: 'Expert Physiotherapists', desc: 'BPT & MPT qualified doctors with 10+ years experience each.' },
+  { icon: 'ri-microscope-line', title: 'Advanced Technology', desc: 'IFT, TENS, Ultrasound Therapy, Laser, Traction & more.' },
+  { icon: 'ri-checkbox-circle-line', title: 'Evidence-Based Treatment', desc: 'All protocols backed by international research and clinical guidelines.' },
+  { icon: 'ri-time-line', title: 'Flexible Appointment Times', desc: 'Open 7 days a week, 8 AM to 8 PM including Sundays.' },
+  { icon: 'ri-heart-line', title: 'Patient-Centric Care', desc: "Personalized treatment plans tailored to each patient's unique needs." },
+  { icon: 'ri-star-line', title: '4.9 Google Rating', desc: '500+ five-star reviews from satisfied patients across Gujarat.' },
 ];
 
 const TECH = ['IFT Therapy', 'TENS', 'Ultrasound', 'Laser Therapy', 'Cervical Traction', 'Lumbar Traction', 'Hot/Cold Therapy', 'Dry Needling', 'Kinesio Taping', 'Exercise Therapy'];
@@ -33,7 +32,9 @@ export default function WhyChooseSection() {
           >
             <div className={styles.visualCard}>
               <div className={styles.visualTop}>
-                <div className={styles.clinicIcon}>🏥</div>
+                <div className={styles.clinicIcon}>
+                  <i className="ri-hospital-line" style={{ fontSize: 28 }} />
+                </div>
                 <div>
                   <h3 className={styles.clinicName}>SAI Physiotherapy</h3>
                   <p className={styles.clinicTag}>Spine Care & Paralysis Centre</p>
@@ -41,7 +42,11 @@ export default function WhyChooseSection() {
               </div>
 
               <div className={styles.ratingBlock}>
-                <div className={styles.ratingStars}>{'★'.repeat(5)}</div>
+                <div className={styles.ratingStars}>
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <i key={i} className="ri-star-fill" style={{ fontSize: 18 }} />
+                  ))}
+                </div>
                 <p className={styles.ratingNum}>4.9 / 5.0</p>
                 <p className={styles.ratingCount}>Based on 500+ reviews</p>
               </div>
@@ -79,7 +84,9 @@ export default function WhyChooseSection() {
               animate={{ y: [0, -10, 0] }}
               transition={{ repeat: Infinity, duration: 3.5, ease: 'easeInOut' }}
             >
-              <div className={styles.floatIcon}>🏆</div>
+              <div className={styles.floatIcon}>
+                <i className="ri-trophy-line" style={{ fontSize: 22 }} />
+              </div>
               <div>
                 <p className={styles.floatTitle}>NABH Compliant</p>
                 <p className={styles.floatSub}>Quality Assured Care</p>
@@ -125,7 +132,9 @@ export default function WhyChooseSection() {
                   animate={inView ? { opacity: 1, x: 0 } : {}}
                   transition={{ delay: 0.15 + i * 0.08, duration: 0.5 }}
                 >
-                  <div className={styles.featureIcon}>{f.icon}</div>
+                  <div className={styles.featureIcon}>
+                    <i className={f.icon} style={{ fontSize: 22 }} />
+                  </div>
                   <div>
                     <h4 className={styles.featureTitle}>{f.title}</h4>
                     <p className={styles.featureDesc}>{f.desc}</p>

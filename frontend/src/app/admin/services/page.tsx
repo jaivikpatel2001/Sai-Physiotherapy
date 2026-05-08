@@ -1,7 +1,6 @@
-'use client';
+﻿'use client';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Plus, X, AlertCircle, Stethoscope, Edit, Trash2, Image as ImageIcon } from 'lucide-react';
 import { servicesApi, adminServicesApi } from '@/lib/api';
 import { formatCurrency } from '@sai-physio/utils';
 import styles from '../admin.module.css';
@@ -75,14 +74,14 @@ export default function ServicesAdminPage() {
           <p className={styles.pageSub}>Manage clinic services and pricing</p>
         </div>
         <button className={`${styles.btn} ${styles.btnPrimary}`} onClick={() => { setEditing(null); setShowForm(true); }}>
-          <Plus size={16} /> Add Service
+          <i className="ri-add-line" style={{ fontSize: 16 }} /> Add Service
         </button>
       </div>
 
-      {error && <div className={styles.errorBox}><AlertCircle size={16} />{error}</div>}
+      {error && <div className={styles.errorBox}><i className="ri-error-warning-line" style={{ fontSize: 16 }} />{error}</div>}
 
       {loading ? <div className={styles.spinner} /> : data.length === 0 ? (
-        <div className={styles.empty}><Stethoscope size={40} className={styles.emptyIcon} /><span>No services</span></div>
+        <div className={styles.empty}><i className={`ri-stethoscope-line ${styles.emptyIcon}`} style={{ fontSize: 40 }} /><span>No services</span></div>
       ) : (
         <div className={styles.cardGrid}>
           {data.map((s) => (
@@ -90,7 +89,7 @@ export default function ServicesAdminPage() {
               {s.bannerImage ? (
                 <div className={styles.serviceCardImg} style={{ backgroundImage: `url(${s.bannerImage})` }} />
               ) : (
-                <div className={local.imgPlaceholder}><ImageIcon size={28} /></div>
+                <div className={local.imgPlaceholder}><i className="ri-image-line" style={{ fontSize: 28 }} /></div>
               )}
               <div className={styles.serviceCardBody}>
                 <div className={styles.serviceCardName}>{s.name}</div>
@@ -102,10 +101,10 @@ export default function ServicesAdminPage() {
               </div>
               <div className={styles.serviceCardActions}>
                 <button className={`${styles.btn} ${styles.btnSecondary} ${styles.btnSm}`} onClick={() => { setEditing(s); setShowForm(true); }}>
-                  <Edit size={14} /> Edit
+                  <i className="ri-edit-line" style={{ fontSize: 14 }} /> Edit
                 </button>
                 <button className={`${styles.btn} ${styles.btnGhost} ${styles.btnSm}`} onClick={() => handleDelete(s._id)} style={{ color: 'var(--color-error)' }}>
-                  <Trash2 size={14} />
+                  <i className="ri-delete-bin-line" style={{ fontSize: 14 }} />
                 </button>
               </div>
             </div>
@@ -175,11 +174,11 @@ function ServiceFormModal({ initial, onClose, onSaved }: { initial: Service | nu
       <div className={`${styles.modal} ${styles.modalLg}`} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
           <div className={styles.modalTitle}>{initial ? 'Edit Service' : 'Add Service'}</div>
-          <button className={styles.iconBtn} onClick={onClose}><X size={18} /></button>
+          <button className={styles.iconBtn} onClick={onClose}><i className="ri-close-line" style={{ fontSize: 18 }} /></button>
         </div>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className={styles.modalBody}>
-            {err && <div className={styles.errorBox}><AlertCircle size={16} />{err}</div>}
+            {err && <div className={styles.errorBox}><i className="ri-error-warning-line" style={{ fontSize: 16 }} />{err}</div>}
             <div className={styles.formGrid}>
               <div className="form-group">
                 <label className="form-label">Name *</label>

@@ -2,7 +2,6 @@
 import { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import Link from 'next/link';
-import { Award, BookOpen } from 'lucide-react';
 import styles from './DoctorsSection.module.css';
 
 const DOCTORS = [
@@ -13,7 +12,7 @@ const DOCTORS = [
     exp: '15+ Years',
     specialties: ['Spine Care', 'Sports Rehab', 'Ortho'],
     avatar: 'RP',
-    color: '#EBF3FF',
+    color: 'var(--color-primary-50)',
   },
   {
     name: 'Dr. Anita Shah',
@@ -22,7 +21,7 @@ const DOCTORS = [
     exp: '12+ Years',
     specialties: ['Paralysis', 'Stroke Rehab', 'Pediatrics'],
     avatar: 'AS',
-    color: '#FEF3C7',
+    color: 'var(--color-sand-50)',
   },
   {
     name: 'Dr. Vikram Mehta',
@@ -31,16 +30,16 @@ const DOCTORS = [
     exp: '10+ Years',
     specialties: ['Sports Injury', 'Joint Care', 'Post-Op'],
     avatar: 'VM',
-    color: '#D1FAE5',
+    color: 'var(--color-mint-50)',
   },
   {
     name: 'Dr. Meena Joshi',
-    title: 'Geriatric & Women\'s Health Specialist',
+    title: "Geriatric & Women's Health Specialist",
     qual: 'BPT, MPT (Geriatrics)',
     exp: '8+ Years',
     specialties: ['Elderly Care', 'Osteoporosis', 'Fall Prevention'],
     avatar: 'MJ',
-    color: '#FCE7F3',
+    color: 'var(--color-blush-50)',
   },
 ];
 
@@ -76,7 +75,7 @@ export default function DoctorsSection() {
               <div className={styles.cardTop} style={{ background: doc.color }}>
                 <div className={styles.avatar}>{doc.avatar}</div>
                 <div className={styles.expBadge}>
-                  <Award size={12} />
+                  <i className="ri-award-line" style={{ fontSize: 12 }} />
                   {doc.exp}
                 </div>
               </div>
@@ -84,7 +83,7 @@ export default function DoctorsSection() {
                 <h3 className={styles.name}>{doc.name}</h3>
                 <p className={styles.title}>{doc.title}</p>
                 <div className={styles.qual}>
-                  <BookOpen size={12} />
+                  <i className="ri-book-open-line" style={{ fontSize: 12 }} />
                   {doc.qual}
                 </div>
                 <div className={styles.specialties}>
@@ -101,7 +100,9 @@ export default function DoctorsSection() {
         </div>
 
         <motion.div className={styles.teamCta} initial={{ opacity: 0, y: 20 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ delay: 0.5 }}>
-          <Link href="/doctors" className={styles.viewTeamBtn}>Meet the Full Team →</Link>
+          <Link href="/doctors" className={styles.viewTeamBtn}>
+            Meet the Full Team <i className="ri-arrow-right-line" style={{ fontSize: 16, marginLeft: 4 }} />
+          </Link>
         </motion.div>
       </div>
     </section>

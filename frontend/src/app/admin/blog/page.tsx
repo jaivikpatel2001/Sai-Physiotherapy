@@ -1,7 +1,6 @@
-'use client';
+﻿'use client';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Plus, X, AlertCircle, FileText, Pencil, Trash2, Eye } from 'lucide-react';
 import { adminBlogApi } from '@/lib/api';
 import { formatDate } from '@sai-physio/utils';
 import styles from '../admin.module.css';
@@ -82,16 +81,16 @@ export default function BlogAdminPage() {
           <p className={styles.pageSub}>Manage articles for the public site</p>
         </div>
         <button className={`${styles.btn} ${styles.btnPrimary}`} onClick={openNew}>
-          <Plus size={16} /> New Post
+          <i className="ri-add-line" style={{ fontSize: 16 }} /> New Post
         </button>
       </div>
 
-      {error && <div className={styles.errorBox}><AlertCircle size={16} />{error}</div>}
+      {error && <div className={styles.errorBox}><i className="ri-error-warning-line" style={{ fontSize: 16 }} />{error}</div>}
 
       <div className={styles.adminCard}>
         <div className={styles.tableWrap}>
           {loading ? <div className={styles.spinner} /> : posts.length === 0 ? (
-            <div className={styles.empty}><FileText size={40} className={styles.emptyIcon} /><span>No posts yet. Create your first article.</span></div>
+            <div className={styles.empty}><i className={`ri-file-text-line ${styles.emptyIcon}`} style={{ fontSize: 40 }} /><span>No posts yet. Create your first article.</span></div>
           ) : (
             <table className={styles.table}>
               <thead>
@@ -113,12 +112,12 @@ export default function BlogAdminPage() {
                     </td>
                     <td>{typeof p.author === 'object' ? (p.author.name ?? '—') : '—'}</td>
                     <td><span className={`${styles.badge} ${STATUS_BADGE[p.status] || styles.badgeNeutral}`}>{p.status}</span></td>
-                    <td><span className={styles.hstack}><Eye size={14} /> {p.views ?? 0}</span></td>
+                    <td><span className={styles.hstack}><i className="ri-eye-line" style={{ fontSize: 14 }} /> {p.views ?? 0}</span></td>
                     <td>{p.publishedAt ? formatDate(p.publishedAt) : (p.createdAt ? formatDate(p.createdAt) : '—')}</td>
                     <td>
                       <div className={styles.actions}>
-                        <button className={`${styles.btn} ${styles.btnGhost} ${styles.btnSm}`} onClick={() => openEdit(p)} title="Edit"><Pencil size={14} /></button>
-                        <button className={`${styles.btn} ${styles.btnGhost} ${styles.btnSm}`} onClick={() => handleDelete(p._id)} title="Delete" style={{ color: 'var(--color-error)' }}><Trash2 size={14} /></button>
+                        <button className={`${styles.btn} ${styles.btnGhost} ${styles.btnSm}`} onClick={() => openEdit(p)} title="Edit"><i className="ri-edit-line" style={{ fontSize: 14 }} /></button>
+                        <button className={`${styles.btn} ${styles.btnGhost} ${styles.btnSm}`} onClick={() => handleDelete(p._id)} title="Delete" style={{ color: 'var(--color-error)' }}><i className="ri-delete-bin-line" style={{ fontSize: 14 }} /></button>
                       </div>
                     </td>
                   </tr>
@@ -176,11 +175,11 @@ function BlogModal({ post, onClose, onSaved }: { post: BlogPost | null; onClose:
       <div className={`${styles.modal} ${styles.modalLg}`} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
           <div className={styles.modalTitle}>{isEdit ? 'Edit Post' : 'New Post'}</div>
-          <button className={styles.iconBtn} onClick={onClose}><X size={18} /></button>
+          <button className={styles.iconBtn} onClick={onClose}><i className="ri-close-line" style={{ fontSize: 18 }} /></button>
         </div>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className={styles.modalBody}>
-            {err && <div className={styles.errorBox}><AlertCircle size={16} />{err}</div>}
+            {err && <div className={styles.errorBox}><i className="ri-error-warning-line" style={{ fontSize: 16 }} />{err}</div>}
             <div className={styles.formGrid}>
               <div className="form-group full">
                 <label className="form-label">Title *</label>

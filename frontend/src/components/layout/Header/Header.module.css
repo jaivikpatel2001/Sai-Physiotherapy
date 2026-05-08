@@ -1,10 +1,11 @@
 .topBar {
-  background: var(--color-primary-dark);
-  color: rgba(255,255,255,0.85);
+  background: var(--color-primary-50);
+  color: var(--color-primary-dark);
   font-size: var(--text-xs);
   padding: var(--space-2) 0;
   position: relative;
   z-index: calc(var(--z-sticky) + 1);
+  border-bottom: 1px solid var(--color-border-light);
 }
 
 .topBarInner {
@@ -26,12 +27,12 @@
   display: flex;
   align-items: center;
   gap: var(--space-1);
-  color: rgba(255,255,255,0.9);
+  color: var(--color-primary-dark);
   font-weight: 600;
   transition: color var(--transition-fast);
 }
 
-.topBarPhone:hover { color: var(--color-accent-light); }
+.topBarPhone:hover { color: var(--color-primary); }
 
 .whatsappBtn {
   display: flex;
@@ -52,20 +53,20 @@
   display: flex;
   align-items: center;
   gap: var(--space-1);
-  background: rgba(255,255,255,0.12);
-  color: rgba(255,255,255,0.95);
+  background: rgba(255,255,255,0.7);
+  color: var(--color-primary-dark);
   padding: 3px 10px;
   border-radius: var(--radius-full);
   font-weight: 600;
   font-size: var(--text-xs);
-  border: 1px solid rgba(255,255,255,0.2);
+  border: 1px solid var(--color-border);
   transition: all var(--transition-fast);
 }
 
 .staffBtn:hover {
-  background: var(--color-accent);
-  color: var(--color-primary-dark);
-  border-color: var(--color-accent);
+  background: var(--color-white);
+  color: var(--color-primary);
+  border-color: var(--color-primary-light);
 }
 
 /* ── Main Header ──────────────────────────────────────────────────────────── */
@@ -152,21 +153,38 @@
 }
 
 .navLink {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: var(--space-2) var(--space-3);
+  padding: var(--space-3) var(--space-4);
   font-size: var(--text-sm);
   font-weight: 500;
   color: var(--color-text);
   border-radius: var(--radius-sm);
-  transition: color var(--transition-fast), background var(--transition-fast);
+  transition: color var(--transition-fast);
   white-space: nowrap;
+}
+
+.navLink::after {
+  content: '';
+  position: absolute;
+  left: var(--space-4);
+  right: var(--space-4);
+  bottom: 6px;
+  height: 1.5px;
+  background: var(--color-primary);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform var(--transition-base);
 }
 
 .navLink:hover {
   color: var(--color-primary);
-  background: var(--color-primary-50);
+}
+
+.navLink:hover::after {
+  transform: scaleX(1);
 }
 
 /* ── Dropdown ──────────────────────────────────────────────────────────────── */

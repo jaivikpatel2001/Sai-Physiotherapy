@@ -1,7 +1,6 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
-import { Eye, EyeOff, LogIn, AlertCircle } from 'lucide-react';
 import styles from '../login.module.css';
 
 export default function LoginPage() {
@@ -50,7 +49,7 @@ export default function LoginPage() {
 
       {error && (
         <div className={styles.errorAlert}>
-          <AlertCircle size={16} />
+          <i className="ri-error-warning-line" style={{ fontSize: 16 }} />
           {error}
         </div>
       )}
@@ -86,13 +85,13 @@ export default function LoginPage() {
               style={{ paddingRight: '3rem' }}
             />
             <button type="button" className={styles.eyeBtn} onClick={() => setShow(!show)} aria-label="Toggle password">
-              {show ? <EyeOff size={18} /> : <Eye size={18} />}
+              <i className={show ? 'ri-eye-off-line' : 'ri-eye-line'} style={{ fontSize: 18 }} />
             </button>
           </div>
         </div>
 
         <button type="submit" className={styles.submitBtn} disabled={loading} id="login-submit">
-          {loading ? <span className={styles.spinner} /> : <><LogIn size={18} /> Sign In</>}
+          {loading ? <span className={styles.spinner} /> : <><i className="ri-login-box-line" style={{ fontSize: 18 }} /> Sign In</>}
         </button>
       </form>
 

@@ -1,13 +1,12 @@
 'use client';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { Phone, Calendar, Star, Shield, Award } from 'lucide-react';
 import styles from './HeroSection.module.css';
 
 const TRUST_BADGES = [
-  { icon: <Star size={14} />, text: '4.9★ Rating' },
-  { icon: <Shield size={14} />, text: 'NABH Compliant' },
-  { icon: <Award size={14} />, text: '15+ Years' },
+  { icon: 'ri-star-fill', text: '4.9 Rating' },
+  { icon: 'ri-shield-check-line', text: 'NABH Compliant' },
+  { icon: 'ri-award-line', text: '15+ Years' },
 ];
 
 const fadeUp = {
@@ -24,9 +23,9 @@ export default function HeroSection() {
       {/* Background */}
       <div className={styles.bg}>
         <div className={styles.bgGradient} />
-        <div className={styles.bgPattern} />
         <div className={styles.bgOrb1} />
         <div className={styles.bgOrb2} />
+        <div className={styles.bgOrb3} />
       </div>
 
       <div className={`container ${styles.content}`}>
@@ -35,7 +34,7 @@ export default function HeroSection() {
           <motion.div className={styles.trustBadges} custom={0} variants={fadeUp} initial="hidden" animate="visible">
             {TRUST_BADGES.map((b) => (
               <div key={b.text} className={styles.trustBadge}>
-                {b.icon} {b.text}
+                <i className={b.icon} style={{ fontSize: 14 }} /> {b.text}
               </div>
             ))}
           </motion.div>
@@ -58,11 +57,11 @@ export default function HeroSection() {
           {/* CTA Buttons */}
           <motion.div className={styles.ctaGroup} custom={3} variants={fadeUp} initial="hidden" animate="visible">
             <Link href="/book-appointment" className={styles.ctaPrimary}>
-              <Calendar size={18} />
+              <i className="ri-calendar-line" style={{ fontSize: 18 }} />
               Book Appointment
             </Link>
             <a href="tel:+919999999999" className={styles.ctaSecondary}>
-              <Phone size={18} />
+              <i className="ri-phone-line" style={{ fontSize: 18 }} />
               Call Now
             </a>
           </motion.div>
@@ -93,7 +92,7 @@ export default function HeroSection() {
           <div className={styles.heroCard}>
             <div className={styles.heroCardHeader}>
               <div className={styles.heroCardAvatar}>
-                <span>🩺</span>
+                <i className="ri-stethoscope-line" style={{ fontSize: 22 }} />
               </div>
               <div>
                 <p className={styles.heroCardTitle}>Today&apos;s Availability</p>
@@ -115,11 +114,15 @@ export default function HeroSection() {
             </div>
 
             <Link href="/book-appointment" className={styles.bookNowBtn}>
-              Reserve Your Slot →
+              Reserve Your Slot <i className="ri-arrow-right-line" style={{ fontSize: 16, marginLeft: 4 }} />
             </Link>
 
             <div className={styles.reviewStrip}>
-              <div className={styles.reviewStars}>{'★'.repeat(5)}</div>
+              <div className={styles.reviewStars}>
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <i key={i} className="ri-star-fill" style={{ fontSize: 16 }} />
+                ))}
+              </div>
               <p className={styles.reviewText}>&ldquo;Best physiotherapy centre in Ahmedabad!&rdquo;</p>
               <p className={styles.reviewAuthor}>— 500+ Google Reviews</p>
             </div>
@@ -131,7 +134,9 @@ export default function HeroSection() {
             animate={{ y: [0, -8, 0] }}
             transition={{ repeat: Infinity, duration: 3, ease: 'easeInOut' }}
           >
-            <span className={styles.floatingIcon}>🏆</span>
+            <span className={styles.floatingIcon}>
+              <i className="ri-trophy-line" style={{ fontSize: 24 }} />
+            </span>
             <div>
               <p className={styles.floatingTitle}>Best Physio 2024</p>
               <p className={styles.floatingDesc}>Gujarat Healthcare Awards</p>
@@ -143,7 +148,9 @@ export default function HeroSection() {
             animate={{ y: [0, 8, 0] }}
             transition={{ repeat: Infinity, duration: 3.5, ease: 'easeInOut', delay: 0.5 }}
           >
-            <span className={styles.floatingIcon}>✅</span>
+            <span className={styles.floatingIcon}>
+              <i className="ri-checkbox-circle-fill" style={{ fontSize: 24, color: 'var(--color-success)' }} />
+            </span>
             <div>
               <p className={styles.floatingTitle}>Advanced Equipment</p>
               <p className={styles.floatingDesc}>IFT • TENS • Ultrasound</p>

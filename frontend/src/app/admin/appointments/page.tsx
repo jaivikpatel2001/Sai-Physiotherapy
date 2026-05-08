@@ -1,7 +1,6 @@
-'use client';
+﻿'use client';
 import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Plus, Search, Calendar, X, AlertCircle, Inbox, Eye } from 'lucide-react';
 import {
   ColumnDef, flexRender, getCoreRowModel, getFilteredRowModel,
   useReactTable, getPaginationRowModel,
@@ -155,18 +154,18 @@ export default function AppointmentsPage() {
           <p className={styles.pageSub}>Manage scheduled, today, and upcoming appointments</p>
         </div>
         <button className={`${styles.btn} ${styles.btnPrimary}`} onClick={() => setShowModal(true)}>
-          <Plus size={16} /> New Appointment
+          <i className="ri-add-line" style={{ fontSize: 16 }} /> New Appointment
         </button>
       </div>
 
-      {error && <div className={styles.errorBox}><AlertCircle size={16} />{error}</div>}
+      {error && <div className={styles.errorBox}><i className="ri-error-warning-line" style={{ fontSize: 16 }} />{error}</div>}
 
       <div className={styles.adminCard}>
         <div className={styles.filterBar}>
           <div className={styles.filterField} style={{ flex: 1, minWidth: 240 }}>
             <span className={styles.filterLabel}>Search</span>
             <div className={styles.searchWrap}>
-              <Search size={16} className={styles.searchIcon} />
+              <i className={`ri-search-line ${styles.searchIcon}`} style={{ fontSize: 16 }} />
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -193,7 +192,7 @@ export default function AppointmentsPage() {
             <div className={styles.spinner} />
           ) : filtered.length === 0 ? (
             <div className={styles.empty}>
-              <Calendar size={40} className={styles.emptyIcon} />
+              <i className={`ri-calendar-line ${styles.emptyIcon}`} style={{ fontSize: 40 }} />
               <span>No appointments found</span>
             </div>
           ) : (
@@ -276,11 +275,11 @@ function NewAppointmentModal({ onClose, onSaved }: { onClose: () => void; onSave
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
           <div className={styles.modalTitle}>New Appointment</div>
-          <button className={styles.iconBtn} onClick={onClose}><X size={18} /></button>
+          <button className={styles.iconBtn} onClick={onClose}><i className="ri-close-line" style={{ fontSize: 18 }} /></button>
         </div>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className={styles.modalBody}>
-            {submitErr && <div className={styles.errorBox}><AlertCircle size={16} />{submitErr}</div>}
+            {submitErr && <div className={styles.errorBox}><i className="ri-error-warning-line" style={{ fontSize: 16 }} />{submitErr}</div>}
             <div className={styles.formGrid}>
               <div className="form-group full">
                 <label className="form-label">Search Patient *</label>

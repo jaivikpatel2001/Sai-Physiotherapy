@@ -6,8 +6,19 @@ import mongoose from 'mongoose';
 import { User } from '../src/models/User.model';
 import { Service } from '../src/models/Service.model';
 import { ClinicSettings } from '../src/models/ClinicSettings.model';
+import { Patient } from '../src/models/Patient.model';
+import { Appointment } from '../src/models/Appointment.model';
+import { TreatmentSession } from '../src/models/TreatmentSession.model';
+import { Billing } from '../src/models/Billing.model';
+import { Blog } from '../src/models/Blog.model';
+import { Testimonial } from '../src/models/Testimonial.model';
 import { UserRole } from '@sai-physio/types';
 import { generateSlug } from '@sai-physio/utils';
+import {
+  generatePatientId,
+  generateAppointmentId,
+  generateInvoiceNumber,
+} from '../src/utils/id-generator';
 
 const MONGODB_URI = process.env.MONGODB_URI || '';
 
@@ -162,6 +173,19 @@ async function seed() {
     }
   }
 
+  // ─── 2b. Additional Doctors ────────────────────────────────────────────────
+  const EXTRA_DOCTORS = [
+    { name: 'Dr. Anjali Mehta', email: 'anjali@saiphysio.com', phone: '9876500001', specialization: 'Orthopedic Physiotherapy', qualification: 'BPT, MPT (Ortho)', experience: 9, bio: 'Dr. Anjali specializes in joint pain, sports injuries, and post-surgical rehabilitation.' },
+    { name: 'Dr. Rakesh Joshi', email: 'rakesh@saiphysio.com', phone: '9876500002', specialization: 'Neuro Physiotherapy', qualification: 'BPT, MPT (Neuro)', experience: 14, bio: 'Dr. Rakesh leads our neuro rehabilitation team with extensive stroke and Parkinson\'s expertise.' },
+    { name: 'Dr. Karan Shah', email: 'karan@saiphysio.com', phone: '9876500003', specialization: 'Sports Physiotherapy', qualification: 'BPT, MPT (Sports)', experience: 7, bio: 'Sports medicine specialist with a focus on injury prevention and performance rehabilitation.' },
+  ];
+  for (const d of EXTRA_DOCTORS) {
+    if (!(await User.findOne({ email: d.email }))) {
+      await User.create({ ...d, password: 'Doctor@123456', role: UserRole.DOCTOR, isActive: true });
+      console.log(`  ✅ Doctor created: ${d.email}`);
+    }
+  }
+
   // ─── 3. Clinic Settings ────────────────────────────────────────────────────
   console.log('\n📝 Seeding clinic settings...');
   const existingSettings = await ClinicSettings.findOne();
@@ -171,6 +195,246 @@ async function seed() {
   } else {
     console.log('  ⚠️  Clinic settings already exist');
   }
+
+  // ─── 4. Patients ───────────────────────────────────────────────────────────
+  console.log('\n📝 Seeding patients...');
+  const adminUser = await User.findOne({ email: 'admin@saiphysio.com' });
+  const doctorPatel = await User.findOne({ email: 'doctor@saiphysio.com' });
+  const doctorMehta = await User.findOne({ email: 'anjali@saiphysio.com' });
+  const doctorJoshi = await User.findOne({ email: 'rakesh@saiphysio.com' });
+  const doctorShah = await User.findOne({ email: 'karan@saiphysio.com' });
+  const allDoctors = [doctorPatel, doctorMehta, doctorJoshi, doctorShah].filter(Boolean);
+
+  const PATIENT_SEEDS = [
+    { name: 'Priya Sharma', dob: '1985-03-12', gender: 'female', phone: '9876543210', email: 'priya.sharma@example.com', address: 'B-204, Maple Heights, Bodakdev', city: 'Ahmedabad', bloodGroup: 'O+', emergency: { name: 'Rajeev Sharma', phone: '9876543211', relation: 'Husband' }, complaint: 'Chronic lower back pain for 3 years, worse on prolonged sitting', past: 'Hypertension, controlled', surgical: 'None', meds: ['Telmisartan 40mg'], allergies: ['Sulfa drugs'], comorbidities: ['Hypertension'], status: 'active', doctor: doctorPatel },
+    { name: 'Rajesh Patel', dob: '1972-07-08', gender: 'male', phone: '9876543212', email: 'rajesh.patel@example.com', address: '12, Sunrise Apartments, Satellite', city: 'Ahmedabad', bloodGroup: 'B+', emergency: { name: 'Meera Patel', phone: '9876543213', relation: 'Wife' }, complaint: 'Post total knee replacement rehabilitation, left knee', past: 'Type 2 diabetes for 10 years', surgical: 'Left total knee replacement (2 weeks ago)', meds: ['Metformin 500mg', 'Aspirin 75mg'], allergies: [], comorbidities: ['Type 2 diabetes', 'Mild osteoarthritis'], status: 'active', doctor: doctorMehta },
+    { name: 'Meena Joshi', dob: '1958-11-23', gender: 'female', phone: '9876543214', email: 'meena.joshi@example.com', address: '7, Lake View Society, Vastrapur', city: 'Ahmedabad', bloodGroup: 'A+', emergency: { name: 'Arvind Joshi', phone: '9876543215', relation: 'Son' }, complaint: 'Right hemiplegia after stroke, 6 weeks ago', past: 'Hypertension, atrial fibrillation', surgical: 'None', meds: ['Apixaban 5mg', 'Telmisartan 40mg', 'Rosuvastatin 10mg'], allergies: [], comorbidities: ['Stroke', 'AF', 'Hypertension'], status: 'active', doctor: doctorJoshi },
+    { name: 'Vikram Shah', dob: '1990-05-19', gender: 'male', phone: '9876543216', email: 'vikram.shah@example.com', address: '34, Pearl Residency, Prahladnagar', city: 'Ahmedabad', bloodGroup: 'AB+', emergency: { name: 'Nisha Shah', phone: '9876543217', relation: 'Spouse' }, complaint: 'Cervical spondylosis with radiating pain to left arm', past: 'Migraine', surgical: 'None', meds: ['Sumatriptan PRN'], allergies: [], comorbidities: [], status: 'active', doctor: doctorPatel },
+    { name: 'Anita Desai', dob: '1995-09-04', gender: 'female', phone: '9876543218', email: 'anita.desai@example.com', address: 'D-12, Green Park, Thaltej', city: 'Ahmedabad', bloodGroup: 'O-', emergency: { name: 'Pooja Desai', phone: '9876543219', relation: 'Sister' }, complaint: 'ACL tear, left knee — sports injury (badminton)', past: 'Healthy, recreational athlete', surgical: 'ACL reconstruction (3 weeks ago)', meds: ['Paracetamol PRN'], allergies: [], comorbidities: [], status: 'active', doctor: doctorShah },
+    { name: 'Harish Kumar', dob: '1968-12-15', gender: 'male', phone: '9876543220', email: 'harish.kumar@example.com', address: '89, Royal Heritage, Bopal', city: 'Ahmedabad', bloodGroup: 'B-', emergency: { name: 'Sunita Kumar', phone: '9876543221', relation: 'Wife' }, complaint: 'Frozen shoulder, right side, ongoing 4 months', past: 'Type 2 diabetes', surgical: 'None', meds: ['Metformin 500mg', 'Glimepiride 1mg'], allergies: [], comorbidities: ['Diabetes'], status: 'active', doctor: doctorMehta },
+    { name: 'Kavita Iyer', dob: '1980-04-27', gender: 'female', phone: '9876543222', email: 'kavita.iyer@example.com', address: '5, Crystal Apartments, Navrangpura', city: 'Ahmedabad', bloodGroup: 'A+', emergency: { name: 'Suresh Iyer', phone: '9876543223', relation: 'Husband' }, complaint: 'Tennis elbow, right side, 2 months', past: 'None', surgical: 'None', meds: [], allergies: [], comorbidities: [], status: 'discharged', doctor: doctorMehta },
+    { name: 'Aarav Mehta', dob: '2018-06-30', gender: 'male', phone: '9876543224', email: '', address: '15, Springdale Society, SG Highway', city: 'Ahmedabad', bloodGroup: 'O+', emergency: { name: 'Pooja Mehta', phone: '9876543225', relation: 'Mother' }, complaint: 'Mild cerebral palsy, gross motor delay', past: 'Premature birth at 32 weeks', surgical: 'None', meds: [], allergies: [], comorbidities: ['Cerebral palsy'], status: 'active', doctor: doctorJoshi },
+    { name: 'Ramesh Trivedi', dob: '1949-02-11', gender: 'male', phone: '9876543226', email: '', address: '22, Heritage Bungalows, Maninagar', city: 'Ahmedabad', bloodGroup: 'B+', emergency: { name: 'Nilesh Trivedi', phone: '9876543227', relation: 'Son' }, complaint: 'Geriatric balance and fall prevention', past: 'Two falls in last year, mild dementia', surgical: 'Cataract surgery 2020', meds: ['Donepezil 5mg'], allergies: [], comorbidities: ['Mild dementia', 'Osteoarthritis'], status: 'followup', doctor: doctorPatel },
+    { name: 'Neha Verma', dob: '1992-08-14', gender: 'female', phone: '9876543228', email: 'neha.verma@example.com', address: '101, Skyline Towers, Chandkheda', city: 'Ahmedabad', bloodGroup: 'AB-', emergency: { name: 'Rahul Verma', phone: '9876543229', relation: 'Brother' }, complaint: 'Postpartum lower back pain and pelvic floor weakness', past: 'C-section delivery 4 months ago', surgical: 'C-section', meds: [], allergies: [], comorbidities: [], status: 'active', doctor: doctorMehta },
+  ];
+
+  const patientsCreated: any[] = [];
+  for (const p of PATIENT_SEEDS) {
+    const exists = await Patient.findOne({ 'personalInfo.phone': p.phone });
+    if (exists) {
+      patientsCreated.push(exists);
+      continue;
+    }
+    const patient = await Patient.create({
+      patientId: await generatePatientId(),
+      personalInfo: {
+        name: p.name,
+        dob: new Date(p.dob),
+        gender: p.gender,
+        phone: p.phone,
+        email: p.email,
+        address: p.address,
+        city: p.city,
+        bloodGroup: p.bloodGroup,
+        emergencyContact: p.emergency,
+      },
+      medicalHistory: {
+        chiefComplaint: p.complaint,
+        pastHistory: p.past,
+        surgicalHistory: p.surgical,
+        medications: p.meds,
+        allergies: p.allergies,
+        comorbidities: p.comorbidities,
+      },
+      assignedDoctor: p.doctor!._id,
+      status: p.status,
+      createdBy: adminUser!._id,
+    });
+    patientsCreated.push(patient);
+    console.log(`  ✅ Patient: ${patient.patientId} — ${p.name}`);
+  }
+
+  // ─── 5. Appointments ───────────────────────────────────────────────────────
+  console.log('\n📝 Seeding appointments...');
+  const allServices = await Service.find();
+  const findSvc = (keyword: string) => allServices.find((s) => s.name.toLowerCase().includes(keyword.toLowerCase()))!;
+
+  const today = new Date();
+  const dayOffset = (days: number, hour: number, min = 0) => {
+    const d = new Date(today);
+    d.setDate(d.getDate() + days);
+    d.setHours(hour, min, 0, 0);
+    return d;
+  };
+
+  const APPOINTMENT_SEEDS = [
+    { patient: patientsCreated[0], service: findSvc('Back Pain'), doctor: doctorPatel, when: dayOffset(0, 10), status: 'completed', type: 'followup' },
+    { patient: patientsCreated[1], service: findSvc('Post-Surgery'), doctor: doctorMehta, when: dayOffset(0, 11, 30), status: 'completed', type: 'followup' },
+    { patient: patientsCreated[2], service: findSvc('Paralysis'), doctor: doctorJoshi, when: dayOffset(0, 14), status: 'in_progress', type: 'followup' },
+    { patient: patientsCreated[3], service: findSvc('Neck Pain'), doctor: doctorPatel, when: dayOffset(0, 16), status: 'confirmed', type: 'followup' },
+    { patient: patientsCreated[4], service: findSvc('Sports Injury'), doctor: doctorShah, when: dayOffset(0, 17, 30), status: 'scheduled', type: 'followup' },
+    { patient: patientsCreated[5], service: findSvc('Frozen Shoulder'), doctor: doctorMehta, when: dayOffset(1, 9, 30), status: 'confirmed', type: 'followup' },
+    { patient: patientsCreated[6], service: findSvc('Shoulder Pain'), doctor: doctorMehta, when: dayOffset(1, 11), status: 'scheduled', type: 'followup' },
+    { patient: patientsCreated[7], service: findSvc('Pediatric'), doctor: doctorJoshi, when: dayOffset(1, 15), status: 'scheduled', type: 'followup' },
+    { patient: patientsCreated[8], service: findSvc('Geriatric'), doctor: doctorPatel, when: dayOffset(2, 10), status: 'scheduled', type: 'followup' },
+    { patient: patientsCreated[9], service: findSvc('Back Pain'), doctor: doctorMehta, when: dayOffset(2, 16), status: 'scheduled', type: 'new' },
+    { patient: patientsCreated[0], service: findSvc('Back Pain'), doctor: doctorPatel, when: dayOffset(-2, 10), status: 'completed', type: 'followup' },
+    { patient: patientsCreated[1], service: findSvc('Post-Surgery'), doctor: doctorMehta, when: dayOffset(-2, 11, 30), status: 'completed', type: 'followup' },
+    { patient: patientsCreated[2], service: findSvc('Paralysis'), doctor: doctorJoshi, when: dayOffset(-3, 14), status: 'completed', type: 'followup' },
+    { patient: patientsCreated[4], service: findSvc('Sports Injury'), doctor: doctorShah, when: dayOffset(-4, 17, 30), status: 'completed', type: 'followup' },
+    { patient: patientsCreated[5], service: findSvc('Frozen Shoulder'), doctor: doctorMehta, when: dayOffset(-5, 9, 30), status: 'completed', type: 'followup' },
+    { patient: patientsCreated[3], service: findSvc('Neck Pain'), doctor: doctorPatel, when: dayOffset(-6, 16), status: 'cancelled', type: 'followup' },
+    { patient: patientsCreated[6], service: findSvc('Shoulder Pain'), doctor: doctorMehta, when: dayOffset(-7, 11), status: 'completed', type: 'new' },
+    { patient: patientsCreated[8], service: findSvc('Geriatric'), doctor: doctorPatel, when: dayOffset(-10, 10), status: 'no_show', type: 'followup' },
+  ];
+
+  const appointmentsCreated: any[] = [];
+  for (const a of APPOINTMENT_SEEDS) {
+    const existing = await Appointment.findOne({ patient: a.patient._id, scheduledAt: a.when });
+    if (existing) {
+      appointmentsCreated.push(existing);
+      continue;
+    }
+    const appt = await Appointment.create({
+      appointmentId: await generateAppointmentId(),
+      patient: a.patient._id,
+      doctor: a.doctor!._id,
+      service: a.service._id,
+      scheduledAt: a.when,
+      duration: 45,
+      status: a.status,
+      type: a.type,
+      bookedBy: adminUser!._id,
+    });
+    appointmentsCreated.push(appt);
+  }
+  console.log(`  ✅ Created ${appointmentsCreated.length} appointments`);
+
+  // ─── 6. Treatment Sessions ─────────────────────────────────────────────────
+  console.log('\n📝 Seeding treatment sessions...');
+  const completedAppts = appointmentsCreated.filter((a) => a.status === 'completed' || a.status === 'in_progress');
+  const SOAP_TEMPLATES = [
+    { subjective: 'Patient reports 60% improvement in pain since last session. Sleep is better. No new complaints.', objective: 'Lumbar ROM: flexion 70°, extension 20°. SLR negative bilaterally. Strength 4/5 in core stabilizers.', assessment: 'Significant improvement in lumbar function. Tolerating progressive loading well.', plan: 'Continue current protocol. Progress core strengthening to level 3. Reassess in 2 sessions.' },
+    { subjective: 'Patient feeling much better. Able to perform daily activities with minimal discomfort.', objective: 'ROM near full. Pain on movement reduced from 6/10 to 2/10. Functional tests improved.', assessment: 'Excellent recovery progress. Ready for return-to-activity phase.', plan: 'Begin sport-specific drills. Add plyometric loading. Discharge planning in 2-3 sessions.' },
+    { subjective: 'Reports occasional stiffness in mornings, otherwise comfortable throughout the day.', objective: 'Joint mobility within functional range. Mild residual tightness in capsule. Strength symmetrical.', assessment: 'Functional restoration achieved. Maintenance phase appropriate.', plan: 'Home exercise program reviewed. Monthly follow-up. Discharge with maintenance plan.' },
+  ];
+
+  let sessionsCreated = 0;
+  for (let i = 0; i < completedAppts.length; i++) {
+    const appt = completedAppts[i];
+    const exists = await TreatmentSession.findOne({ appointment: appt._id });
+    if (exists) continue;
+    const tpl = SOAP_TEMPLATES[i % SOAP_TEMPLATES.length];
+    const sessionNum = (await TreatmentSession.countDocuments({ patient: appt.patient })) + 1;
+    await TreatmentSession.create({
+      patient: appt.patient,
+      appointment: appt._id,
+      doctor: appt.doctor,
+      sessionNumber: sessionNum,
+      date: appt.scheduledAt,
+      chiefComplaint: 'Per assigned protocol — ongoing rehabilitation',
+      soapNotes: tpl,
+      vitalSigns: { bp: '120/80', pulse: 72, painScale: Math.max(0, 6 - sessionNum) },
+      treatmentsGiven: ['Manual therapy', 'Therapeutic ultrasound', 'IFT', 'Stretching protocol'],
+      exercisesPrescribed: ['Pelvic tilts 3x10', 'Bridges 3x12', 'Bird-dog 2x10 each side', 'Stretching routine 10 min'],
+      recoveryPercentage: Math.min(95, 30 + sessionNum * 12),
+    });
+    sessionsCreated++;
+  }
+  console.log(`  ✅ Created ${sessionsCreated} treatment sessions`);
+
+  // ─── 7. Billings ───────────────────────────────────────────────────────────
+  console.log('\n📝 Seeding billings...');
+  let billsCreated = 0;
+  for (let i = 0; i < completedAppts.length; i++) {
+    const appt = completedAppts[i];
+    const exists = await Billing.findOne({ appointment: appt._id });
+    if (exists) continue;
+    const svc = await Service.findById(appt.service);
+    const unitPrice = svc?.price?.from ?? 800;
+    const items = [{ description: `${svc?.name ?? 'Therapy session'} — Session ${(i % 6) + 1}`, quantity: 1, unitPrice, total: unitPrice }];
+    const subtotal = unitPrice;
+    const discount = i % 4 === 0 ? 100 : 0;
+    const tax = 0;
+    const totalAmount = subtotal - discount + tax;
+    const paidScenarios = [
+      { paid: totalAmount, status: 'paid', method: 'upi_manual' as const },
+      { paid: totalAmount, status: 'paid', method: 'cash' as const },
+      { paid: Math.round(totalAmount * 0.5), status: 'partial', method: 'cash' as const },
+      { paid: 0, status: 'pending', method: 'pending' as const },
+    ];
+    const sc = paidScenarios[i % paidScenarios.length];
+    await Billing.create({
+      invoiceNumber: await generateInvoiceNumber(),
+      patient: appt.patient,
+      appointment: appt._id,
+      items,
+      subtotal,
+      discount,
+      discountType: 'flat',
+      tax,
+      totalAmount,
+      amountPaid: sc.paid,
+      balanceDue: totalAmount - sc.paid,
+      paymentMethod: sc.method,
+      paymentStatus: sc.status,
+      paymentDate: sc.status === 'paid' ? appt.scheduledAt : undefined,
+      receivedBy: sc.status !== 'pending' ? adminUser!._id : undefined,
+      createdBy: adminUser!._id,
+    });
+    billsCreated++;
+  }
+  console.log(`  ✅ Created ${billsCreated} invoices`);
+
+  // ─── 8. Blogs ──────────────────────────────────────────────────────────────
+  console.log('\n📝 Seeding blogs...');
+  const BLOG_SEEDS = [
+    { title: '5 Physiotherapist-Approved Exercises for Lower Back Pain Relief', slug: '5-exercises-for-lower-back-pain', category: 'Back Pain', tags: ['back pain', 'exercise', 'home therapy'], excerpt: 'Lower back pain affects 80% of people. Our senior physiotherapist shares five evidence-based exercises you can do at home for immediate relief.', author: doctorPatel },
+    { title: 'Understanding Cervical Spondylosis: Causes, Symptoms & Treatment', slug: 'understanding-cervical-spondylosis', category: 'Spine Care', tags: ['neck pain', 'spondylosis', 'spine'], excerpt: 'Neck pain and stiffness are increasingly common in the digital age. Learn how cervical spondylosis develops and how physiotherapy offers long-term relief.', author: doctorMehta },
+    { title: 'A Complete Guide to Post-Stroke Rehabilitation & Recovery', slug: 'post-stroke-rehabilitation-guide', category: 'Neuro Rehab', tags: ['stroke', 'neuro', 'rehabilitation'], excerpt: 'Stroke recovery is a journey. Our neuro physio team explains the stages of recovery and what to expect from a structured rehabilitation program.', author: doctorJoshi },
+    { title: 'Managing Knee Osteoarthritis with Physiotherapy — A Patient Guide', slug: 'knee-osteoarthritis-management', category: 'Joint Care', tags: ['knee', 'arthritis', 'joints'], excerpt: 'Knee osteoarthritis doesn\'t have to mean a lifetime of pain. Learn how targeted physiotherapy can significantly reduce pain and improve function.', author: doctorPatel },
+    { title: '10 Physiotherapist Tips to Prevent Sports Injuries', slug: 'sports-injury-prevention-tips', category: 'Sports', tags: ['sports', 'prevention', 'fitness'], excerpt: 'Prevention is better than cure. Our sports physio experts share essential warm-up, cool-down, and conditioning tips for athletes of all levels.', author: doctorShah },
+    { title: 'Frozen Shoulder: What It Is and How We Treat It', slug: 'frozen-shoulder-treatment', category: 'Shoulder', tags: ['shoulder', 'frozen shoulder', 'mobility'], excerpt: 'Adhesive capsulitis affects 2-5% of the population. Discover the stages, symptoms, and physiotherapy treatments that restore full shoulder mobility.', author: doctorMehta },
+  ];
+
+  for (const b of BLOG_SEEDS) {
+    if (await Blog.findOne({ slug: b.slug })) continue;
+    await Blog.create({
+      title: b.title,
+      slug: b.slug,
+      excerpt: b.excerpt,
+      content: `<p>${b.excerpt}</p><p>This is sample blog content for the admin panel preview. Replace it with the full article body via the rich text editor in the admin blog page.</p><h2>Key Points</h2><ul><li>Evidence-based recommendations</li><li>Practical, actionable advice</li><li>When to seek professional help</li></ul>`,
+      author: b.author!._id,
+      category: b.category,
+      tags: b.tags,
+      status: 'published',
+      publishedAt: new Date(),
+      seo: { metaTitle: `${b.title} | SAI Physiotherapy`, metaDescription: b.excerpt, keywords: b.tags },
+      views: Math.floor(Math.random() * 800) + 100,
+    });
+    console.log(`  ✅ Blog: ${b.title}`);
+  }
+
+  // ─── 9. Testimonials ───────────────────────────────────────────────────────
+  console.log('\n📝 Seeding testimonials...');
+  const TESTIMONIAL_SEEDS = [
+    { patientName: 'Priya Sharma', patientAge: 39, condition: 'Chronic Lower Back Pain', rating: 5, review: 'After suffering from chronic back pain for 3 years, SAI Physiotherapy gave me my life back! Dr. Patel\'s treatment plan was exceptional and I recovered in just 2 months.', isApproved: true, isFeatured: true, source: 'manual' as const },
+    { patientName: 'Rajesh Patel', patientAge: 51, condition: 'Knee Replacement Rehab', rating: 5, review: 'Post knee replacement, I was worried about recovery. The team here made it seamless. The exercises and physiotherapy sessions were perfectly planned. Highly recommend!', isApproved: true, isFeatured: true, source: 'manual' as const },
+    { patientName: 'Meena Joshi', patientAge: 65, condition: 'Paralysis Rehab', rating: 5, review: 'My mother had a stroke and couldn\'t walk. After 6 months of rehabilitation at SAI, she can now walk independently. The staff is incredibly skilled and caring.', isApproved: true, isFeatured: true, source: 'manual' as const },
+    { patientName: 'Vikram Shah', patientAge: 33, condition: 'Cervical Spondylosis', rating: 5, review: 'Cervical pain was affecting my work daily. The team here diagnosed correctly and within 10 sessions I felt 80% better. Excellent knowledge and professional approach.', isApproved: true, isFeatured: false, source: 'website_form' as const },
+    { patientName: 'Anita Desai', patientAge: 28, condition: 'Sports Injury', rating: 5, review: 'As a runner with a ligament tear, I needed quick recovery. SAI\'s sports rehab program got me back on the track in record time. Couldn\'t be happier!', isApproved: true, isFeatured: false, source: 'google' as const },
+    { patientName: 'Harish Kumar', patientAge: 55, condition: 'Frozen Shoulder', rating: 5, review: 'Frozen shoulder was limiting everything from driving to sleeping. The physiotherapists here are world-class. Full mobility restored in 8 weeks!', isApproved: true, isFeatured: false, source: 'website_form' as const },
+    { patientName: 'Kavita Iyer', patientAge: 43, condition: 'Tennis Elbow', rating: 4, review: 'Quick recovery from tennis elbow. The staff was very knowledgeable and patient. Slightly long wait times on Saturdays but otherwise excellent.', isApproved: true, isFeatured: false, source: 'website_form' as const },
+    { patientName: 'Ramesh Trivedi', patientAge: 75, condition: 'Geriatric Care', rating: 5, review: 'After two falls last year, I had lost confidence. The geriatric program here helped me regain my balance and independence. Highly recommended for seniors.', isApproved: true, isFeatured: false, source: 'manual' as const },
+    { patientName: 'Sanjay Gupta', patientAge: 47, condition: 'Disc Herniation', rating: 5, review: 'My MRI showed a disc herniation and surgery was suggested. SAI Physiotherapy\'s conservative approach saved me from surgery. 6 months pain-free now.', isApproved: false, isFeatured: false, source: 'website_form' as const },
+    { patientName: 'Pooja Mehta', patientAge: 32, condition: 'Pediatric Therapy', rating: 5, review: 'My son has been receiving pediatric therapy here. The therapists make him feel comfortable and the progress has been visible. Thank you SAI team!', isApproved: false, isFeatured: false, source: 'website_form' as const },
+  ];
+
+  for (const t of TESTIMONIAL_SEEDS) {
+    if (await Testimonial.findOne({ patientName: t.patientName, condition: t.condition })) continue;
+    await Testimonial.create(t);
+  }
+  console.log(`  ✅ Created testimonials`);
 
   console.log('\n🎉 Seed completed successfully!\n');
   console.log('═══════════════════════════════════════');

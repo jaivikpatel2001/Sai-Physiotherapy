@@ -1,11 +1,18 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { Star, Quote } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'Patient Testimonials & Success Stories | SAI Physiotherapy',
   description: 'Read 500+ patient reviews and recovery success stories from SAI Physiotherapy. Real patients, real results.',
 };
+
+const SURFACES = [
+  'var(--color-blush-50)',
+  'var(--color-sand-50)',
+  'var(--color-mint-50)',
+  'var(--color-lavender-50)',
+  'var(--color-primary-50)',
+];
 
 const TESTIMONIALS = [
   { name: 'Priya Sharma', location: 'Ahmedabad', rating: 5, condition: 'Back Pain', text: 'After suffering from chronic back pain for 3 years, SAI Physiotherapy gave me my life back! Dr. Patel\'s treatment plan was exceptional.', avatar: 'PS' },
@@ -22,19 +29,23 @@ const TESTIMONIALS = [
 export default function TestimonialsPage() {
   return (
     <div style={{ background: 'var(--color-bg)' }}>
-      <div style={{ background: 'var(--gradient-primary)', padding: 'calc(var(--header-height) + 4rem) 0 4rem', textAlign: 'center' }}>
+      <div style={{ background: 'var(--gradient-hero)', padding: 'calc(var(--header-height) + 4rem) 0 4rem', textAlign: 'center' }}>
         <div className="container">
           <p className="section-label" style={{ justifyContent: 'center' }}>Patient Stories</p>
-          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-h1)', color: 'white', fontWeight: 800, margin: '0.75rem 0 1rem' }}>
-            Real Stories, <span style={{ color: 'var(--color-accent-light)' }}>Real Results</span>
+          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-h1)', color: 'var(--color-text)', fontWeight: 700, margin: '0.75rem 0 1rem', letterSpacing: '-0.02em' }}>
+            Real Stories, <span style={{ color: 'var(--color-primary)' }}>Real Results</span>
           </h1>
-          <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: 'var(--text-lg)', maxWidth: 560, margin: '0 auto' }}>
+          <p style={{ color: 'var(--color-text-muted)', fontSize: 'var(--text-lg)', maxWidth: 560, margin: '0 auto' }}>
             Over 500 patients have shared their recovery journeys with us. Here are just a few.
           </p>
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1rem', marginTop: '2rem', background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 'var(--radius-full)', padding: '0.75rem 2rem', width: 'fit-content', margin: '2rem auto 0' }}>
-            <span style={{ color: '#FBBF24', fontSize: '1.5rem', letterSpacing: 2 }}>★★★★★</span>
-            <span style={{ color: 'white', fontWeight: 700 }}>4.9 / 5.0</span>
-            <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.875rem' }}>Based on 500+ Google Reviews</span>
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1rem', background: 'var(--color-white)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-full)', padding: '0.75rem 2rem', width: 'fit-content', margin: '2rem auto 0', boxShadow: 'var(--shadow-sm)' }}>
+            <span style={{ color: 'var(--color-accent)', display: 'flex', gap: 4 }}>
+              {Array.from({ length: 5 }).map((_, i) => (
+                <i key={i} className="ri-star-fill" style={{ fontSize: 20 }} />
+              ))}
+            </span>
+            <span style={{ color: 'var(--color-text)', fontWeight: 700 }}>4.9 / 5.0</span>
+            <span style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem' }}>Based on 500+ Google Reviews</span>
           </div>
         </div>
       </div>
@@ -42,18 +53,18 @@ export default function TestimonialsPage() {
       <section className="section">
         <div className="container">
           <div className="grid-3" style={{ gap: '1.5rem' }}>
-            {TESTIMONIALS.map((t) => (
-              <div key={t.name} style={{ background: 'white', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem', transition: 'transform 0.25s, box-shadow 0.25s' }}>
-                <Quote size={24} style={{ color: 'var(--color-primary-100)' }} />
-                <div style={{ display: 'flex', gap: 2 }}>
-                  {Array.from({ length: t.rating }).map((_, i) => (
-                    <Star key={i} size={14} fill="#FBBF24" color="#FBBF24" />
+            {TESTIMONIALS.map((t, i) => (
+              <div key={t.name} style={{ background: SURFACES[i % SURFACES.length], borderRadius: 'var(--radius-lg)', padding: '1.75rem 1.5rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem', position: 'relative', overflow: 'hidden', transition: 'transform 0.25s, box-shadow 0.25s' }}>
+                <i className="ri-double-quotes-l" style={{ position: 'absolute', top: 12, right: 16, fontSize: 56, color: 'rgba(45, 106, 159, 0.18)', pointerEvents: 'none' }} />
+                <div style={{ display: 'flex', gap: 2, color: 'var(--color-accent)' }}>
+                  {Array.from({ length: t.rating }).map((_, j) => (
+                    <i key={j} className="ri-star-fill" style={{ fontSize: 14 }} />
                   ))}
                 </div>
                 <p style={{ fontSize: '0.875rem', color: 'var(--color-text)', lineHeight: 1.7, fontStyle: 'italic', flex: 1 }}>
                   &ldquo;{t.text}&rdquo;
                 </p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid var(--color-border-light)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(45, 106, 159, 0.10)' }}>
                   <div style={{ width: 44, height: 44, background: 'var(--gradient-primary)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.875rem', fontWeight: 700, color: 'white', flexShrink: 0 }}>{t.avatar}</div>
                   <div>
                     <p style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-text)' }}>{t.name}</p>
@@ -65,8 +76,8 @@ export default function TestimonialsPage() {
           </div>
 
           <div style={{ textAlign: 'center', marginTop: '3rem' }}>
-            <Link href="/book-appointment" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '1rem 2.5rem', background: 'var(--gradient-primary)', color: 'white', borderRadius: 999, fontWeight: 700, boxShadow: 'var(--shadow-blue)' }}>
-              Start Your Recovery Journey →
+            <Link href="/book-appointment" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '1rem 2.5rem', background: 'var(--gradient-primary)', color: 'white', borderRadius: 999, fontWeight: 600, boxShadow: 'var(--shadow-blue)' }}>
+              Start Your Recovery Journey <i className="ri-arrow-right-line" style={{ fontSize: 18 }} />
             </Link>
           </div>
         </div>

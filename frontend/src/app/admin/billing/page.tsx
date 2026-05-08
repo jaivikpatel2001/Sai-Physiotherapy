@@ -1,7 +1,6 @@
-'use client';
+﻿'use client';
 import { useEffect, useMemo, useState } from 'react';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
-import { Plus, X, AlertCircle, Receipt, CreditCard, Inbox, Trash2 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
 } from 'recharts';
@@ -86,7 +85,7 @@ function InvoicesView() {
 
   return (
     <>
-      {error && <div className={styles.errorBox}><AlertCircle size={16} />{error}</div>}
+      {error && <div className={styles.errorBox}><i className="ri-error-warning-line" style={{ fontSize: 16 }} />{error}</div>}
       <div className={styles.adminCard}>
         <div className={styles.cardHeader}>
           <div className={styles.cardTitle}>Invoices</div>
@@ -99,13 +98,13 @@ function InvoicesView() {
               <option value="waived">Waived</option>
             </select>
             <button className={`${styles.btn} ${styles.btnPrimary}`} onClick={() => setShowCreate(true)}>
-              <Plus size={16} /> Create Invoice
+              <i className="ri-add-line" style={{ fontSize: 16 }} /> Create Invoice
             </button>
           </div>
         </div>
         <div className={styles.tableWrap}>
           {loading ? <div className={styles.spinner} /> : bills.length === 0 ? (
-            <div className={styles.empty}><Receipt size={40} className={styles.emptyIcon} /><span>No invoices yet</span></div>
+            <div className={styles.empty}><i className={`ri-receipt-line ${styles.emptyIcon}`} style={{ fontSize: 40 }} /><span>No invoices yet</span></div>
           ) : (
             <table className={styles.table}>
               <thead><tr><th>Invoice #</th><th>Patient</th><th>Date</th><th>Total</th><th>Paid</th><th>Due</th><th>Status</th><th>Actions</th></tr></thead>
@@ -122,7 +121,7 @@ function InvoicesView() {
                     <td>
                       {b.balanceDue > 0 && (
                         <button className={`${styles.btn} ${styles.btnSecondary} ${styles.btnSm}`} onClick={() => setPaymentTarget(b)}>
-                          <CreditCard size={14} /> Record Payment
+                          <i className="ri-bank-card-line" style={{ fontSize: 14 }} /> Record Payment
                         </button>
                       )}
                     </td>
@@ -209,7 +208,7 @@ function MonthlyView() {
       </div>
       <div className={styles.cardBody}>
         {loading ? <div className={styles.spinner} /> : data.length === 0 ? (
-          <div className={styles.empty}><Inbox size={36} className={styles.emptyIcon} /><span>No data for this month</span></div>
+          <div className={styles.empty}><i className={`ri-inbox-line ${styles.emptyIcon}`} style={{ fontSize: 36 }} /><span>No data for this month</span></div>
         ) : (
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={data}>
@@ -246,7 +245,7 @@ function OutstandingView() {
       </div>
       <div className={styles.tableWrap}>
         {loading ? <div className={styles.spinner} /> : bills.length === 0 ? (
-          <div className={styles.empty}><Inbox size={36} className={styles.emptyIcon} /><span>No outstanding dues</span></div>
+          <div className={styles.empty}><i className={`ri-inbox-line ${styles.emptyIcon}`} style={{ fontSize: 36 }} /><span>No outstanding dues</span></div>
         ) : (
           <table className={styles.table}>
             <thead><tr><th>Invoice #</th><th>Patient</th><th>Total</th><th>Paid</th><th>Due</th><th>Date</th></tr></thead>
@@ -337,11 +336,11 @@ function CreateInvoiceModal({ onClose, onSaved }: { onClose: () => void; onSaved
       <div className={`${styles.modal} ${styles.modalLg}`} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
           <div className={styles.modalTitle}>Create Invoice</div>
-          <button className={styles.iconBtn} onClick={onClose}><X size={18} /></button>
+          <button className={styles.iconBtn} onClick={onClose}><i className="ri-close-line" style={{ fontSize: 18 }} /></button>
         </div>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className={styles.modalBody}>
-            {err && <div className={styles.errorBox}><AlertCircle size={16} />{err}</div>}
+            {err && <div className={styles.errorBox}><i className="ri-error-warning-line" style={{ fontSize: 16 }} />{err}</div>}
 
             <div className="form-group">
               <label className="form-label">Search Patient *</label>
@@ -380,14 +379,14 @@ function CreateInvoiceModal({ onClose, onSaved }: { onClose: () => void; onSaved
                   <input type="number" min={1} className="form-input" placeholder="Qty" {...register(`items.${idx}.quantity`, { valueAsNumber: true })} />
                   <input type="number" min={0} className="form-input" placeholder="Price" {...register(`items.${idx}.unitPrice`, { valueAsNumber: true })} />
                   <input className="form-input" readOnly value={formatCurrency((Number(items[idx]?.quantity) || 0) * (Number(items[idx]?.unitPrice) || 0))} />
-                  <button type="button" className={styles.iconBtn} onClick={() => fields.length > 1 && remove(idx)}><Trash2 size={16} /></button>
+                  <button type="button" className={styles.iconBtn} onClick={() => fields.length > 1 && remove(idx)}><i className="ri-delete-bin-line" style={{ fontSize: 16 }} /></button>
                 </div>
               ))}
               <datalist id="services-list">
                 {services.map((s) => <option key={s._id} value={s.name} />)}
               </datalist>
               <button type="button" className={`${styles.btn} ${styles.btnSecondary} ${styles.btnSm}`} onClick={() => append({ description: '', quantity: 1, unitPrice: 0 })}>
-                <Plus size={14} /> Add Item
+                <i className="ri-add-line" style={{ fontSize: 14 }} /> Add Item
               </button>
             </div>
 
@@ -463,11 +462,11 @@ function RecordPaymentModal({ bill, onClose, onSaved }: { bill: Bill; onClose: (
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
           <div className={styles.modalTitle}>Record Payment — {bill.invoiceNumber}</div>
-          <button className={styles.iconBtn} onClick={onClose}><X size={18} /></button>
+          <button className={styles.iconBtn} onClick={onClose}><i className="ri-close-line" style={{ fontSize: 18 }} /></button>
         </div>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className={styles.modalBody}>
-            {err && <div className={styles.errorBox}><AlertCircle size={16} />{err}</div>}
+            {err && <div className={styles.errorBox}><i className="ri-error-warning-line" style={{ fontSize: 16 }} />{err}</div>}
             <div className={styles.formGrid}>
               <div className="form-group">
                 <label className="form-label">Amount *</label>

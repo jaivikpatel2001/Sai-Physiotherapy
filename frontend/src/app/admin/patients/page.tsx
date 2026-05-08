@@ -1,8 +1,7 @@
-'use client';
+﻿'use client';
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
-import { Plus, Search, Users, X, AlertCircle } from 'lucide-react';
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { patientsApi } from '@/lib/api';
 import { calculateAge, formatDate } from '@sai-physio/utils';
@@ -85,18 +84,18 @@ export default function PatientsPage() {
           <p className={styles.pageSub}>All registered patients</p>
         </div>
         <button className={`${styles.btn} ${styles.btnPrimary}`} onClick={() => setShowModal(true)}>
-          <Plus size={16} /> Add Patient
+          <i className="ri-add-line" style={{ fontSize: 16 }} /> Add Patient
         </button>
       </div>
 
-      {error && <div className={styles.errorBox}><AlertCircle size={16} />{error}</div>}
+      {error && <div className={styles.errorBox}><i className="ri-error-warning-line" style={{ fontSize: 16 }} />{error}</div>}
 
       <div className={styles.adminCard}>
         <div className={styles.filterBar}>
           <div className={styles.filterField} style={{ flex: 1 }}>
             <span className={styles.filterLabel}>Search</span>
             <div className={styles.searchWrap}>
-              <Search size={16} className={styles.searchIcon} />
+              <i className={`ri-search-line ${styles.searchIcon}`} style={{ fontSize: 16 }} />
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -109,7 +108,7 @@ export default function PatientsPage() {
 
         <div className={styles.tableWrap}>
           {loading ? <div className={styles.spinner} /> : data.length === 0 ? (
-            <div className={styles.empty}><Users size={40} className={styles.emptyIcon} /><span>No patients found</span></div>
+            <div className={styles.empty}><i className={`ri-team-line ${styles.emptyIcon}`} style={{ fontSize: 40 }} /><span>No patients found</span></div>
           ) : (
             <table className={styles.table}>
               <thead>
@@ -177,11 +176,11 @@ function AddPatientModal({ onClose, onSaved }: { onClose: () => void; onSaved: (
       <div className={`${styles.modal} ${styles.modalLg}`} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
           <div className={styles.modalTitle}>Add Patient</div>
-          <button className={styles.iconBtn} onClick={onClose}><X size={18} /></button>
+          <button className={styles.iconBtn} onClick={onClose}><i className="ri-close-line" style={{ fontSize: 18 }} /></button>
         </div>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className={styles.modalBody}>
-            {err && <div className={styles.errorBox}><AlertCircle size={16} />{err}</div>}
+            {err && <div className={styles.errorBox}><i className="ri-error-warning-line" style={{ fontSize: 16 }} />{err}</div>}
             <div className={styles.formGrid}>
               <div className="form-group">
                 <label className="form-label">Full Name *</label>

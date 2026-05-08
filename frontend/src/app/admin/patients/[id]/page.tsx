@@ -1,8 +1,7 @@
-'use client';
+﻿'use client';
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
-import { Plus, X, AlertCircle, ArrowLeft, Inbox } from 'lucide-react';
 import Link from 'next/link';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { patientsApi, sessionsApi } from '@/lib/api';
@@ -95,7 +94,7 @@ export default function PatientDetailPage() {
   useEffect(() => { if (id) fetchAll(); /* eslint-disable-next-line */ }, [id]);
 
   if (loading) return <div className={styles.spinner} />;
-  if (!patient) return <div className={styles.errorBox}><AlertCircle size={16} />Patient not found</div>;
+  if (!patient) return <div className={styles.errorBox}><i className="ri-error-warning-line" style={{ fontSize: 16 }} />Patient not found</div>;
 
   const pi = patient.personalInfo;
 
@@ -104,19 +103,19 @@ export default function PatientDetailPage() {
       <div className={styles.pageHeader}>
         <div>
           <Link href="/admin/patients" className={styles.muted} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 'var(--text-sm)', marginBottom: 8 }}>
-            <ArrowLeft size={14} /> Back to patients
+            <i className="ri-arrow-left-line" style={{ fontSize: 14 }} /> Back to patients
           </Link>
           <h1 className={styles.pageTitle}>{pi.name}</h1>
           <p className={styles.pageSub}>{patient.patientId} · {pi.phone}</p>
         </div>
         {tab === 'sessions' && (
           <button className={`${styles.btn} ${styles.btnPrimary}`} onClick={() => setShowSession(true)}>
-            <Plus size={16} /> Add Session
+            <i className="ri-add-line" style={{ fontSize: 16 }} /> Add Session
           </button>
         )}
       </div>
 
-      {error && <div className={styles.errorBox}><AlertCircle size={16} />{error}</div>}
+      {error && <div className={styles.errorBox}><i className="ri-error-warning-line" style={{ fontSize: 16 }} />{error}</div>}
 
       <div className={styles.tabs}>
         {TABS.map((t) => (
@@ -156,7 +155,7 @@ export default function PatientDetailPage() {
       {tab === 'sessions' && (
         <div>
           {sessions.length === 0 ? (
-            <div className={styles.empty}><Inbox size={36} className={styles.emptyIcon} /><span>No sessions logged yet</span></div>
+            <div className={styles.empty}><i className={`ri-inbox-line ${styles.emptyIcon}`} style={{ fontSize: 36 }} /><span>No sessions logged yet</span></div>
           ) : sessions.map((s) => (
             <div key={s._id} className={local.sessionItem}>
               <div className={local.sessionHeader}>
@@ -180,7 +179,7 @@ export default function PatientDetailPage() {
         <div className={styles.adminCard}>
           <div className={styles.tableWrap}>
             {bills.length === 0 ? (
-              <div className={styles.empty}><Inbox size={36} className={styles.emptyIcon} /><span>No bills</span></div>
+              <div className={styles.empty}><i className={`ri-inbox-line ${styles.emptyIcon}`} style={{ fontSize: 36 }} /><span>No bills</span></div>
             ) : (
               <table className={styles.table}>
                 <thead><tr><th>Invoice #</th><th>Date</th><th>Total</th><th>Paid</th><th>Due</th><th>Status</th></tr></thead>
@@ -206,7 +205,7 @@ export default function PatientDetailPage() {
         <div className={styles.chartCard}>
           <div className={styles.chartTitle}>Pain & Recovery Progression</div>
           {recovery.length === 0 ? (
-            <div className={styles.empty}><Inbox size={36} className={styles.emptyIcon} /><span>No data yet</span></div>
+            <div className={styles.empty}><i className={`ri-inbox-line ${styles.emptyIcon}`} style={{ fontSize: 36 }} /><span>No data yet</span></div>
           ) : (
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={recovery}>
@@ -276,11 +275,11 @@ function AddSessionModal({ patientId, onClose, onSaved }: { patientId: string; o
       <div className={`${styles.modal} ${styles.modalLg}`} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
           <div className={styles.modalTitle}>New Treatment Session</div>
-          <button className={styles.iconBtn} onClick={onClose}><X size={18} /></button>
+          <button className={styles.iconBtn} onClick={onClose}><i className="ri-close-line" style={{ fontSize: 18 }} /></button>
         </div>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className={styles.modalBody}>
-            {err && <div className={styles.errorBox}><AlertCircle size={16} />{err}</div>}
+            {err && <div className={styles.errorBox}><i className="ri-error-warning-line" style={{ fontSize: 16 }} />{err}</div>}
             <div className={styles.formGrid}>
               <div className="form-group">
                 <label className="form-label">Date *</label>

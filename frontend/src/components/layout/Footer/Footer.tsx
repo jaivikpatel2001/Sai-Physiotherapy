@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import { Phone, Mail, MapPin, Clock, Activity, Facebook, Instagram, Youtube } from 'lucide-react';
 import styles from './Footer.module.css';
 
 const SERVICES = [
@@ -43,7 +42,7 @@ export default function Footer() {
             <div className={styles.brand}>
               <Link href="/" className={styles.logo}>
                 <div className={styles.logoIcon}>
-                  <Activity size={22} strokeWidth={2.5} />
+                  <i className="ri-pulse-line" style={{ fontSize: 22 }} />
                 </div>
                 <div>
                   <span className={styles.logoName}>SAI Physiotherapy</span>
@@ -57,19 +56,25 @@ export default function Footer() {
               </p>
               <div className={styles.socialLinks}>
                 <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className={styles.socialLink} aria-label="Facebook">
-                  <Facebook size={18} />
+                  <i className="ri-facebook-fill" style={{ fontSize: 18 }} />
                 </a>
                 <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className={styles.socialLink} aria-label="Instagram">
-                  <Instagram size={18} />
+                  <i className="ri-instagram-line" style={{ fontSize: 18 }} />
                 </a>
                 <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className={styles.socialLink} aria-label="YouTube">
-                  <Youtube size={18} />
+                  <i className="ri-youtube-fill" style={{ fontSize: 18 }} />
                 </a>
               </div>
               <div className={styles.certBadges}>
-                <div className={styles.certBadge}>✓ NABH Compliant</div>
-                <div className={styles.certBadge}>✓ ISO Certified</div>
-                <div className={styles.certBadge}>✓ 15+ Years</div>
+                <div className={styles.certBadge}>
+                  <i className="ri-checkbox-circle-line" style={{ fontSize: 13 }} /> NABH Compliant
+                </div>
+                <div className={styles.certBadge}>
+                  <i className="ri-checkbox-circle-line" style={{ fontSize: 13 }} /> ISO Certified
+                </div>
+                <div className={styles.certBadge}>
+                  <i className="ri-checkbox-circle-line" style={{ fontSize: 13 }} /> 15+ Years
+                </div>
               </div>
             </div>
 
@@ -108,15 +113,15 @@ export default function Footer() {
               <h3 className={styles.colTitle}>Contact Us</h3>
               <div className={styles.contactList}>
                 <div className={styles.contactItem}>
-                  <MapPin size={16} className={styles.contactIcon} />
+                  <i className={`ri-map-pin-line ${styles.contactIcon}`} style={{ fontSize: 16 }} />
                   <span>SAI Physiotherapy, Ahmedabad, Gujarat 380001</span>
                 </div>
                 <div className={styles.contactItem}>
-                  <Phone size={16} className={styles.contactIcon} />
+                  <i className={`ri-phone-line ${styles.contactIcon}`} style={{ fontSize: 16 }} />
                   <a href="tel:+919999999999">+91 99999 99999</a>
                 </div>
                 <div className={styles.contactItem}>
-                  <Mail size={16} className={styles.contactIcon} />
+                  <i className={`ri-mail-line ${styles.contactIcon}`} style={{ fontSize: 16 }} />
                   <a href="mailto:clinic@saiphysiotherapy.com">clinic@saiphysiotherapy.com</a>
                 </div>
               </div>
@@ -126,7 +131,7 @@ export default function Footer() {
                 {BUSINESS_HOURS.map((h) => (
                   <div key={h.day} className={styles.hoursItem}>
                     <div className={styles.hoursDay}>
-                      <Clock size={12} />
+                      <i className="ri-time-line" style={{ fontSize: 12 }} />
                       {h.day}
                     </div>
                     <span className={styles.hoursTime}>{h.time}</span>
@@ -135,7 +140,7 @@ export default function Footer() {
               </div>
 
               <Link href="/book-appointment" className={styles.ctaButton}>
-                Book Appointment →
+                Book Appointment <i className="ri-arrow-right-line" style={{ fontSize: 16, marginLeft: 6 }} />
               </Link>
             </div>
           </div>

@@ -1,9 +1,17 @@
 'use client';
 import { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
-import { Star, Quote } from 'lucide-react';
 import Link from 'next/link';
 import styles from './TestimonialsSection.module.css';
+
+const SURFACES = [
+  'var(--color-blush-50)',
+  'var(--color-sand-50)',
+  'var(--color-mint-50)',
+  'var(--color-lavender-50)',
+  'var(--color-primary-50)',
+  'var(--color-blush-50)',
+];
 
 const TESTIMONIALS = [
   { name: 'Priya Sharma', location: 'Ahmedabad', rating: 5, condition: 'Back Pain', text: 'After suffering from chronic back pain for 3 years, SAI Physiotherapy gave me my life back! Dr. Patel\'s treatment plan was exceptional and I recovered in just 2 months.', avatar: 'PS' },
@@ -44,11 +52,16 @@ export default function TestimonialsSection() {
             <svg width="24" height="24" viewBox="0 0 24 24"><path d="M12 11h8.533c.044.385.067.78.067 1.184 0 2.734-.98 5.036-2.678 6.6l.002-.002C16.36 20.26 14.28 21 12 21c-3.315 0-6.194-1.797-7.76-4.47A8.96 8.96 0 013 12c0-1.633.435-3.164 1.196-4.488C5.774 4.82 8.67 3 12 3c2.395 0 4.392.893 5.925 2.344L16.28 6.99C15.106 5.866 13.645 5.25 12 5.25c-2.443 0-4.51 1.495-5.467 3.648A6.704 6.704 0 006.25 12c0 .792.133 1.55.376 2.256C7.51 16.444 9.578 17.75 12 17.75c1.518 0 2.8-.484 3.772-1.254.913-.726 1.516-1.74 1.714-2.996H12V11z" fill="#4285F4"/></svg>
           </div>
           <div>
-            <p className={styles.googleRating}>4.9 ★★★★★</p>
+            <p className={styles.googleRating}>
+              4.9{' '}
+              {Array.from({ length: 5 }).map((_, j) => (
+                <i key={j} className="ri-star-fill" style={{ fontSize: 16, color: 'var(--color-accent)' }} />
+              ))}
+            </p>
             <p className={styles.googleCount}>500+ Reviews on Google</p>
           </div>
           <a href="https://maps.google.com" target="_blank" rel="noopener noreferrer" className={styles.googleLink}>
-            View on Google →
+            View on Google <i className="ri-arrow-right-line" style={{ fontSize: 14, marginLeft: 4 }} />
           </a>
         </motion.div>
 
@@ -58,14 +71,15 @@ export default function TestimonialsSection() {
             <motion.div
               key={t.name}
               className={styles.card}
+              style={{ background: SURFACES[i % SURFACES.length] }}
               initial={{ opacity: 0, y: 40 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ delay: 0.1 + i * 0.08, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
             >
-              <Quote size={28} className={styles.quoteIcon} />
+              <i className={`ri-double-quotes-l ${styles.quoteIcon}`} style={{ fontSize: 56 }} />
               <div className={styles.stars}>
                 {Array.from({ length: t.rating }).map((_, j) => (
-                  <Star key={j} size={14} fill="#FBBF24" color="#FBBF24" />
+                  <i key={j} className="ri-star-fill" style={{ fontSize: 14, color: 'var(--color-accent)' }} />
                 ))}
               </div>
               <p className={styles.text}>&ldquo;{t.text}&rdquo;</p>
@@ -81,7 +95,9 @@ export default function TestimonialsSection() {
         </div>
 
         <motion.div className={styles.cta} initial={{ opacity: 0, y: 20 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ delay: 0.4 }}>
-          <Link href="/testimonials" className={styles.ctaBtn}>Read All Stories →</Link>
+          <Link href="/testimonials" className={styles.ctaBtn}>
+            Read All Stories <i className="ri-arrow-right-line" style={{ fontSize: 16, marginLeft: 4 }} />
+          </Link>
         </motion.div>
       </div>
     </section>

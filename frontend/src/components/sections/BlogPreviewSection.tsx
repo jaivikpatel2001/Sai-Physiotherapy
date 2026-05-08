@@ -2,7 +2,6 @@
 import { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import Link from 'next/link';
-import { ArrowRight, Clock, Tag } from 'lucide-react';
 import styles from './BlogPreviewSection.module.css';
 
 const BLOGS = [
@@ -13,8 +12,8 @@ const BLOGS = [
     excerpt: 'Lower back pain affects 80% of people at some point. Our senior physiotherapist shares five evidence-based exercises you can do at home for immediate relief.',
     readTime: '5 min read',
     date: 'April 28, 2026',
-    emoji: '🦴',
-    color: '#EBF3FF',
+    icon: 'ri-walk-line',
+    color: 'var(--color-primary-50)',
   },
   {
     slug: 'understanding-cervical-spondylosis',
@@ -23,8 +22,8 @@ const BLOGS = [
     excerpt: 'Neck pain and stiffness are increasingly common in the digital age. Learn how cervical spondylosis develops and how physiotherapy offers long-term relief.',
     readTime: '7 min read',
     date: 'April 15, 2026',
-    emoji: '🧠',
-    color: '#FEF3C7',
+    icon: 'ri-mental-health-line',
+    color: 'var(--color-sand-50)',
   },
   {
     slug: 'post-stroke-rehabilitation-guide',
@@ -33,8 +32,8 @@ const BLOGS = [
     excerpt: 'Stroke recovery is a journey, not a destination. Our neuro physio team explains the stages of recovery and what to expect from a structured rehabilitation program.',
     readTime: '8 min read',
     date: 'March 30, 2026',
-    emoji: '🫀',
-    color: '#D1FAE5',
+    icon: 'ri-heart-pulse-line',
+    color: 'var(--color-mint-50)',
   },
 ];
 
@@ -68,9 +67,9 @@ export default function BlogPreviewSection() {
             >
               <Link href={`/blog/${post.slug}`} className={styles.card}>
                 <div className={styles.cardThumb} style={{ background: post.color }}>
-                  <span className={styles.thumbEmoji}>{post.emoji}</span>
+                  <i className={`${post.icon} ${styles.thumbIcon}`} />
                   <span className={styles.category}>
-                    <Tag size={11} /> {post.category}
+                    <i className="ri-price-tag-3-line" style={{ fontSize: 11 }} /> {post.category}
                   </span>
                 </div>
                 <div className={styles.cardBody}>
@@ -78,13 +77,13 @@ export default function BlogPreviewSection() {
                     <span className={styles.date}>{post.date}</span>
                     <span className={styles.dot}>·</span>
                     <span className={styles.readTime}>
-                      <Clock size={12} /> {post.readTime}
+                      <i className="ri-time-line" style={{ fontSize: 12 }} /> {post.readTime}
                     </span>
                   </div>
                   <h3 className={styles.title}>{post.title}</h3>
                   <p className={styles.excerpt}>{post.excerpt}</p>
                   <div className={styles.readMore}>
-                    Read Article <ArrowRight size={14} />
+                    Read Article <i className="ri-arrow-right-line" style={{ fontSize: 14 }} />
                   </div>
                 </div>
               </Link>
@@ -94,7 +93,7 @@ export default function BlogPreviewSection() {
 
         <motion.div className={styles.viewAll} initial={{ opacity: 0, y: 20 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ delay: 0.45 }}>
           <Link href="/blog" className={styles.viewAllBtn}>
-            View All Articles <ArrowRight size={18} />
+            View All Articles <i className="ri-arrow-right-line" style={{ fontSize: 18 }} />
           </Link>
         </motion.div>
       </div>

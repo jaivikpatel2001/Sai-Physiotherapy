@@ -1,6 +1,5 @@
-'use client';
+﻿'use client';
 import { useEffect, useMemo, useState } from 'react';
-import { Check, X, Trash2, Star, MessageSquare, AlertCircle, Filter } from 'lucide-react';
 import { adminTestimonialsApi } from '@/lib/api';
 import { formatDate } from '@sai-physio/utils';
 import styles from '../admin.module.css';
@@ -84,7 +83,7 @@ export default function TestimonialsPage() {
           <p className={styles.pageSub}>Approve or reject patient reviews</p>
         </div>
         <div className={styles.hstack}>
-          <Filter size={16} className={styles.muted} />
+          <i className={`ri-filter-line ${styles.muted}`} style={{ fontSize: 16 }} />
           <select className="form-input" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}>
             <option value="all">All</option>
             <option value="pending">Pending</option>
@@ -93,14 +92,14 @@ export default function TestimonialsPage() {
         </div>
       </div>
 
-      {error && <div className={styles.errorBox}><AlertCircle size={16} />{error}</div>}
+      {error && <div className={styles.errorBox}><i className="ri-error-warning-line" style={{ fontSize: 16 }} />{error}</div>}
 
       {loading ? (
         <div className={styles.spinner} />
       ) : filtered.length === 0 ? (
         <div className={styles.adminCard}>
           <div className={styles.empty}>
-            <MessageSquare size={40} className={styles.emptyIcon} />
+            <i className={`ri-message-3-line ${styles.emptyIcon}`} style={{ fontSize: 40 }} />
             <span>No testimonials in this view</span>
           </div>
         </div>
@@ -120,7 +119,7 @@ export default function TestimonialsPage() {
                 </div>
                 <div className={styles.stars}>
                   {Array.from({ length: 5 }).map((_, i) => (
-                    <Star key={i} size={14} fill={i < t.rating ? 'currentColor' : 'none'} />
+                    <i key={i} className={i < t.rating ? "ri-star-fill" : "ri-star-line"} style={{ fontSize: 14 }} />
                   ))}
                 </div>
                 <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text)', lineHeight: 'var(--leading-snug)' }}>
@@ -134,20 +133,20 @@ export default function TestimonialsPage() {
               <div className={styles.serviceCardActions}>
                 {!t.isApproved ? (
                   <button className={`${styles.btn} ${styles.btnPrimary} ${styles.btnSm}`} onClick={() => moderate(t._id, true)}>
-                    <Check size={14} /> Approve
+                    <i className="ri-check-line" style={{ fontSize: 14 }} /> Approve
                   </button>
                 ) : (
                   <button className={`${styles.btn} ${styles.btnSecondary} ${styles.btnSm}`} onClick={() => moderate(t._id, false)}>
-                    <X size={14} /> Unapprove
+                    <i className="ri-close-line" style={{ fontSize: 14 }} /> Unapprove
                   </button>
                 )}
                 {t.isApproved && (
                   <button className={`${styles.btn} ${styles.btnSecondary} ${styles.btnSm}`} onClick={() => toggleFeatured(t._id, t.isFeatured)}>
-                    <Star size={14} /> {t.isFeatured ? 'Unfeature' : 'Feature'}
+                    <i className="ri-star-line" style={{ fontSize: 14 }} /> {t.isFeatured ? 'Unfeature' : 'Feature'}
                   </button>
                 )}
                 <button className={`${styles.btn} ${styles.btnGhost} ${styles.btnSm}`} onClick={() => remove(t._id)} style={{ color: 'var(--color-error)' }}>
-                  <Trash2 size={14} />
+                  <i className="ri-delete-bin-line" style={{ fontSize: 14 }} />
                 </button>
               </div>
             </div>

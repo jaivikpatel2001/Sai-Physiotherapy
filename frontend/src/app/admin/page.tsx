@@ -1,6 +1,5 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { Users, Calendar, IndianRupee, AlertCircle, TrendingUp, Inbox } from 'lucide-react';
 import {
   LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
   BarChart, Bar, PieChart, Pie, Cell, Legend,
@@ -20,7 +19,7 @@ interface TrendPoint { date: string; count: number }
 interface RevenuePoint { period: string; revenue: number }
 interface ServiceSlice { name: string; value: number }
 
-const PIE_COLORS = ['#1B4F8A', '#E8A020', '#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6'];
+const PIE_COLORS = ['#2D6A9F', '#C9A96E', '#10B981', '#5B95C7', '#D69E2E', '#DC6262', '#8B5CF6'];
 
 export default function AdminDashboardPage() {
   const [dashboard, setDashboard] = useState<Dashboard | null>(null);
@@ -56,10 +55,10 @@ export default function AdminDashboardPage() {
   }, []);
 
   const kpis = [
-    { label: 'Total Patients', value: dashboard?.totalPatients ?? 0, Icon: Users },
-    { label: "Today's Appointments", value: dashboard?.todayAppointments ?? 0, Icon: Calendar },
-    { label: 'Monthly Revenue', value: formatCurrency(dashboard?.monthlyRevenue ?? 0), Icon: IndianRupee },
-    { label: 'Pending Dues', value: formatCurrency(dashboard?.pendingDues ?? 0), Icon: AlertCircle },
+    { label: 'Total Patients', value: dashboard?.totalPatients ?? 0, icon: 'ri-team-line', surface: 'var(--color-primary-50)' },
+    { label: "Today's Appointments", value: dashboard?.todayAppointments ?? 0, icon: 'ri-calendar-line', surface: 'var(--color-mint-50)' },
+    { label: 'Monthly Revenue', value: formatCurrency(dashboard?.monthlyRevenue ?? 0), icon: 'ri-money-rupee-circle-line', surface: 'var(--color-sand-50)' },
+    { label: 'Pending Dues', value: formatCurrency(dashboard?.pendingDues ?? 0), icon: 'ri-error-warning-line', surface: 'var(--color-blush-50)' },
   ];
 
   if (loading) {
@@ -83,12 +82,12 @@ export default function AdminDashboardPage() {
 
   return (
     <>
-      {error && <div className={styles.errorBox}><AlertCircle size={16} />{error}</div>}
+      {error && <div className={styles.errorBox}><i className="ri-error-warning-line" style={{ fontSize: 16 }} />{error}</div>}
 
       <div className={styles.kpiGrid}>
-        {kpis.map(({ label, value, Icon }) => (
-          <div key={label} className={styles.kpi}>
-            <div className={styles.kpiIcon}><Icon size={22} /></div>
+        {kpis.map(({ label, value, icon, surface }) => (
+          <div key={label} className={styles.kpi} style={{ background: surface }}>
+            <div className={styles.kpiIcon}><i className={icon} style={{ fontSize: 22 }} /></div>
             <div>
               <div className={styles.kpiLabel}>{label}</div>
               <div className={styles.kpiValue}>{value}</div>
@@ -99,9 +98,9 @@ export default function AdminDashboardPage() {
 
       <div className={styles.chartGrid}>
         <div className={styles.chartCard}>
-          <div className={styles.chartTitle}><TrendingUp size={16} style={{ display: 'inline', marginRight: 6 }} /> Appointments Trend</div>
+          <div className={styles.chartTitle}><i className="ri-line-chart-line" style={{ fontSize: 16, marginRight: 6 }} /> Appointments Trend</div>
           {trend.length === 0 ? (
-            <div className={styles.empty}><Inbox size={32} className={styles.emptyIcon} /><span>No data yet</span></div>
+            <div className={styles.empty}><i className={`ri-inbox-line ${styles.emptyIcon}`} style={{ fontSize: 32 }} /><span>No data yet</span></div>
           ) : (
             <ResponsiveContainer width="100%" height={260}>
               <LineChart data={trend}>
@@ -109,7 +108,7 @@ export default function AdminDashboardPage() {
                 <XAxis dataKey="date" tick={{ fontSize: 12 }} />
                 <YAxis tick={{ fontSize: 12 }} />
                 <Tooltip />
-                <Line type="monotone" dataKey="count" stroke="#1B4F8A" strokeWidth={2.5} dot={{ r: 4 }} />
+                <Line type="monotone" dataKey="count" stroke="#2D6A9F" strokeWidth={2.5} dot={{ r: 4 }} />
               </LineChart>
             </ResponsiveContainer>
           )}
@@ -118,7 +117,7 @@ export default function AdminDashboardPage() {
         <div className={styles.chartCard}>
           <div className={styles.chartTitle}>Service Breakdown</div>
           {services.length === 0 ? (
-            <div className={styles.empty}><Inbox size={32} className={styles.emptyIcon} /><span>No data</span></div>
+            <div className={styles.empty}><i className={`ri-inbox-line ${styles.emptyIcon}`} style={{ fontSize: 32 }} /><span>No data</span></div>
           ) : (
             <ResponsiveContainer width="100%" height={260}>
               <PieChart>
@@ -138,7 +137,7 @@ export default function AdminDashboardPage() {
       <div className={styles.chartCard} style={{ marginTop: 'var(--space-5)' }}>
         <div className={styles.chartTitle}>Revenue</div>
         {revenue.length === 0 ? (
-          <div className={styles.empty}><Inbox size={32} className={styles.emptyIcon} /><span>No revenue data</span></div>
+          <div className={styles.empty}><i className={`ri-inbox-line ${styles.emptyIcon}`} style={{ fontSize: 32 }} /><span>No revenue data</span></div>
         ) : (
           <ResponsiveContainer width="100%" height={280}>
             <BarChart data={revenue}>
@@ -146,7 +145,7 @@ export default function AdminDashboardPage() {
               <XAxis dataKey="period" tick={{ fontSize: 12 }} />
               <YAxis tick={{ fontSize: 12 }} />
               <Tooltip formatter={(v: number) => formatCurrency(v)} />
-              <Bar dataKey="revenue" fill="#E8A020" radius={[6, 6, 0, 0]} />
+              <Bar dataKey="revenue" fill="#C9A96E" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         )}

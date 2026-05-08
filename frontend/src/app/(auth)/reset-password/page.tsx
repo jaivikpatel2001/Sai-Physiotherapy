@@ -2,7 +2,6 @@
 import { useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { KeyRound, AlertCircle, CheckCircle2, Eye, EyeOff } from 'lucide-react';
 import { authApi } from '@/lib/api';
 import styles from '../login.module.css';
 
@@ -54,7 +53,7 @@ function ResetPasswordInner() {
       <div className={styles.card}>
         <div className={styles.cardHeader}>
           <div style={{ color: 'var(--color-success)', marginBottom: 'var(--space-3)' }}>
-            <CheckCircle2 size={48} />
+            <i className="ri-checkbox-circle-line" style={{ fontSize: 48 }} />
           </div>
           <h1 className={styles.cardTitle}>Password Reset</h1>
           <p className={styles.cardSub}>Your password has been updated. Redirecting to login...</p>
@@ -72,7 +71,7 @@ function ResetPasswordInner() {
 
       {error && (
         <div className={styles.errorAlert}>
-          <AlertCircle size={16} />
+          <i className="ri-error-warning-line" style={{ fontSize: 16 }} />
           {error}
         </div>
       )}
@@ -92,7 +91,7 @@ function ResetPasswordInner() {
               style={{ paddingRight: '3rem' }}
             />
             <button type="button" className={styles.eyeBtn} onClick={() => setShow(!show)} aria-label="Toggle password">
-              {show ? <EyeOff size={18} /> : <Eye size={18} />}
+              <i className={show ? 'ri-eye-off-line' : 'ri-eye-line'} style={{ fontSize: 18 }} />
             </button>
           </div>
         </div>
@@ -110,7 +109,7 @@ function ResetPasswordInner() {
         </div>
 
         <button type="submit" className={styles.submitBtn} disabled={loading}>
-          {loading ? <span className={styles.spinner} /> : <><KeyRound size={18} /> Reset Password</>}
+          {loading ? <span className={styles.spinner} /> : <><i className="ri-lock-line" style={{ fontSize: 18 }} /> Reset Password</>}
         </button>
       </form>
 

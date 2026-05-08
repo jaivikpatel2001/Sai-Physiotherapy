@@ -2,37 +2,31 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import {
-  LayoutDashboard, Calendar, Users, Activity, FileText,
-  Receipt, Stethoscope, MessageSquare, Settings, ShieldCheck,
-  LogOut, Menu, X, ChevronDown,
-} from 'lucide-react';
 import { UserRole } from '@sai-physio/types';
 import { useAuthStore } from '@/lib/store/authStore';
 import { useAuthGuard } from '@/lib/hooks/useAuthGuard';
 import styles from './admin.module.css';
 
-type NavLink = { href: string; label: string; Icon: React.ComponentType<{ size?: number | string }>; roles: UserRole[] };
+type NavLink = { href: string; label: string; icon: string; roles: UserRole[] };
 
 const ALL_STAFF = [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DOCTOR, UserRole.RECEPTIONIST];
 const ADMINS = [UserRole.SUPER_ADMIN, UserRole.ADMIN];
 
 const NAV: NavLink[] = [
-  { href: '/admin', label: 'Dashboard', Icon: LayoutDashboard, roles: ALL_STAFF },
-  { href: '/admin/appointments', label: 'Appointments', Icon: Calendar, roles: ALL_STAFF },
-  { href: '/admin/patients', label: 'Patients', Icon: Users, roles: [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DOCTOR, UserRole.RECEPTIONIST] },
-  { href: '/admin/billing', label: 'Billing', Icon: Receipt, roles: [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.RECEPTIONIST] },
-  { href: '/admin/services', label: 'Services', Icon: Stethoscope, roles: ADMINS },
-  { href: '/admin/blog', label: 'Blog', Icon: FileText, roles: [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DOCTOR] },
-  { href: '/admin/testimonials', label: 'Testimonials', Icon: MessageSquare, roles: ADMINS },
-  { href: '/admin/users', label: 'Users', Icon: ShieldCheck, roles: ADMINS },
-  { href: '/admin/settings', label: 'Settings', Icon: Settings, roles: [UserRole.SUPER_ADMIN] },
+  { href: '/admin', label: 'Dashboard', icon: 'ri-dashboard-line', roles: ALL_STAFF },
+  { href: '/admin/appointments', label: 'Appointments', icon: 'ri-calendar-line', roles: ALL_STAFF },
+  { href: '/admin/patients', label: 'Patients', icon: 'ri-team-line', roles: [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DOCTOR, UserRole.RECEPTIONIST] },
+  { href: '/admin/billing', label: 'Billing', icon: 'ri-receipt-line', roles: [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.RECEPTIONIST] },
+  { href: '/admin/services', label: 'Services', icon: 'ri-stethoscope-line', roles: ADMINS },
+  { href: '/admin/blog', label: 'Blog', icon: 'ri-file-text-line', roles: [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DOCTOR] },
+  { href: '/admin/testimonials', label: 'Testimonials', icon: 'ri-message-3-line', roles: ADMINS },
+  { href: '/admin/users', label: 'Users', icon: 'ri-shield-user-line', roles: ADMINS },
+  { href: '/admin/settings', label: 'Settings', icon: 'ri-settings-3-line', roles: [UserRole.SUPER_ADMIN] },
 ];
 
-// Billing-only role override
 const BILLING_NAV: NavLink[] = [
-  { href: '/admin', label: 'Dashboard', Icon: LayoutDashboard, roles: [] },
-  { href: '/admin/billing', label: 'Billing', Icon: Receipt, roles: [] },
+  { href: '/admin', label: 'Dashboard', icon: 'ri-dashboard-line', roles: [] },
+  { href: '/admin/billing', label: 'Billing', icon: 'ri-receipt-line', roles: [] },
 ];
 
 function pageTitleForPath(path: string): string {
@@ -59,7 +53,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     );
   }
 
-  // Filter nav by role
   const navItems: NavLink[] = (() => {
     if (user.role === 'billing_staff' as UserRole) return BILLING_NAV;
     return NAV.filter((n) => n.roles.includes(user.role));
@@ -79,7 +72,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <aside className={`${styles.sidebar} ${menuOpen ? styles.sidebarOpen : ''}`}>
         <div className={styles.sidebarHeader}>
           <div className={styles.sidebarLogo}>
-            <Activity size={22} color="white" strokeWidth={2.5} />
+            <i className="ri-pulse-line" style={{ fontSize: 22, color: 'white' }} />
           </div>
           <div>
             <div className={styles.sidebarBrand}>SAI Physio</div>
@@ -88,11 +81,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
 
         <nav className={styles.sidebarNav}>
-          {navItems.map(({ href, label, Icon }) => {
+          {navItems.map(({ href, label, icon }) => {
             const active = pathname === href || (href !== '/admin' && pathname.startsWith(href));
             return (
               <Link key={href} href={href} className={`${styles.navItem} ${active ? styles.active : ''}`}>
-                <span className={styles.navIcon}><Icon size={18} /></span>
+                <span className={styles.navIcon}><i className={icon} style={{ fontSize: 18 }} /></span>
                 <span className={styles.navLabel}>{label}</span>
               </Link>
             );
@@ -106,7 +99,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <header className={styles.topbar}>
           <div className={styles.hstack}>
             <button className={styles.menuBtn} onClick={() => setMenuOpen(!menuOpen)} aria-label="Toggle menu">
-              {menuOpen ? <X size={20} /> : <Menu size={20} />}
+              <i className={menuOpen ? 'ri-close-line' : 'ri-menu-line'} style={{ fontSize: 20 }} />
             </button>
             <div className={styles.topbarTitle}>{pageTitleForPath(pathname)}</div>
           </div>
@@ -118,7 +111,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 <div className={styles.userName}>{user.name}</div>
                 <div className={styles.userRole}>{user.role.replace('_', ' ')}</div>
               </div>
-              <ChevronDown size={16} />
+              <i className="ri-arrow-down-s-line" style={{ fontSize: 16 }} />
             </button>
             {userMenuOpen && (
               <div className={styles.userMenu} onMouseLeave={() => setUserMenuOpen(false)}>
@@ -127,7 +120,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)' }}>{user.email}</div>
                 </div>
                 <button className={`${styles.userMenuItem} ${styles.danger}`} onClick={handleLogout}>
-                  <LogOut size={16} /> Sign Out
+                  <i className="ri-logout-box-line" style={{ fontSize: 16 }} /> Sign Out
                 </button>
               </div>
             )}

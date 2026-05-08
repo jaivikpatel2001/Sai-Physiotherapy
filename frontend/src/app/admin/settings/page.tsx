@@ -1,7 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Save, AlertCircle, CheckCircle2, ShieldAlert } from 'lucide-react';
 import { settingsApi, adminSettingsApi } from '@/lib/api';
 import { getRole } from '@/lib/auth';
 import { UserRole } from '@sai-physio/types';
@@ -155,7 +154,7 @@ export default function SettingsPage() {
     return (
       <div className={styles.adminCard}>
         <div className={styles.empty}>
-          <ShieldAlert size={40} className={styles.emptyIcon} />
+          <i className={`ri-shield-cross-line ${styles.emptyIcon}`} style={{ fontSize: 40 }} />
           <span>Only super admins can access clinic settings.</span>
         </div>
       </div>
@@ -173,8 +172,8 @@ export default function SettingsPage() {
 
       {loading ? <div className={styles.spinner} /> : (
         <form onSubmit={handleSubmit(onSubmit)}>
-          {error && <div className={styles.errorBox}><AlertCircle size={16} />{error}</div>}
-          {success && <div className={styles.successBox}><CheckCircle2 size={16} />{success}</div>}
+          {error && <div className={styles.errorBox}><i className="ri-error-warning-line" style={{ fontSize: 16 }} />{error}</div>}
+          {success && <div className={styles.successBox}><i className="ri-checkbox-circle-line" style={{ fontSize: 16 }} />{success}</div>}
 
           <div className={styles.adminCard} style={{ marginBottom: 'var(--space-5)' }}>
             <div className={styles.cardHeader}><div className={styles.cardTitle}>General</div></div>
@@ -283,7 +282,7 @@ export default function SettingsPage() {
 
           <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
             <button type="submit" disabled={isSubmitting} className={`${styles.btn} ${styles.btnPrimary}`}>
-              <Save size={16} /> {isSubmitting ? 'Saving...' : 'Save Settings'}
+              <i className="ri-save-line" style={{ fontSize: 16 }} /> {isSubmitting ? 'Saving...' : 'Save Settings'}
             </button>
           </div>
         </form>

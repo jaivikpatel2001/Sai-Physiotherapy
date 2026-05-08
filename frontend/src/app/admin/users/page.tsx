@@ -1,7 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Plus, X, AlertCircle, ShieldCheck, Power, ShieldAlert } from 'lucide-react';
 import { usersApi, authApi } from '@/lib/api';
 import { getRole } from '@/lib/auth';
 import { UserRole } from '@sai-physio/types';
@@ -74,7 +73,7 @@ export default function UsersPage() {
     return (
       <div className={styles.adminCard}>
         <div className={styles.empty}>
-          <ShieldAlert size={40} className={styles.emptyIcon} />
+          <i className={`ri-shield-cross-line ${styles.emptyIcon}`} style={{ fontSize: 40 }} />
           <span>Only admins can manage users.</span>
         </div>
       </div>
@@ -89,16 +88,16 @@ export default function UsersPage() {
           <p className={styles.pageSub}>Manage admin, doctor, and receptionist accounts</p>
         </div>
         <button className={`${styles.btn} ${styles.btnPrimary}`} onClick={() => setShowModal(true)}>
-          <Plus size={16} /> Add User
+          <i className="ri-add-line" style={{ fontSize: 16 }} /> Add User
         </button>
       </div>
 
-      {error && <div className={styles.errorBox}><AlertCircle size={16} />{error}</div>}
+      {error && <div className={styles.errorBox}><i className="ri-error-warning-line" style={{ fontSize: 16 }} />{error}</div>}
 
       <div className={styles.adminCard}>
         <div className={styles.tableWrap}>
           {loading ? <div className={styles.spinner} /> : users.length === 0 ? (
-            <div className={styles.empty}><ShieldCheck size={40} className={styles.emptyIcon} /><span>No users found</span></div>
+            <div className={styles.empty}><i className={`ri-shield-user-line ${styles.emptyIcon}`} style={{ fontSize: 40 }} /><span>No users found</span></div>
           ) : (
             <table className={styles.table}>
               <thead>
@@ -130,7 +129,7 @@ export default function UsersPage() {
                         onClick={() => toggleStatus(u._id)}
                         title={u.isActive ? 'Disable' : 'Enable'}
                       >
-                        <Power size={14} /> {u.isActive ? 'Disable' : 'Enable'}
+                        <i className="ri-shut-down-line" style={{ fontSize: 14 }} /> {u.isActive ? 'Disable' : 'Enable'}
                       </button>
                     </td>
                   </tr>
@@ -168,11 +167,11 @@ function NewUserModal({ onClose, onSaved }: { onClose: () => void; onSaved: () =
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
           <div className={styles.modalTitle}>Add User</div>
-          <button className={styles.iconBtn} onClick={onClose}><X size={18} /></button>
+          <button className={styles.iconBtn} onClick={onClose}><i className="ri-close-line" style={{ fontSize: 18 }} /></button>
         </div>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className={styles.modalBody}>
-            {err && <div className={styles.errorBox}><AlertCircle size={16} />{err}</div>}
+            {err && <div className={styles.errorBox}><i className="ri-error-warning-line" style={{ fontSize: 16 }} />{err}</div>}
             <div className={styles.formGrid}>
               <div className="form-group">
                 <label className="form-label">Full Name *</label>

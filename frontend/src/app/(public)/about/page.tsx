@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { CheckCircle2, Award, Heart, Target, Users, TrendingUp } from 'lucide-react';
 import styles from './about.module.css';
 
 export const metadata: Metadata = {
@@ -17,12 +16,12 @@ const MILESTONES = [
 ];
 
 const VALUES = [
-  { icon: <Heart size={28} />, title: 'Patient First', desc: 'Every decision starts with patient wellbeing. Compassionate care is non-negotiable.' },
-  { icon: <Target size={28} />, title: 'Evidence-Based', desc: 'All treatment protocols are grounded in the latest clinical research and best practices.' },
-  { icon: <Award size={28} />, title: 'Excellence', desc: 'We continuously invest in education, technology, and processes to deliver the best outcomes.' },
-  { icon: <Users size={28} />, title: 'Collaboration', desc: 'Our multidisciplinary team works together to create the most effective recovery plans.' },
-  { icon: <TrendingUp size={28} />, title: 'Innovation', desc: 'We embrace new physiotherapy technologies and techniques to accelerate recovery.' },
-  { icon: <CheckCircle2 size={28} />, title: 'Integrity', desc: 'Honest diagnosis, transparent pricing, and ethical practice — always.' },
+  { icon: 'ri-heart-line', title: 'Patient First', desc: 'Every decision starts with patient wellbeing. Compassionate care is non-negotiable.' },
+  { icon: 'ri-focus-3-line', title: 'Evidence-Based', desc: 'All treatment protocols are grounded in the latest clinical research and best practices.' },
+  { icon: 'ri-award-line', title: 'Excellence', desc: 'We continuously invest in education, technology, and processes to deliver the best outcomes.' },
+  { icon: 'ri-team-line', title: 'Collaboration', desc: 'Our multidisciplinary team works together to create the most effective recovery plans.' },
+  { icon: 'ri-line-chart-line', title: 'Innovation', desc: 'We embrace new physiotherapy technologies and techniques to accelerate recovery.' },
+  { icon: 'ri-checkbox-circle-line', title: 'Integrity', desc: 'Honest diagnosis, transparent pricing, and ethical practice — always.' },
 ];
 
 const CERTIFICATIONS = [
@@ -54,7 +53,7 @@ export default function AboutPage() {
                 {[
                   { num: '2009', label: 'Established' },
                   { num: '10K+', label: 'Patients Healed' },
-                  { num: '4.9★', label: 'Google Rating' },
+                  { num: '4.9', label: 'Google Rating' },
                   { num: '12+', label: 'Doctors' },
                 ].map((s) => (
                   <div key={s.label} className={styles.heroStat}>
@@ -66,13 +65,13 @@ export default function AboutPage() {
             </div>
             <div className={styles.heroVisual}>
               <div className={styles.clinicCard}>
-                <div className={styles.clinicEmoji}>🏥</div>
+                <div className={styles.clinicEmoji}><i className="ri-hospital-line" style={{ fontSize: 48 }} /></div>
                 <h2>SAI Physiotherapy</h2>
                 <p>Spine Care & Paralysis Centre</p>
                 <div className={styles.certList}>
                   {CERTIFICATIONS.slice(0, 3).map((c) => (
                     <div key={c} className={styles.certItem}>
-                      <CheckCircle2 size={14} /> {c}
+                      <i className="ri-checkbox-circle-line" style={{ fontSize: 14 }} /> {c}
                     </div>
                   ))}
                 </div>
@@ -87,7 +86,7 @@ export default function AboutPage() {
         <div className="container">
           <div className={styles.missionGrid}>
             <div className={styles.missionCard}>
-              <div className={styles.missionIcon}>🎯</div>
+              <div className={styles.missionIcon}><i className="ri-focus-3-line" style={{ fontSize: 32 }} /></div>
               <h2>Our Mission</h2>
               <p>
                 To provide evidence-based, patient-centred physiotherapy care that empowers individuals
@@ -96,7 +95,7 @@ export default function AboutPage() {
               </p>
             </div>
             <div className={styles.missionCard}>
-              <div className={styles.missionIcon}>🔭</div>
+              <div className={styles.missionIcon}><i className="ri-eye-line" style={{ fontSize: 32 }} /></div>
               <h2>Our Vision</h2>
               <p>
                 To be Gujarat&apos;s benchmark physiotherapy institution, setting the standard for
@@ -119,7 +118,7 @@ export default function AboutPage() {
           <div className={styles.valuesGrid}>
             {VALUES.map((v) => (
               <div key={v.title} className={styles.valueCard}>
-                <div className={styles.valueIcon}>{v.icon}</div>
+                <div className={styles.valueIcon}><i className={v.icon} style={{ fontSize: 28 }} /></div>
                 <h3 className={styles.valueTitle}>{v.title}</h3>
                 <p className={styles.valueDesc}>{v.desc}</p>
               </div>
@@ -161,7 +160,7 @@ export default function AboutPage() {
           <div className={styles.certGrid}>
             {CERTIFICATIONS.map((c) => (
               <div key={c} className={styles.certCard}>
-                <CheckCircle2 size={22} className={styles.certCheck} />
+                <i className={`ri-checkbox-circle-line ${styles.certCheck}`} style={{ fontSize: 22 }} />
                 <span>{c}</span>
               </div>
             ))}
