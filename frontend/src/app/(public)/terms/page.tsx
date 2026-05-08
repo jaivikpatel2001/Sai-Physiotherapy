@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import styles from '../privacy-policy/legal.module.css';
 
 export const metadata: Metadata = {
   title: 'Terms & Conditions | SAI Physiotherapy',
@@ -17,24 +18,49 @@ const SECTIONS = [
   { title: 'Contact', body: 'For questions about these terms, write to clinic@saiphysiotherapy.com.' },
 ];
 
+function slugify(s: string) {
+  return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
 export default function TermsPage() {
   return (
-    <div style={{ background: 'var(--color-bg)' }}>
-      <div style={{ background: 'var(--gradient-hero)', padding: 'calc(var(--header-height) + 3rem) 0 3rem', textAlign: 'center' }}>
+    <div className={styles.page}>
+      <section className={styles.hero}>
+        <div className={styles.heroMesh} />
         <div className="container">
-          <p className="section-label" style={{ justifyContent: 'center' }}>Legal</p>
-          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-h1)', fontWeight: 700, letterSpacing: '-0.025em', margin: '0.75rem 0 0.5rem' }}>Terms &amp; Conditions</h1>
-          <p style={{ color: 'var(--color-text-muted)' }}>Last updated April 2026</p>
+          <span className={styles.eyebrow}>Legal</span>
+          <h1 className={styles.title}>
+            <span className="gradient-text">Terms &amp; Conditions</span>
+          </h1>
+          <p className={styles.lastUpdated}>Last updated April 2026</p>
         </div>
-      </div>
-      <section className="section">
-        <div className="container" style={{ maxWidth: 820 }}>
-          {SECTIONS.map((s) => (
-            <div key={s.title} style={{ marginBottom: 'var(--space-8)' }}>
-              <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-h3)', fontWeight: 700, color: 'var(--color-text)', letterSpacing: '-0.02em', marginBottom: 'var(--space-3)' }}>{s.title}</h2>
-              <p style={{ fontSize: 'var(--text-base)', color: 'var(--color-text)', lineHeight: 1.75 }}>{s.body}</p>
-            </div>
-          ))}
+      </section>
+
+      <section className={styles.body}>
+        <div className="container">
+          <div className={styles.layout}>
+            <article className={styles.content}>
+              {SECTIONS.map((s) => (
+                <section key={s.title} id={slugify(s.title)} className={styles.section}>
+                  <h2 className={styles.h2}>{s.title}</h2>
+                  <p className={styles.p}>{s.body}</p>
+                </section>
+              ))}
+            </article>
+
+            <aside className={styles.toc}>
+              <h3 className={styles.tocTitle}>On This Page</h3>
+              <ul>
+                {SECTIONS.map((s) => (
+                  <li key={s.title}>
+                    <a href={`#${slugify(s.title)}`}>
+                      <i className="ri-arrow-right-s-line" /> {s.title}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </aside>
+          </div>
         </div>
       </section>
     </div>

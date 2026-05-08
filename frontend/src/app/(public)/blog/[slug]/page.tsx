@@ -1,17 +1,19 @@
-import type { Metadata } from 'next';
+'use client';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import styles from './blog-detail.module.css';
 
 type Section = { heading: string; body: string; bullets?: string[] };
 type Post = {
   slug: string;
   category: string;
   icon: string;
-  color: string;
+  tint: string;
   title: string;
   excerpt: string;
   author: string;
   authorRole: string;
+  authorBio: string;
   readTime: string;
   date: string;
   sections: Section[];
@@ -20,10 +22,12 @@ type Post = {
 
 const POSTS: Record<string, Post> = {
   '5-exercises-for-lower-back-pain': {
-    slug: '5-exercises-for-lower-back-pain', category: 'Back Pain', icon: 'ri-walk-line', color: 'var(--color-primary-50)',
+    slug: '5-exercises-for-lower-back-pain', category: 'Back Pain', icon: 'ri-walk-line', tint: 'sky',
     title: '5 Physiotherapist-Approved Exercises for Lower Back Pain Relief',
     excerpt: 'Lower back pain affects 80% of people. Our senior physiotherapist shares five evidence-based exercises you can do at home for immediate relief.',
-    author: 'Dr. Sai Patel', authorRole: 'Senior Physiotherapist', readTime: '5 min', date: 'April 28, 2026',
+    author: 'Dr. Sai Patel', authorRole: 'Senior Physiotherapist',
+    authorBio: '15 years treating spine conditions. Trained in McKenzie method and clinical Pilates.',
+    readTime: '5 min', date: 'April 28, 2026',
     sections: [
       { heading: 'Why lower back pain is so common', body: 'Sedentary lifestyles, poor posture, and weak core muscles combine to make the lower back vulnerable. The good news: most non-specific lower back pain responds remarkably well to targeted exercise.' },
       { heading: 'The five exercises', body: 'These five movements are evidence-based and form the foundation of most rehabilitation programs we prescribe at the clinic. Perform them daily, slowly, and stop if any movement provokes sharp pain.', bullets: [
@@ -38,10 +42,12 @@ const POSTS: Record<string, Post> = {
     takeaway: 'Consistent daily movement beats expensive interventions for most lower back pain. Start with these five exercises — and if you don\'t improve in two weeks, get assessed.',
   },
   'understanding-cervical-spondylosis': {
-    slug: 'understanding-cervical-spondylosis', category: 'Spine Care', icon: 'ri-mental-health-line', color: 'var(--color-sand-50)',
+    slug: 'understanding-cervical-spondylosis', category: 'Spine Care', icon: 'ri-mental-health-line', tint: 'sand',
     title: 'Understanding Cervical Spondylosis: Causes, Symptoms & Treatment',
     excerpt: 'Neck pain and stiffness are increasingly common in the digital age. Learn how cervical spondylosis develops and how physiotherapy offers long-term relief.',
-    author: 'Dr. Anjali Mehta', authorRole: 'Spine Specialist', readTime: '7 min', date: 'April 15, 2026',
+    author: 'Dr. Anjali Mehta', authorRole: 'Spine Specialist',
+    authorBio: 'MPT (Musculoskeletal). Specialist in cervical and lumbar spine rehabilitation.',
+    readTime: '7 min', date: 'April 15, 2026',
     sections: [
       { heading: 'What is cervical spondylosis?', body: 'Cervical spondylosis is age-related wear of the discs and joints in the neck. While it sounds alarming, it is extremely common — and most people with X-ray changes have no symptoms at all.' },
       { heading: 'Common symptoms', body: 'Symptoms vary but often include:', bullets: [
@@ -55,10 +61,12 @@ const POSTS: Record<string, Post> = {
     takeaway: 'Spondylosis on imaging is normal with age — but symptomatic spondylosis is highly treatable. Don\'t accept "live with it" as the only answer.',
   },
   'post-stroke-rehabilitation-guide': {
-    slug: 'post-stroke-rehabilitation-guide', category: 'Neuro Rehab', icon: 'ri-heart-pulse-line', color: 'var(--color-mint-50)',
+    slug: 'post-stroke-rehabilitation-guide', category: 'Neuro Rehab', icon: 'ri-heart-pulse-line', tint: 'mint',
     title: 'A Complete Guide to Post-Stroke Rehabilitation & Recovery',
     excerpt: 'Stroke recovery is a journey. Our neuro physio team explains the stages of recovery and what to expect from a structured rehabilitation program.',
-    author: 'Dr. Rakesh Joshi', authorRole: 'Neuro Physiotherapist', readTime: '8 min', date: 'March 30, 2026',
+    author: 'Dr. Rakesh Joshi', authorRole: 'Neuro Physiotherapist',
+    authorBio: 'Specializes in stroke and neurological rehabilitation. Bobath-trained.',
+    readTime: '8 min', date: 'March 30, 2026',
     sections: [
       { heading: 'The first 90 days matter most', body: 'The brain\'s capacity for reorganization — neuroplasticity — peaks in the first three months after a stroke. Intensive, task-specific rehabilitation during this window produces the largest functional gains.' },
       { heading: 'Phases of stroke recovery', body: 'Recovery typically progresses through several recognizable phases:', bullets: [
@@ -71,10 +79,12 @@ const POSTS: Record<string, Post> = {
     takeaway: 'Stroke recovery is not passive. The earlier and more intensive the rehabilitation, the better the long-term outcome — and family involvement amplifies every gain.',
   },
   'knee-osteoarthritis-management': {
-    slug: 'knee-osteoarthritis-management', category: 'Joint Care', icon: 'ri-run-line', color: 'var(--color-blush-50)',
+    slug: 'knee-osteoarthritis-management', category: 'Joint Care', icon: 'ri-run-line', tint: 'blush',
     title: 'Managing Knee Osteoarthritis with Physiotherapy — A Patient Guide',
     excerpt: 'Knee osteoarthritis doesn\'t have to mean a lifetime of pain. Learn how targeted physiotherapy can significantly reduce pain and improve function.',
-    author: 'Dr. Sai Patel', authorRole: 'Senior Physiotherapist', readTime: '6 min', date: 'March 15, 2026',
+    author: 'Dr. Sai Patel', authorRole: 'Senior Physiotherapist',
+    authorBio: '15 years treating spine and joint conditions. Clinical Pilates and movement specialist.',
+    readTime: '6 min', date: 'March 15, 2026',
     sections: [
       { heading: 'Strength is medicine for OA', body: 'Strong quadriceps and hip muscles unload the knee joint, dramatically reducing pain in osteoarthritis. Multiple high-quality studies confirm exercise rivals medication for symptom control.' },
       { heading: 'What to do — and what to avoid', body: 'A structured program includes:', bullets: [
@@ -88,10 +98,12 @@ const POSTS: Record<string, Post> = {
     takeaway: 'Knee OA is not a sentence to inactivity. The right strengthening program reduces pain, improves function, and may delay or avoid surgery entirely.',
   },
   'sports-injury-prevention-tips': {
-    slug: 'sports-injury-prevention-tips', category: 'Sports', icon: 'ri-football-line', color: 'var(--color-primary-50)',
+    slug: 'sports-injury-prevention-tips', category: 'Sports', icon: 'ri-football-line', tint: 'sky',
     title: '10 Physiotherapist Tips to Prevent Sports Injuries',
     excerpt: 'Prevention is better than cure. Our sports physio experts share essential warm-up, cool-down, and conditioning tips for athletes of all levels.',
-    author: 'Dr. Karan Shah', authorRole: 'Sports Physiotherapist', readTime: '5 min', date: 'March 1, 2026',
+    author: 'Dr. Karan Shah', authorRole: 'Sports Physiotherapist',
+    authorBio: 'Certified Sports Physiotherapist. Works with state and national-level athletes.',
+    readTime: '5 min', date: 'March 1, 2026',
     sections: [
       { heading: 'Why most injuries are preventable', body: 'Roughly 50% of sports injuries are non-contact and overuse-related — meaning they\'re largely preventable with proper preparation, recovery, and load management.' },
       { heading: 'Top 10 prevention strategies', body: 'Apply these consistently:', bullets: [
@@ -111,10 +123,12 @@ const POSTS: Record<string, Post> = {
     takeaway: 'The best athletes are those who stay on the field. Prevention is unsexy but unbeatable — invest in it.',
   },
   'frozen-shoulder-treatment': {
-    slug: 'frozen-shoulder-treatment', category: 'Shoulder', icon: 'ri-snowy-line', color: 'var(--color-lavender-50)',
+    slug: 'frozen-shoulder-treatment', category: 'Shoulder', icon: 'ri-snowy-line', tint: 'lavender',
     title: 'Frozen Shoulder: What It Is and How We Treat It',
     excerpt: 'Adhesive capsulitis affects 2-5% of the population. Discover the stages, symptoms, and physiotherapy treatments that restore full shoulder mobility.',
-    author: 'Dr. Anjali Mehta', authorRole: 'Spine Specialist', readTime: '6 min', date: 'February 20, 2026',
+    author: 'Dr. Anjali Mehta', authorRole: 'Spine & Upper Limb Specialist',
+    authorBio: 'MPT (Musculoskeletal). Specialist in cervical, shoulder, and upper limb rehab.',
+    readTime: '6 min', date: 'February 20, 2026',
     sections: [
       { heading: 'A predictable but painful condition', body: 'Frozen shoulder (adhesive capsulitis) progresses through three phases — painful, frozen, and thawing — typically over 1–3 years if left untreated. Physiotherapy can substantially shorten this timeline.' },
       { heading: 'Stages and what to expect', body: 'Each phase has different goals:', bullets: [
@@ -128,105 +142,147 @@ const POSTS: Record<string, Post> = {
   },
 };
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const post = POSTS[params.slug];
-  if (!post) return { title: 'Article Not Found' };
-  return {
-    title: `${post.title} | SAI Physiotherapy Blog`,
-    description: post.excerpt,
-  };
+function slugify(s: string) {
+  return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 }
 
 export default function BlogDetailPage({ params }: { params: { slug: string } }) {
   const post = POSTS[params.slug];
   if (!post) notFound();
-
   const related = Object.values(POSTS).filter((p) => p.slug !== post.slug).slice(0, 3);
 
   return (
-    <div style={{ background: 'var(--color-bg)' }}>
-      <div style={{ background: 'var(--gradient-hero)', padding: 'calc(var(--header-height) + 3rem) 0 4rem' }}>
-        <div className="container" style={{ maxWidth: 820 }}>
-          <Link href="/blog" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'var(--color-primary)', fontSize: 'var(--text-sm)', fontWeight: 600, marginBottom: 'var(--space-6)' }}>
-            <i className="ri-arrow-left-line" style={{ fontSize: 16 }} /> All Articles
+    <div className={styles.page}>
+      <section className={`${styles.hero} ${styles[`tint_${post.tint}`]}`}>
+        <div className={styles.heroMesh} />
+        <div className="container">
+          <Link href="/blog" className={styles.back}>
+            <i className="ri-arrow-left-line" /> All Articles
           </Link>
-          <span style={{ display: 'inline-block', background: 'white', color: 'var(--color-primary)', padding: '4px 14px', borderRadius: 999, fontSize: 'var(--text-xs)', fontWeight: 600, border: '1px solid var(--color-border)', marginBottom: 'var(--space-4)' }}>{post.category}</span>
-          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-h1)', fontWeight: 700, color: 'var(--color-text)', letterSpacing: '-0.025em', lineHeight: 1.15, marginBottom: 'var(--space-5)' }}>
-            {post.title}
-          </h1>
-          <p style={{ fontSize: 'var(--text-lg)', color: 'var(--color-text-muted)', lineHeight: 1.6, marginBottom: 'var(--space-6)' }}>{post.excerpt}</p>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)', flexWrap: 'wrap', fontSize: 'var(--text-sm)', color: 'var(--color-text-muted)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-              <div style={{ width: 36, height: 36, background: 'var(--gradient-primary)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 700, fontSize: 'var(--text-xs)' }}>
+          <span className={styles.cat}>{post.category}</span>
+          <h1 className={styles.title}>{post.title}</h1>
+          <p className={styles.excerpt}>{post.excerpt}</p>
+          <div className={styles.metaRow}>
+            <div className={styles.authorRow}>
+              <div className={styles.authorAvatar}>
                 {post.author.split(' ').map((n) => n[0]).join('').slice(0, 2)}
               </div>
               <div>
-                <div style={{ color: 'var(--color-text)', fontWeight: 600 }}>{post.author}</div>
-                <div style={{ fontSize: 'var(--text-xs)' }}>{post.authorRole}</div>
+                <p className={styles.authorName}>{post.author}</p>
+                <p className={styles.authorRole}>{post.authorRole}</p>
               </div>
             </div>
-            <span style={{ width: 4, height: 4, borderRadius: '50%', background: 'var(--color-text-light)' }} />
-            <span><i className="ri-calendar-line" style={{ marginRight: 4 }} />{post.date}</span>
-            <span style={{ width: 4, height: 4, borderRadius: '50%', background: 'var(--color-text-light)' }} />
-            <span><i className="ri-time-line" style={{ marginRight: 4 }} />{post.readTime} read</span>
+            <span className={styles.dot} />
+            <span className={styles.metaItem}><i className="ri-calendar-line" /> {post.date}</span>
+            <span className={styles.dot} />
+            <span className={styles.metaItem}><i className="ri-time-line" /> {post.readTime} read</span>
           </div>
+        </div>
+      </section>
+
+      <div className="container">
+        <div className={`${styles.coverIcon} ${styles[`tintBox_${post.tint}`]}`}>
+          <i className={post.icon} />
         </div>
       </div>
 
-      <article className="section" style={{ paddingTop: 'var(--space-12)' }}>
-        <div className="container" style={{ maxWidth: 820 }}>
-          <div style={{ background: post.color, height: 220, borderRadius: 'var(--radius-xl)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 'var(--space-10)', border: '1px solid var(--color-border-light)' }}>
-            <i className={post.icon} style={{ fontSize: 80, color: 'var(--color-primary)', opacity: 0.5 }} />
-          </div>
+      <section className={styles.body}>
+        <div className="container">
+          <div className={styles.layout}>
+            <article className={styles.article}>
+              {post.sections.map((s) => (
+                <section key={s.heading} className={styles.section} id={slugify(s.heading)}>
+                  <h2 className={styles.h2}>{s.heading}</h2>
+                  <p className={styles.p}>{s.body}</p>
+                  {s.bullets && (
+                    <ul className={styles.bullets}>
+                      {s.bullets.map((b) => (
+                        <li key={b}>
+                          <i className="ri-checkbox-circle-fill" />
+                          <span>{b}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </section>
+              ))}
 
-          {post.sections.map((s) => (
-            <section key={s.heading} style={{ marginBottom: 'var(--space-10)' }}>
-              <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-h3)', fontWeight: 700, color: 'var(--color-text)', letterSpacing: '-0.02em', marginBottom: 'var(--space-4)' }}>{s.heading}</h2>
-              <p style={{ fontSize: 'var(--text-base)', color: 'var(--color-text)', lineHeight: 1.75, marginBottom: s.bullets ? 'var(--space-4)' : 0 }}>{s.body}</p>
-              {s.bullets && (
-                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-                  {s.bullets.map((b) => (
-                    <li key={b} style={{ display: 'flex', alignItems: 'flex-start', gap: 'var(--space-3)', fontSize: 'var(--text-base)', color: 'var(--color-text)', lineHeight: 1.6 }}>
-                      <i className="ri-checkbox-circle-fill" style={{ fontSize: 18, color: 'var(--color-primary)', flexShrink: 0, marginTop: 3 }} />
-                      <span>{b}</span>
+              <div className={styles.takeaway}>
+                <span className={styles.takeawayLabel}>Key Takeaway</span>
+                <p>{post.takeaway}</p>
+              </div>
+
+              <div className={styles.authorBio}>
+                <div className={styles.authorAvatarLg}>
+                  {post.author.split(' ').map((n) => n[0]).join('').slice(0, 2)}
+                </div>
+                <div>
+                  <p className={styles.authorBioName}>About {post.author}</p>
+                  <p className={styles.authorBioRole}>{post.authorRole}</p>
+                  <p className={styles.authorBioText}>{post.authorBio}</p>
+                </div>
+              </div>
+            </article>
+
+            <aside className={styles.sidebar}>
+              <div className={styles.sideCard}>
+                <h3 className={styles.sideTitle}>Author</h3>
+                <div className={styles.authorRow}>
+                  <div className={styles.authorAvatar}>
+                    {post.author.split(' ').map((n) => n[0]).join('').slice(0, 2)}
+                  </div>
+                  <div>
+                    <p className={styles.authorName}>{post.author}</p>
+                    <p className={styles.authorRole}>{post.authorRole}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className={styles.sideCard}>
+                <h3 className={styles.sideTitle}>Share</h3>
+                <div className={styles.shareRow}>
+                  <button type="button" className={styles.shareBtn} aria-label="Share on X"><i className="ri-twitter-x-line" /></button>
+                  <button type="button" className={styles.shareBtn} aria-label="Share on Facebook"><i className="ri-facebook-circle-line" /></button>
+                  <button type="button" className={styles.shareBtn} aria-label="Share on LinkedIn"><i className="ri-linkedin-line" /></button>
+                  <button type="button" className={styles.shareBtn} aria-label="Copy link"><i className="ri-link-m" /></button>
+                </div>
+              </div>
+
+              <div className={styles.sideCard}>
+                <h3 className={styles.sideTitle}>Contents</h3>
+                <ul className={styles.toc}>
+                  {post.sections.map((s) => (
+                    <li key={s.heading}>
+                      <a href={`#${slugify(s.heading)}`}>
+                        <i className="ri-arrow-right-s-line" /> {s.heading}
+                      </a>
                     </li>
                   ))}
                 </ul>
-              )}
-            </section>
-          ))}
+              </div>
 
-          <div style={{ background: 'var(--color-primary-50)', border: '1px solid var(--color-primary-100)', borderRadius: 'var(--radius-lg)', padding: 'var(--space-7) var(--space-8)', marginTop: 'var(--space-10)' }}>
-            <p style={{ fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--color-primary)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 'var(--space-2)' }}>Key takeaway</p>
-            <p style={{ fontSize: 'var(--text-lg)', color: 'var(--color-text)', lineHeight: 1.5, fontWeight: 500, margin: 0 }}>{post.takeaway}</p>
-          </div>
-
-          <div style={{ marginTop: 'var(--space-12)', padding: 'var(--space-8)', background: 'white', border: '1px solid var(--color-border-light)', borderRadius: 'var(--radius-xl)', textAlign: 'center', boxShadow: 'var(--shadow-card)' }}>
-            <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-h3)', fontWeight: 700, color: 'var(--color-text)', marginBottom: 'var(--space-3)' }}>Need expert care?</h3>
-            <p style={{ color: 'var(--color-text-muted)', marginBottom: 'var(--space-5)' }}>Book a consultation with our specialists for a personalized treatment plan.</p>
-            <Link href="/book-appointment" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '0.875rem 2rem', background: 'var(--gradient-primary)', color: 'white', borderRadius: 999, fontWeight: 600, boxShadow: 'var(--shadow-blue)' }}>
-              Book Appointment <i className="ri-arrow-right-line" style={{ fontSize: 16 }} />
-            </Link>
-          </div>
-        </div>
-      </article>
-
-      <section className="section" style={{ paddingTop: 0 }}>
-        <div className="container">
-          <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-h2)', fontWeight: 700, color: 'var(--color-text)', letterSpacing: '-0.025em', marginBottom: 'var(--space-8)', textAlign: 'center' }}>Related Articles</h2>
-          <div className="grid-3" style={{ gap: '1.5rem' }}>
-            {related.map((p) => (
-              <Link key={p.slug} href={`/blog/${p.slug}`} style={{ display: 'flex', flexDirection: 'column', background: 'white', border: '1px solid var(--color-border-light)', borderRadius: 'var(--radius-xl)', overflow: 'hidden', textDecoration: 'none', color: 'inherit', boxShadow: 'var(--shadow-card)' }}>
-                <div style={{ background: p.color, height: 160, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <i className={p.icon} style={{ fontSize: 56, color: 'var(--color-primary)', opacity: 0.55 }} />
-                </div>
-                <div style={{ padding: '1.25rem 1.5rem 1.5rem', flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-primary)', fontWeight: 600 }}>{p.category}</span>
-                  <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '1.05rem', fontWeight: 700, color: 'var(--color-text)', lineHeight: 1.35 }}>{p.title}</h3>
-                </div>
+              <Link href="/book-appointment" className={styles.bookCta}>
+                Book Consultation <i className="ri-arrow-right-line" />
               </Link>
-            ))}
+            </aside>
           </div>
+
+          <section className={styles.related}>
+            <h2 className={styles.relatedTitle}>More Articles</h2>
+            <div className={styles.relatedGrid}>
+              {related.map((p) => (
+                <Link key={p.slug} href={`/blog/${p.slug}`} className={styles.relatedCard}>
+                  <div className={`${styles.relCover} ${styles[`tint_${p.tint}`]}`}>
+                    <i className={p.icon} />
+                  </div>
+                  <div className={styles.relBody}>
+                    <span className={styles.relCat}>{p.category}</span>
+                    <h3 className={styles.relCardTitle}>{p.title}</h3>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
         </div>
       </section>
     </div>

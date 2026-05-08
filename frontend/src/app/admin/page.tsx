@@ -40,7 +40,10 @@ export default function AdminDashboardPage() {
           analyticsApi.getServiceBreakdown(),
         ]);
         if (cancelled) return;
-        if (d.status === 'fulfilled') setDashboard(d.value.data?.data ?? d.value.data ?? {});
+        if (d.status === 'fulfilled') {
+          const payload = d.value.data?.data ?? d.value.data ?? {};
+          setDashboard(payload.kpis ?? payload);
+        }
         if (t.status === 'fulfilled') setTrend(t.value.data?.data ?? t.value.data ?? []);
         if (r.status === 'fulfilled') setRevenue(r.value.data?.data ?? r.value.data ?? []);
         if (s.status === 'fulfilled') setServices(s.value.data?.data ?? s.value.data ?? []);

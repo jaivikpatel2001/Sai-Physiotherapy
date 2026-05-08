@@ -1,84 +1,178 @@
-import type { Metadata } from 'next';
-import Link from 'next/link';
-
-export const metadata: Metadata = {
-  title: 'Patient Testimonials & Success Stories | SAI Physiotherapy',
-  description: 'Read 500+ patient reviews and recovery success stories from SAI Physiotherapy. Real patients, real results.',
-};
-
-const SURFACES = [
-  'var(--color-blush-50)',
-  'var(--color-sand-50)',
-  'var(--color-mint-50)',
-  'var(--color-lavender-50)',
-  'var(--color-primary-50)',
-];
+'use client';
+import { useMemo, useState } from 'react';
+import styles from './testimonials.module.css';
 
 const TESTIMONIALS = [
-  { name: 'Priya Sharma', location: 'Ahmedabad', rating: 5, condition: 'Back Pain', text: 'After suffering from chronic back pain for 3 years, SAI Physiotherapy gave me my life back! Dr. Patel\'s treatment plan was exceptional.', avatar: 'PS' },
-  { name: 'Rajesh Patel', location: 'Gandhinagar', rating: 5, condition: 'Knee Replacement Rehab', text: 'Post knee replacement, the team here made recovery seamless. The exercises and sessions were perfectly planned. Highly recommend!', avatar: 'RP' },
-  { name: 'Meena Joshi', location: 'Surat', rating: 5, condition: 'Paralysis Rehab', text: 'My mother had a stroke and couldn\'t walk. After 6 months of rehabilitation at SAI, she can now walk independently. Incredibly skilled staff.', avatar: 'MJ' },
-  { name: 'Vikram Shah', location: 'Vadodara', rating: 5, condition: 'Cervical Spondylosis', text: 'Cervical pain was affecting my work daily. Within 10 sessions I felt 80% better. Excellent knowledge and professional approach.', avatar: 'VS' },
-  { name: 'Anita Desai', location: 'Ahmedabad', rating: 5, condition: 'Sports Injury', text: 'As a runner with a ligament tear, SAI\'s sports rehab program got me back on the track in record time. Couldn\'t be happier!', avatar: 'AD' },
-  { name: 'Harish Kumar', location: 'Rajkot', rating: 5, condition: 'Frozen Shoulder', text: 'Full mobility restored in 8 weeks! The physiotherapists here are world-class. Frozen shoulder was limiting everything from driving to sleeping.', avatar: 'HK' },
-  { name: 'Sita Bhatt', location: 'Ahmedabad', rating: 5, condition: 'Post Surgery Rehab', text: 'After hip replacement surgery I was scared about recovery. The team gave me confidence and got me walking normally within weeks.', avatar: 'SB' },
-  { name: 'Arun Malhotra', location: 'Ahmedabad', rating: 5, condition: 'Sciatica', text: 'Sciatica pain was unbearable — I couldn\'t sit or stand for more than a minute. After 12 sessions, I\'m completely pain free.', avatar: 'AM' },
-  { name: 'Kavita Rao', location: 'Anand', rating: 5, condition: 'Neuro Physiotherapy', text: 'My son has cerebral palsy. The pediatric physio team at SAI has helped him achieve milestones we thought impossible. Grateful forever.', avatar: 'KR' },
+  { name: 'Priya Sharma', location: 'Ahmedabad', rating: 5, condition: 'Back Pain', duration: '6 weeks', text: 'After suffering from chronic back pain for 3 years, SAI Physiotherapy gave me my life back. Dr. Patel\'s treatment plan was exceptional.', avatar: 'PS' },
+  { name: 'Rajesh Patel', location: 'Gandhinagar', rating: 5, condition: 'Knee Replacement', duration: '12 weeks', text: 'Post knee replacement, the team here made recovery seamless. Exercises and sessions were perfectly planned.', avatar: 'RP' },
+  { name: 'Meena Joshi', location: 'Surat', rating: 5, condition: 'Stroke Rehab', duration: '6 months', text: 'My mother had a stroke and could not walk. After 6 months of rehabilitation at SAI, she walks independently.', avatar: 'MJ' },
+  { name: 'Vikram Shah', location: 'Vadodara', rating: 5, condition: 'Cervical Pain', duration: '5 weeks', text: 'Cervical pain was affecting my work daily. Within 10 sessions I felt 80% better. Excellent professional approach.', avatar: 'VS' },
+  { name: 'Anita Desai', location: 'Ahmedabad', rating: 4, condition: 'Sports Injury', duration: '8 weeks', text: 'As a runner with a ligament tear, SAI\'s sports rehab program got me back on the track in record time.', avatar: 'AD' },
+  { name: 'Harish Kumar', location: 'Rajkot', rating: 5, condition: 'Frozen Shoulder', duration: '8 weeks', text: 'Full mobility restored in 8 weeks. The physiotherapists here are world-class. I can drive and sleep again.', avatar: 'HK' },
+  { name: 'Sita Bhatt', location: 'Ahmedabad', rating: 5, condition: 'Post-Op Hip', duration: '10 weeks', text: 'After hip replacement I was scared. The team gave me confidence and got me walking normally within weeks.', avatar: 'SB' },
+  { name: 'Arun Malhotra', location: 'Ahmedabad', rating: 5, condition: 'Sciatica', duration: '12 weeks', text: 'Sciatica was unbearable. After 12 sessions, I am completely pain free.', avatar: 'AM' },
+  { name: 'Kavita Rao', location: 'Anand', rating: 5, condition: 'Pediatric Neuro', duration: 'Ongoing', text: 'My son has cerebral palsy. The pediatric physio team has helped him achieve milestones we thought impossible.', avatar: 'KR' },
+];
+
+const CONDITIONS = ['All', 'Back Pain', 'Knee Replacement', 'Stroke Rehab', 'Cervical Pain', 'Sports Injury', 'Frozen Shoulder'];
+const RATINGS: { label: string; min: number }[] = [
+  { label: 'All', min: 0 },
+  { label: '5 stars', min: 5 },
+  { label: '4+ stars', min: 4 },
+  { label: '3+ stars', min: 3 },
 ];
 
 export default function TestimonialsPage() {
+  const [condition, setCondition] = useState('All');
+  const [ratingMin, setRatingMin] = useState(0);
+  const [submitted, setSubmitted] = useState(false);
+  const [form, setForm] = useState({ name: '', condition: '', review: '', rating: 5 });
+
+  const filtered = useMemo(
+    () => TESTIMONIALS.filter((t) =>
+      (condition === 'All' || t.condition === condition) && t.rating >= ratingMin),
+    [condition, ratingMin],
+  );
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitted(true);
+  };
+
   return (
-    <div style={{ background: 'var(--color-bg)' }}>
-      <div style={{ background: 'var(--gradient-hero)', padding: 'calc(var(--header-height) + 4rem) 0 4rem', textAlign: 'center' }}>
+    <div className={styles.page}>
+      <section className={styles.hero}>
+        <div className={styles.heroMesh} />
         <div className="container">
           <p className="section-label" style={{ justifyContent: 'center' }}>Patient Stories</p>
-          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-h1)', color: 'var(--color-text)', fontWeight: 700, margin: '0.75rem 0 1rem', letterSpacing: '-0.02em' }}>
-            Real Stories, <span style={{ color: 'var(--color-primary)' }}>Real Results</span>
-          </h1>
-          <p style={{ color: 'var(--color-text-muted)', fontSize: 'var(--text-lg)', maxWidth: 560, margin: '0 auto' }}>
-            Over 500 patients have shared their recovery journeys with us. Here are just a few.
-          </p>
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1rem', background: 'var(--color-white)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-full)', padding: '0.75rem 2rem', width: 'fit-content', margin: '2rem auto 0', boxShadow: 'var(--shadow-sm)' }}>
-            <span style={{ color: 'var(--color-accent)', display: 'flex', gap: 4 }}>
-              {Array.from({ length: 5 }).map((_, i) => (
-                <i key={i} className="ri-star-fill" style={{ fontSize: 20 }} />
-              ))}
+          <h1 className={styles.heroTitle}>Real Stories, <span className="gradient-text">Real Results</span></h1>
+          <p className={styles.heroDesc}>500+ patients have shared their recovery journeys with us.</p>
+          <div className={`glass-card ${styles.ratingBanner}`}>
+            <span className={styles.stars}>
+              {Array.from({ length: 5 }).map((_, i) => (<i key={i} className="ri-star-fill" />))}
             </span>
-            <span style={{ color: 'var(--color-text)', fontWeight: 700 }}>4.9 / 5.0</span>
-            <span style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem' }}>Based on 500+ Google Reviews</span>
+            <span className={styles.ratingNum}>4.9 / 5.0</span>
+            <span className={styles.ratingMeta}>Based on 500+ Google Reviews</span>
           </div>
         </div>
-      </div>
+      </section>
 
-      <section className="section">
+      <section className={styles.body}>
         <div className="container">
-          <div className="grid-3" style={{ gap: '1.5rem' }}>
-            {TESTIMONIALS.map((t, i) => (
-              <div key={t.name} style={{ background: SURFACES[i % SURFACES.length], borderRadius: 'var(--radius-lg)', padding: '1.75rem 1.5rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem', position: 'relative', overflow: 'hidden', transition: 'transform 0.25s, box-shadow 0.25s' }}>
-                <i className="ri-double-quotes-l" style={{ position: 'absolute', top: 12, right: 16, fontSize: 56, color: 'rgba(45, 106, 159, 0.18)', pointerEvents: 'none' }} />
-                <div style={{ display: 'flex', gap: 2, color: 'var(--color-accent)' }}>
-                  {Array.from({ length: t.rating }).map((_, j) => (
-                    <i key={j} className="ri-star-fill" style={{ fontSize: 14 }} />
-                  ))}
+          <div className={styles.filters}>
+            <div className={styles.filterGroup}>
+              <span className={styles.filterLabel}>Condition</span>
+              <div className={styles.chipGroup}>
+                {CONDITIONS.map((c) => (
+                  <button
+                    key={c}
+                    type="button"
+                    onClick={() => setCondition(c)}
+                    className={`${styles.chip} ${condition === c ? styles.chipActive : ''}`}
+                  >{c}</button>
+                ))}
+              </div>
+            </div>
+            <div className={styles.filterGroup}>
+              <span className={styles.filterLabel}>Rating</span>
+              <div className={styles.chipGroup}>
+                {RATINGS.map((r) => (
+                  <button
+                    key={r.label}
+                    type="button"
+                    onClick={() => setRatingMin(r.min)}
+                    className={`${styles.chip} ${ratingMin === r.min ? styles.chipActive : ''}`}
+                  >{r.label}</button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className={styles.masonry}>
+            {filtered.map((t) => (
+              <div key={t.name + t.condition} className={styles.card}>
+                <i className={`ri-double-quotes-l ${styles.quote}`} />
+                <span className={styles.stars}>
+                  {Array.from({ length: t.rating }).map((_, j) => (<i key={j} className="ri-star-fill" />))}
+                </span>
+                <p className={styles.text}>&ldquo;{t.text}&rdquo;</p>
+                <div className={styles.metaRow}>
+                  <span className={styles.condChip}>{t.condition}</span>
+                  <span className={styles.durChip}><i className="ri-time-line" /> {t.duration}</span>
                 </div>
-                <p style={{ fontSize: '0.875rem', color: 'var(--color-text)', lineHeight: 1.7, fontStyle: 'italic', flex: 1 }}>
-                  &ldquo;{t.text}&rdquo;
-                </p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(45, 106, 159, 0.10)' }}>
-                  <div style={{ width: 44, height: 44, background: 'var(--gradient-primary)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.875rem', fontWeight: 700, color: 'white', flexShrink: 0 }}>{t.avatar}</div>
+                <div className={styles.author}>
+                  <div className={styles.avatar}>{t.avatar}</div>
                   <div>
-                    <p style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-text)' }}>{t.name}</p>
-                    <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{t.location} · {t.condition}</p>
+                    <p className={styles.authorName}>{t.name}</p>
+                    <p className={styles.authorMeta}>{t.location}</p>
                   </div>
                 </div>
               </div>
             ))}
           </div>
 
-          <div style={{ textAlign: 'center', marginTop: '3rem' }}>
-            <Link href="/book-appointment" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '1rem 2.5rem', background: 'var(--gradient-primary)', color: 'white', borderRadius: 999, fontWeight: 600, boxShadow: 'var(--shadow-blue)' }}>
-              Start Your Recovery Journey <i className="ri-arrow-right-line" style={{ fontSize: 18 }} />
-            </Link>
+          {filtered.length === 0 && (
+            <div className={styles.empty}>
+              <i className="ri-chat-3-line" />
+              <p>No reviews match those filters.</p>
+            </div>
+          )}
+
+          <div className={styles.submitSection}>
+            <div className={styles.submitInner}>
+              <h2>Share Your Story</h2>
+              <p>Recovered with us? Help others by sharing your experience.</p>
+              {submitted ? (
+                <div className={styles.thanks}>
+                  <i className="ri-checkbox-circle-fill" />
+                  <span>Thank you! Your testimonial has been received.</span>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit} className={styles.form}>
+                  <div className={styles.formRow}>
+                    <input
+                      placeholder="Your name"
+                      required
+                      value={form.name}
+                      onChange={(e) => setForm({ ...form, name: e.target.value })}
+                      className={styles.input}
+                    />
+                    <input
+                      placeholder="Condition treated"
+                      required
+                      value={form.condition}
+                      onChange={(e) => setForm({ ...form, condition: e.target.value })}
+                      className={styles.input}
+                    />
+                  </div>
+                  <textarea
+                    placeholder="Share your recovery journey..."
+                    rows={4}
+                    required
+                    value={form.review}
+                    onChange={(e) => setForm({ ...form, review: e.target.value })}
+                    className={styles.textarea}
+                  />
+                  <div className={styles.ratingRow}>
+                    <span>Your rating:</span>
+                    <div className={styles.starPicker}>
+                      {[1, 2, 3, 4, 5].map((n) => (
+                        <button
+                          type="button"
+                          key={n}
+                          onClick={() => setForm({ ...form, rating: n })}
+                          className={`${styles.starBtn} ${form.rating >= n ? styles.starOn : ''}`}
+                          aria-label={`${n} stars`}
+                        ><i className="ri-star-fill" /></button>
+                      ))}
+                    </div>
+                  </div>
+                  <button type="submit" className={styles.submitBtn}>
+                    <i className="ri-send-plane-line" /> Submit Testimonial
+                  </button>
+                </form>
+              )}
+            </div>
           </div>
         </div>
       </section>

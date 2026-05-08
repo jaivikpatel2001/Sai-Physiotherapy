@@ -7,39 +7,47 @@ import styles from './DoctorsSection.module.css';
 const DOCTORS = [
   {
     name: 'Dr. Rajesh Patel',
-    title: 'Senior Physiotherapist & Director',
+    title: 'Spine & Ortho Specialist',
     qual: 'BPT, MPT (Orthopedics)',
-    exp: '15+ Years',
-    specialties: ['Spine Care', 'Sports Rehab', 'Ortho'],
+    exp: '15+ yrs',
+    languages: ['English', 'हिंदी', 'ગુજરાતી'],
+    available: 'Available today',
+    availableType: 'today',
     avatar: 'RP',
-    color: 'var(--color-primary-50)',
+    color: 'linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%)',
   },
   {
     name: 'Dr. Anita Shah',
-    title: 'Neuro Physiotherapy Specialist',
+    title: 'Neuro Physiotherapist',
     qual: 'BPT, MPT (Neurology)',
-    exp: '12+ Years',
-    specialties: ['Paralysis', 'Stroke Rehab', 'Pediatrics'],
+    exp: '12+ yrs',
+    languages: ['English', 'हिंदी'],
+    available: 'Mon, Wed, Fri',
+    availableType: 'schedule',
     avatar: 'AS',
-    color: 'var(--color-sand-50)',
+    color: 'linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%)',
   },
   {
     name: 'Dr. Vikram Mehta',
-    title: 'Sports & Orthopedic Physiotherapist',
-    qual: 'BPT, MPT, Cert. Sports Physio',
-    exp: '10+ Years',
-    specialties: ['Sports Injury', 'Joint Care', 'Post-Op'],
+    title: 'Sports & Joint Care',
+    qual: 'BPT, MPT, Sports Cert.',
+    exp: '10+ yrs',
+    languages: ['English', 'हिंदी', 'ગુજરાતી'],
+    available: 'Available today',
+    availableType: 'today',
     avatar: 'VM',
-    color: 'var(--color-mint-50)',
+    color: 'linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%)',
   },
   {
     name: 'Dr. Meena Joshi',
-    title: "Geriatric & Women's Health Specialist",
+    title: 'Geriatric & Women\'s Health',
     qual: 'BPT, MPT (Geriatrics)',
-    exp: '8+ Years',
-    specialties: ['Elderly Care', 'Osteoporosis', 'Fall Prevention'],
+    exp: '8+ yrs',
+    languages: ['English', 'ગુજરાતી'],
+    available: 'Tue, Thu, Sat',
+    availableType: 'schedule',
     avatar: 'MJ',
-    color: 'var(--color-blush-50)',
+    color: 'linear-gradient(135deg, #FFF1F2 0%, #FFE4E6 100%)',
   },
 ];
 
@@ -51,14 +59,14 @@ export default function DoctorsSection() {
     <section className={`section ${styles.section}`} ref={ref}>
       <div className="container">
         <div className="section-header">
-          <motion.p className="section-label" initial={{ opacity: 0, y: 20 }} animate={inView ? { opacity: 1, y: 0 } : {}}>
+          <motion.span className="section-label" initial={{ opacity: 0, y: 20 }} animate={inView ? { opacity: 1, y: 0 } : {}}>
             Meet Our Experts
-          </motion.p>
+          </motion.span>
           <motion.h2 className="section-title" initial={{ opacity: 0, y: 20 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ delay: 0.1 }}>
             Qualified <span>Physiotherapy</span> Specialists
           </motion.h2>
           <motion.p className="section-desc" initial={{ opacity: 0, y: 20 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ delay: 0.15 }}>
-            Our team of BPT & MPT qualified physiotherapists brings decades of combined experience
+            Our team of BPT &amp; MPT qualified physiotherapists brings decades of combined experience
             across all physiotherapy specializations.
           </motion.p>
         </div>
@@ -68,32 +76,44 @@ export default function DoctorsSection() {
             <motion.div
               key={doc.name}
               className={styles.card}
-              initial={{ opacity: 0, y: 40 }}
+              initial={{ opacity: 0, y: 30 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
-              transition={{ delay: i * 0.1, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ delay: i * 0.08, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
             >
-              <div className={styles.cardTop} style={{ background: doc.color }}>
-                <div className={styles.avatar}>{doc.avatar}</div>
+              <div className={styles.portrait} style={{ background: doc.color }}>
                 <div className={styles.expBadge}>
                   <i className="ri-award-line" style={{ fontSize: 12 }} />
                   {doc.exp}
                 </div>
+                <div className={styles.avatar}>{doc.avatar}</div>
               </div>
-              <div className={styles.cardBody}>
+
+              <div className={styles.body}>
                 <h3 className={styles.name}>{doc.name}</h3>
-                <p className={styles.title}>{doc.title}</p>
-                <div className={styles.qual}>
-                  <i className="ri-book-open-line" style={{ fontSize: 12 }} />
-                  {doc.qual}
-                </div>
-                <div className={styles.specialties}>
-                  {doc.specialties.map((s) => (
-                    <span key={s} className={styles.specialty}>{s}</span>
+                <span className={styles.specChip}>
+                  <i className="ri-stethoscope-line" style={{ fontSize: 12 }} /> {doc.title}
+                </span>
+                <p className={styles.qual}>{doc.qual}</p>
+
+                <div className={styles.languages}>
+                  {doc.languages.map((l) => (
+                    <span key={l} className={styles.langChip}>{l}</span>
                   ))}
                 </div>
-                <Link href="/book-appointment" className={styles.bookBtn}>
-                  Book Appointment
-                </Link>
+
+                <div className={`${styles.availability} ${doc.availableType === 'today' ? styles.availToday : styles.availSchedule}`}>
+                  <span className={styles.availDot} />
+                  {doc.available}
+                </div>
+
+                <div className={styles.actions}>
+                  <Link href="/book-appointment" className={styles.bookBtn}>
+                    Book Consultation
+                  </Link>
+                  <Link href="/doctors" className={styles.profileBtn}>
+                    Profile
+                  </Link>
+                </div>
               </div>
             </motion.div>
           ))}
@@ -101,7 +121,7 @@ export default function DoctorsSection() {
 
         <motion.div className={styles.teamCta} initial={{ opacity: 0, y: 20 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ delay: 0.5 }}>
           <Link href="/doctors" className={styles.viewTeamBtn}>
-            Meet the Full Team <i className="ri-arrow-right-line" style={{ fontSize: 16, marginLeft: 4 }} />
+            Meet the Full Team <i className="ri-arrow-right-line" style={{ fontSize: 16 }} />
           </Link>
         </motion.div>
       </div>

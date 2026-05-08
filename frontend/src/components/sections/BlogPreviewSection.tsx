@@ -4,36 +4,36 @@ import { motion, useInView } from 'framer-motion';
 import Link from 'next/link';
 import styles from './BlogPreviewSection.module.css';
 
-const BLOGS = [
-  {
-    slug: '5-exercises-for-lower-back-pain',
-    category: 'Back Pain',
-    title: '5 Physiotherapist-Approved Exercises for Lower Back Pain Relief',
-    excerpt: 'Lower back pain affects 80% of people at some point. Our senior physiotherapist shares five evidence-based exercises you can do at home for immediate relief.',
-    readTime: '5 min read',
-    date: 'April 28, 2026',
-    icon: 'ri-walk-line',
-    color: 'var(--color-primary-50)',
-  },
+const FEATURED = {
+  slug: '5-exercises-for-lower-back-pain',
+  category: 'Back Pain',
+  title: '5 Physiotherapist-Approved Exercises for Lower Back Pain Relief',
+  excerpt: 'Lower back pain affects 80% of people at some point. Our senior physiotherapist shares five evidence-based exercises you can do at home for immediate relief.',
+  readTime: '5 min',
+  date: 'April 28, 2026',
+  author: 'Dr. Rajesh Patel',
+  icon: 'ri-walk-line',
+  surface: 'linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 50%, #BAE6FD 100%)',
+};
+
+const SECONDARY = [
   {
     slug: 'understanding-cervical-spondylosis',
     category: 'Spine Care',
-    title: 'Understanding Cervical Spondylosis: Causes, Symptoms & Treatment',
-    excerpt: 'Neck pain and stiffness are increasingly common in the digital age. Learn how cervical spondylosis develops and how physiotherapy offers long-term relief.',
-    readTime: '7 min read',
+    title: 'Understanding Cervical Spondylosis: Causes & Treatment',
+    readTime: '7 min',
     date: 'April 15, 2026',
     icon: 'ri-mental-health-line',
-    color: 'var(--color-sand-50)',
+    surface: 'linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%)',
   },
   {
     slug: 'post-stroke-rehabilitation-guide',
     category: 'Neuro Rehab',
-    title: 'A Complete Guide to Post-Stroke Rehabilitation & Recovery',
-    excerpt: 'Stroke recovery is a journey, not a destination. Our neuro physio team explains the stages of recovery and what to expect from a structured rehabilitation program.',
-    readTime: '8 min read',
+    title: 'A Complete Guide to Post-Stroke Rehabilitation',
+    readTime: '8 min',
     date: 'March 30, 2026',
     icon: 'ri-heart-pulse-line',
-    color: 'var(--color-mint-50)',
+    surface: 'linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%)',
   },
 ];
 
@@ -45,11 +45,11 @@ export default function BlogPreviewSection() {
     <section className={`section ${styles.section}`} ref={ref}>
       <div className="container">
         <div className="section-header">
-          <motion.p className="section-label" initial={{ opacity: 0, y: 20 }} animate={inView ? { opacity: 1, y: 0 } : {}}>
+          <motion.span className="section-label" initial={{ opacity: 0, y: 20 }} animate={inView ? { opacity: 1, y: 0 } : {}}>
             Health Resources
-          </motion.p>
+          </motion.span>
           <motion.h2 className="section-title" initial={{ opacity: 0, y: 20 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ delay: 0.1 }}>
-            Expert <span>Health Articles</span> & Guides
+            Expert <span>Health Articles</span> &amp; Guides
           </motion.h2>
           <motion.p className="section-desc" initial={{ opacity: 0, y: 20 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ delay: 0.15 }}>
             Evidence-based health information written by our qualified physiotherapists to help
@@ -57,38 +57,64 @@ export default function BlogPreviewSection() {
           </motion.p>
         </div>
 
-        <div className={styles.grid}>
-          {BLOGS.map((post, i) => (
-            <motion.div
-              key={post.slug}
-              initial={{ opacity: 0, y: 40 }}
-              animate={inView ? { opacity: 1, y: 0 } : {}}
-              transition={{ delay: i * 0.12, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <Link href={`/blog/${post.slug}`} className={styles.card}>
-                <div className={styles.cardThumb} style={{ background: post.color }}>
-                  <i className={`${post.icon} ${styles.thumbIcon}`} />
-                  <span className={styles.category}>
-                    <i className="ri-price-tag-3-line" style={{ fontSize: 11 }} /> {post.category}
+        <div className={styles.layout}>
+          {/* Featured */}
+          <motion.div initial={{ opacity: 0, y: 30 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6 }}>
+            <Link href={`/blog/${FEATURED.slug}`} className={styles.featured}>
+              <div className={styles.featuredCover} style={{ background: FEATURED.surface }}>
+                <i className={`${FEATURED.icon} ${styles.featuredIcon}`} />
+                <span className={styles.featuredCategory}>
+                  <i className="ri-price-tag-3-line" style={{ fontSize: 11 }} /> {FEATURED.category}
+                </span>
+              </div>
+              <div className={styles.featuredBody}>
+                <div className={styles.meta}>
+                  <span>{FEATURED.date}</span>
+                  <span className={styles.dot}>·</span>
+                  <span><i className="ri-time-line" style={{ fontSize: 12, marginRight: 3 }} /> {FEATURED.readTime}</span>
+                </div>
+                <h3 className={styles.featuredTitle}>{FEATURED.title}</h3>
+                <p className={styles.featuredExcerpt}>{FEATURED.excerpt}</p>
+                <div className={styles.author}>
+                  <div className={styles.authorAvatar}>RP</div>
+                  <div>
+                    <p className={styles.authorName}>{FEATURED.author}</p>
+                    <p className={styles.authorTitle}>Senior Physiotherapist</p>
+                  </div>
+                  <span className={styles.readMore}>
+                    Read article <i className="ri-arrow-right-line" style={{ fontSize: 14 }} />
                   </span>
                 </div>
-                <div className={styles.cardBody}>
-                  <div className={styles.meta}>
-                    <span className={styles.date}>{post.date}</span>
-                    <span className={styles.dot}>·</span>
-                    <span className={styles.readTime}>
-                      <i className="ri-time-line" style={{ fontSize: 12 }} /> {post.readTime}
-                    </span>
+              </div>
+            </Link>
+          </motion.div>
+
+          {/* Secondary */}
+          <div className={styles.secondaryCol}>
+            {SECONDARY.map((post, i) => (
+              <motion.div
+                key={post.slug}
+                initial={{ opacity: 0, y: 20 }}
+                animate={inView ? { opacity: 1, y: 0 } : {}}
+                transition={{ delay: 0.15 + i * 0.1, duration: 0.5 }}
+              >
+                <Link href={`/blog/${post.slug}`} className={styles.secondary}>
+                  <div className={styles.secondaryCover} style={{ background: post.surface }}>
+                    <i className={`${post.icon} ${styles.secondaryIcon}`} />
                   </div>
-                  <h3 className={styles.title}>{post.title}</h3>
-                  <p className={styles.excerpt}>{post.excerpt}</p>
-                  <div className={styles.readMore}>
-                    Read Article <i className="ri-arrow-right-line" style={{ fontSize: 14 }} />
+                  <div className={styles.secondaryBody}>
+                    <span className={styles.secondaryCategory}>{post.category}</span>
+                    <h4 className={styles.secondaryTitle}>{post.title}</h4>
+                    <div className={styles.meta}>
+                      <span>{post.date}</span>
+                      <span className={styles.dot}>·</span>
+                      <span><i className="ri-time-line" style={{ fontSize: 12, marginRight: 3 }} /> {post.readTime}</span>
+                    </div>
                   </div>
-                </div>
-              </Link>
-            </motion.div>
-          ))}
+                </Link>
+              </motion.div>
+            ))}
+          </div>
         </div>
 
         <motion.div className={styles.viewAll} initial={{ opacity: 0, y: 20 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ delay: 0.45 }}>

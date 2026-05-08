@@ -1,4 +1,5 @@
-import type { Metadata } from 'next';
+'use client';
+import { useState } from 'react';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import styles from './service-detail.module.css';
@@ -8,10 +9,12 @@ const SERVICES: Record<string, {
   desc: string; longDesc: string; benefits: string[]; conditions: string[];
   process: { step: string; title: string; desc: string }[];
   faq: { q: string; a: string }[];
+  recoveryTime: string; successRate: string;
 }> = {
   'back-pain-treatment': {
     icon: 'ri-walk-line', title: 'Back Pain Treatment', category: 'Spine & Back',
     price: '₹500 – ₹2,000', sessions: '8–12 sessions',
+    recoveryTime: '4–8 weeks', successRate: '95%',
     desc: 'Expert treatment for all types of back pain using advanced physiotherapy techniques.',
     longDesc: 'Back pain is one of the most common musculoskeletal complaints, affecting people of all ages. At SAI Physiotherapy, our expert team uses a combination of manual therapy, electrotherapy, and targeted exercises to address the root cause of your pain — not just the symptoms.',
     benefits: ['Complete pain relief without surgery', 'Improved spinal mobility & flexibility', 'Strengthened core and back muscles', 'Corrected posture and body mechanics', 'Long-term relapse prevention plan', 'Improved quality of life and sleep'],
@@ -31,6 +34,7 @@ const SERVICES: Record<string, {
   'spine-care-disc-problems': {
     icon: 'ri-mental-health-line', title: 'Spine Care & Disc Problems', category: 'Spine & Back',
     price: '₹800 – ₹3,000', sessions: '10–15 sessions',
+    recoveryTime: '6–12 weeks', successRate: '92%',
     desc: 'Specialized treatment for disc herniation, spondylosis, and spinal conditions.',
     longDesc: 'Spinal disc problems can cause debilitating pain and limit daily activities. Our spine specialists use advanced techniques including spinal traction, McKenzie method, and manual therapy to decompress affected discs and restore normal spinal function.',
     benefits: ['Disc decompression without surgery', 'Reduced nerve compression and pain', 'Restored spinal mobility', 'Improved posture and alignment', 'Prevention of further disc damage', 'Return to normal daily activities'],
@@ -50,6 +54,7 @@ const SERVICES: Record<string, {
   'paralysis-rehabilitation': {
     icon: 'ri-heart-pulse-line', title: 'Paralysis Rehabilitation', category: 'Neuro Rehab',
     price: '₹1,000 – ₹4,000', sessions: '20–30 sessions',
+    recoveryTime: '3–6 months', successRate: '85%',
     desc: 'Comprehensive rehabilitation program for stroke, spinal cord injury, and other paralytic conditions.',
     longDesc: 'Recovering from paralysis requires a structured, intensive rehabilitation approach. Our neuro physiotherapy team uses task-specific training, neuromuscular electrical stimulation, gait training, and functional retraining to help patients regain maximum independence after stroke, spinal cord injury, or peripheral nerve damage.',
     benefits: ['Restored muscle strength and tone', 'Improved gait and balance', 'Greater daily-activity independence', 'Activation of neuroplasticity', 'Reduced spasticity and contractures', 'Family caregiver training included'],
@@ -69,6 +74,7 @@ const SERVICES: Record<string, {
   'knee-pain-joint-care': {
     icon: 'ri-run-line', title: 'Knee Pain & Joint Care', category: 'Orthopedics',
     price: '₹600 – ₹2,500', sessions: '8–15 sessions',
+    recoveryTime: '4–10 weeks', successRate: '93%',
     desc: 'Effective treatment for knee pain, osteoarthritis, ligament injuries, and post-surgical rehabilitation.',
     longDesc: 'Knee pain can significantly affect your mobility and quality of life. Our specialists use evidence-based techniques including manual therapy, targeted strengthening, taping, and joint mobilization to address the underlying cause — whether it\'s arthritis, ligament injury, or post-surgical stiffness.',
     benefits: ['Reduced joint pain and inflammation', 'Improved range of motion', 'Strengthened supporting muscles', 'Delayed need for surgery', 'Better walking and stair climbing', 'Return to recreational activities'],
@@ -88,6 +94,7 @@ const SERVICES: Record<string, {
   'neck-pain-cervical-spondylosis': {
     icon: 'ri-emotion-unhappy-line', title: 'Neck Pain & Cervical Care', category: 'Spine & Back',
     price: '₹500 – ₹2,000', sessions: '8–12 sessions',
+    recoveryTime: '4–8 weeks', successRate: '94%',
     desc: 'Targeted treatment for neck pain, cervical spondylosis, whiplash, and tension headaches.',
     longDesc: 'Persistent neck pain is increasingly common in the era of smartphones and desk work. Our cervical specialists use posture correction, manual mobilization, deep cervical flexor training, and ergonomic coaching to deliver lasting relief — not just short-term comfort.',
     benefits: ['Lasting neck pain relief', 'Reduced tension headaches', 'Improved cervical mobility', 'Corrected posture and ergonomics', 'Reduced reliance on medication', 'Prevention of disc degeneration'],
@@ -107,6 +114,7 @@ const SERVICES: Record<string, {
   'sports-injury-rehabilitation': {
     icon: 'ri-football-line', title: 'Sports Injury Rehabilitation', category: 'Sports',
     price: '₹800 – ₹3,000', sessions: '10–20 sessions',
+    recoveryTime: '6–12 weeks', successRate: '96%',
     desc: 'Rapid, structured recovery programs for athletes and active individuals.',
     longDesc: 'Athletes need more than pain relief — they need to return to performance. Our sports rehabilitation programs combine acute injury management, progressive loading, sport-specific drills, and biomechanical correction to get you back on the field stronger and less injury-prone than before.',
     benefits: ['Faster return to sport', 'Reduced re-injury risk', 'Enhanced performance metrics', 'Sport-specific conditioning', 'Mental confidence to perform', 'Long-term injury resilience'],
@@ -126,6 +134,7 @@ const SERVICES: Record<string, {
   'neuro-physiotherapy': {
     icon: 'ri-flashlight-line', title: 'Neuro Physiotherapy', category: 'Neuro Rehab',
     price: '₹1,000 – ₹4,000', sessions: '20+ sessions',
+    recoveryTime: '3–6 months', successRate: '88%',
     desc: 'Specialized physiotherapy for neurological conditions including Parkinson\'s, MS, and cerebral palsy.',
     longDesc: 'Neurological conditions require a specialized approach to physiotherapy. Our neuro team uses neuroplasticity-driven techniques — task-specific training, dual-task exercises, balance training, and gait retraining — to help patients improve function and slow disease progression.',
     benefits: ['Improved balance and coordination', 'Better cognitive-motor integration', 'Greater independence in daily life', 'Slowed disease progression', 'Reduced fall risk', 'Improved confidence and quality of life'],
@@ -145,6 +154,7 @@ const SERVICES: Record<string, {
   'post-surgery-rehabilitation': {
     icon: 'ri-hospital-line', title: 'Post-Surgery Rehabilitation', category: 'Orthopedics',
     price: '₹700 – ₹3,000', sessions: '12–20 sessions',
+    recoveryTime: '8–16 weeks', successRate: '94%',
     desc: 'Accelerated, structured recovery after orthopedic and neurological surgery.',
     longDesc: 'Surgery is just the beginning of your recovery. Our post-surgical rehabilitation programs are designed in coordination with your surgeon to optimize healing, restore function, and ensure you return to daily life — and beyond — stronger than before.',
     benefits: ['Faster healing and tissue recovery', 'Effective scar management', 'Restoration of strength and mobility', 'Prevention of post-op complications', 'Safe return to work and activity', 'Confidence in your recovered limb'],
@@ -164,6 +174,7 @@ const SERVICES: Record<string, {
   'pediatric-physiotherapy': {
     icon: 'ri-parent-line', title: 'Pediatric Physiotherapy', category: 'Pediatrics',
     price: '₹600 – ₹2,500', sessions: '10–20 sessions',
+    recoveryTime: 'Varies', successRate: '90%',
     desc: 'Gentle, play-based physiotherapy for infants, children, and adolescents.',
     longDesc: 'Children are not small adults — they need specialized, play-based therapy. Our pediatric specialists work with children to address developmental delays, congenital conditions, and musculoskeletal issues using engaging, age-appropriate techniques that achieve real outcomes.',
     benefits: ['Achievement of developmental milestones', 'Improved gross and fine motor skills', 'Better posture and alignment', 'Enhanced confidence and independence', 'Family-centered education', 'Engaging, child-friendly sessions'],
@@ -183,6 +194,7 @@ const SERVICES: Record<string, {
   'geriatric-care': {
     icon: 'ri-user-heart-line', title: 'Geriatric Care', category: 'Elderly Care',
     price: '₹500 – ₹2,000', sessions: '10–15 sessions',
+    recoveryTime: 'Ongoing', successRate: '92%',
     desc: 'Compassionate physiotherapy programs designed for elderly patients to maintain independence.',
     longDesc: 'Aging well requires staying active and mobile. Our geriatric programs focus on fall prevention, balance, strength, and managing chronic conditions — helping older adults preserve independence, dignity, and joy in everyday life.',
     benefits: ['Significant fall risk reduction', 'Improved balance and steadiness', 'Better management of chronic pain', 'Preserved independence in daily tasks', 'Enhanced confidence in mobility', 'Improved overall quality of life'],
@@ -202,6 +214,7 @@ const SERVICES: Record<string, {
   'shoulder-pain-treatment': {
     icon: 'ri-boxing-line', title: 'Shoulder Pain Treatment', category: 'Orthopedics',
     price: '₹600 – ₹2,500', sessions: '8–15 sessions',
+    recoveryTime: '4–10 weeks', successRate: '93%',
     desc: 'Comprehensive treatment for rotator cuff injuries, shoulder impingement, and chronic shoulder pain.',
     longDesc: 'Shoulder pain can disrupt sleep, work, and daily activities. Our specialists use a combination of manual therapy, scapular stabilization, and progressive strengthening to treat the root cause — giving you back full, pain-free shoulder function.',
     benefits: ['Complete pain elimination', 'Restored full range of motion', 'Strength and stability rebuilt', 'Better posture and scapular control', 'Prevention of further injury', 'Improved sleep quality'],
@@ -221,6 +234,7 @@ const SERVICES: Record<string, {
   'frozen-shoulder': {
     icon: 'ri-snowy-line', title: 'Frozen Shoulder', category: 'Orthopedics',
     price: '₹700 – ₹3,000', sessions: '12–20 sessions',
+    recoveryTime: '8–16 weeks', successRate: '90%',
     desc: 'Specialized treatment for adhesive capsulitis to restore movement and eliminate pain.',
     longDesc: 'Frozen shoulder (adhesive capsulitis) progresses through painful, frozen, and thawing phases — but the right physiotherapy can dramatically shorten the journey. We combine manual mobilization, capsular stretching, and targeted exercises to restore full mobility faster than waiting it out.',
     benefits: ['Full mobility restored', 'Significant pain relief', 'Faster recovery vs. natural course', 'Preserved sleep and daily function', 'Prevention of recurrence', 'Confidence to use the arm freely'],
@@ -239,153 +253,230 @@ const SERVICES: Record<string, {
   },
 };
 
-function getServiceData(slug: string) {
-  return SERVICES[slug] ?? null;
-}
-
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const svc = getServiceData(params.slug);
-  if (!svc) return { title: 'Service Not Found' };
-  return {
-    title: `${svc.title} in Ahmedabad | SAI Physiotherapy`,
-    description: svc.desc,
-  };
-}
+const RELATED_BY_CATEGORY: Record<string, string[]> = {
+  'Spine & Back': ['back-pain-treatment', 'spine-care-disc-problems', 'neck-pain-cervical-spondylosis'],
+  'Orthopedics': ['knee-pain-joint-care', 'shoulder-pain-treatment', 'frozen-shoulder'],
+  'Neuro Rehab': ['paralysis-rehabilitation', 'neuro-physiotherapy', 'post-surgery-rehabilitation'],
+  'Sports': ['sports-injury-rehabilitation', 'knee-pain-joint-care', 'shoulder-pain-treatment'],
+  'Pediatrics': ['pediatric-physiotherapy', 'neuro-physiotherapy', 'paralysis-rehabilitation'],
+  'Elderly Care': ['geriatric-care', 'knee-pain-joint-care', 'back-pain-treatment'],
+};
 
 export default function ServiceDetailPage({ params }: { params: { slug: string } }) {
-  const svc = getServiceData(params.slug);
+  const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const svc = SERVICES[params.slug];
   if (!svc) notFound();
+
+  const relatedSlugs = (RELATED_BY_CATEGORY[svc.category] || []).filter((s) => s !== params.slug).slice(0, 3);
+  const related = relatedSlugs.map((s) => ({ slug: s, ...SERVICES[s] }));
 
   return (
     <div className={styles.page}>
-      {/* Hero */}
-      <div className={styles.hero}>
+      <section className={styles.hero}>
+        <div className={styles.heroMesh} />
+        <div className={styles.heroOrb} />
         <div className="container">
-          <Link href="/services" className={styles.back}>
-            <i className="ri-arrow-left-line" style={{ fontSize: 16 }} /> All Services
-          </Link>
-          <div className={styles.heroContent}>
-            <div>
-              <span className={styles.category}>{svc.category}</span>
-              <h1 className={styles.title}>{svc.title}</h1>
-              <p className={styles.desc}>{svc.longDesc}</p>
-              <div className={styles.meta}>
-                <div className={styles.metaItem}>
-                  <i className="ri-time-line" style={{ fontSize: 16 }} />
-                  <span>{svc.sessions}</span>
-                </div>
-                <div className={styles.metaItem}>
-                  <span className={styles.priceLabel}>Starting from</span>
-                  <span className={styles.price}>{svc.price}</span>
-                </div>
+          <nav className={styles.breadcrumb}>
+            <Link href="/">Home</Link>
+            <i className="ri-arrow-right-s-line" />
+            <Link href="/services">Services</Link>
+            <i className="ri-arrow-right-s-line" />
+            <span>{svc.title}</span>
+          </nav>
+
+          <span className={styles.category}>{svc.category}</span>
+          <h1 className={styles.title}>
+            {svc.title.split(' ').slice(0, -1).join(' ')}{' '}
+            <span className="gradient-text">{svc.title.split(' ').slice(-1)[0]}</span>
+          </h1>
+          <p className={styles.longDesc}>{svc.longDesc}</p>
+
+          <div className={styles.statsRow}>
+            <div className={styles.statCard}>
+              <div className={`${styles.statIcon} ${styles.statIconBlue}`}>
+                <i className="ri-time-line" />
               </div>
-              <div className={styles.heroCtas}>
-                <Link href="/book-appointment" className={styles.bookBtn}>
-                  <i className="ri-calendar-line" style={{ fontSize: 18 }} /> Book Appointment
-                </Link>
-                <a href="tel:+919999999999" className={styles.callBtn}>
-                  <i className="ri-phone-line" style={{ fontSize: 18 }} /> Call Now
-                </a>
+              <div>
+                <p className={styles.statNum}>{svc.recoveryTime}</p>
+                <p className={styles.statLabel}>Recovery Time</p>
               </div>
             </div>
-            <div className={styles.heroIcon}>
-              <i className={svc.icon} style={{ fontSize: 80, color: 'var(--color-primary)' }} />
+            <div className={styles.statCard}>
+              <div className={`${styles.statIcon} ${styles.statIconTeal}`}>
+                <i className="ri-calendar-2-line" />
+              </div>
+              <div>
+                <p className={styles.statNum}>{svc.sessions}</p>
+                <p className={styles.statLabel}>Treatment Sessions</p>
+              </div>
+            </div>
+            <div className={styles.statCard}>
+              <div className={`${styles.statIcon} ${styles.statIconGreen}`}>
+                <i className="ri-trophy-line" />
+              </div>
+              <div>
+                <p className={styles.statNum}>{svc.successRate}</p>
+                <p className={styles.statLabel}>Success Rate</p>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
       <div className="container">
         <div className={styles.layout}>
-          {/* Main Content */}
           <main className={styles.main}>
-            {/* Benefits */}
-            <section className={styles.section}>
-              <h2 className={styles.sectionTitle}>What You&apos;ll Achieve</h2>
-              <div className={styles.benefitsGrid}>
-                {svc.benefits.map((b) => (
-                  <div key={b} className={styles.benefitItem}>
-                    <i className={`ri-checkbox-circle-line ${styles.checkIcon}`} style={{ fontSize: 18 }} />
-                    <span>{b}</span>
-                  </div>
-                ))}
-              </div>
-            </section>
-
-            {/* Conditions Treated */}
-            <section className={styles.section}>
-              <h2 className={styles.sectionTitle}>Conditions We Treat</h2>
+            <section className={styles.cardSection}>
+              <h2 className={styles.h2}>Conditions We Treat</h2>
+              <p className={styles.lead}>This treatment addresses a wide range of conditions:</p>
               <div className={styles.conditionsTags}>
                 {svc.conditions.map((c) => (
-                  <span key={c} className={styles.conditionTag}>{c}</span>
+                  <span key={c} className={styles.conditionTag}>
+                    <i className="ri-checkbox-circle-fill" /> {c}
+                  </span>
                 ))}
               </div>
             </section>
 
-            {/* Process */}
-            <section className={styles.section}>
-              <h2 className={styles.sectionTitle}>Our Treatment Process</h2>
+            <section className={styles.cardSection}>
+              <h2 className={styles.h2}>What You&apos;ll Achieve</h2>
+              <ul className={styles.benefitsGrid}>
+                {svc.benefits.map((b) => (
+                  <li key={b}>
+                    <i className="ri-checkbox-circle-fill" />
+                    <span>{b}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+
+            <section className={styles.cardSection}>
+              <h2 className={styles.h2}>Our Treatment Process</h2>
               <div className={styles.process}>
-                {svc.process.map((p) => (
+                {svc.process.map((p, idx) => (
                   <div key={p.step} className={styles.processStep}>
                     <div className={styles.stepNum}>{p.step}</div>
-                    <div>
+                    <div className={styles.stepBody}>
                       <h3 className={styles.stepTitle}>{p.title}</h3>
                       <p className={styles.stepDesc}>{p.desc}</p>
                     </div>
+                    {idx < svc.process.length - 1 && <span className={styles.processLine} />}
                   </div>
                 ))}
               </div>
             </section>
 
-            {/* FAQ */}
-            <section className={styles.section}>
-              <h2 className={styles.sectionTitle}>Frequently Asked Questions</h2>
+            <section className={styles.cardSection}>
+              <h2 className={styles.h2}>Frequently Asked Questions</h2>
               <div className={styles.faq}>
-                {svc.faq.map((item) => (
-                  <div key={item.q} className={styles.faqItem}>
-                    <h3 className={styles.faqQ}>{item.q}</h3>
-                    <p className={styles.faqA}>{item.a}</p>
-                  </div>
-                ))}
+                {svc.faq.map((item, i) => {
+                  const isOpen = openFaq === i;
+                  return (
+                    <div key={item.q} className={`${styles.faqItem} ${isOpen ? styles.faqOpen : ''}`}>
+                      <button
+                        type="button"
+                        className={styles.faqQ}
+                        onClick={() => setOpenFaq(isOpen ? null : i)}
+                        aria-expanded={isOpen}
+                      >
+                        <span>{item.q}</span>
+                        <i className={`ri-add-line ${styles.faqIcon}`} />
+                      </button>
+                      <div className={styles.faqA}>
+                        <p>{item.a}</p>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </section>
           </main>
 
-          {/* Sidebar */}
           <aside className={styles.sidebar}>
             <div className={styles.bookingCard}>
-              <h3>Book Your Session</h3>
-              <div className={styles.cardMeta}>
-                <div className={styles.cardMetaItem}>
-                  <i className="ri-time-line" style={{ fontSize: 14 }} /> {svc.sessions}
+              <div className={styles.docRow}>
+                <div className={styles.docAvatar}>
+                  <i className={svc.icon} />
                 </div>
-                <div className={styles.cardPrice}>{svc.price}</div>
+                <div className={styles.docMeta}>
+                  <p className={styles.docTitle}>Specialist available</p>
+                  <p className={styles.docSub}>
+                    <span className={styles.greenDot} />
+                    Same-day slots open
+                  </p>
+                </div>
               </div>
-              <Link href="/book-appointment" className={styles.bookNow}>
-                Book Appointment <i className="ri-arrow-right-line" style={{ fontSize: 16, marginLeft: 4 }} />
-              </Link>
-              <a href="tel:+919999999999" className={styles.callNow}>
-                <i className="ri-phone-line" style={{ fontSize: 16 }} /> Call: +91 99999 99999
-              </a>
-              <div className={styles.guarantee}>
-                <i className={`ri-star-fill ${styles.starIcon}`} style={{ fontSize: 16 }} />
-                <p>4.9 rated service · Free assessment call available</p>
-              </div>
-            </div>
 
-            <div className={styles.relatedCard}>
-              <h3>Related Services</h3>
-              <div className={styles.relatedList}>
-                {['Back Pain Treatment', 'Spine Care', 'Neuro Physiotherapy'].map((s) => (
-                  <Link key={s} href="/services" className={styles.relatedItem}>
-                    <i className="ri-arrow-right-line" style={{ fontSize: 14, marginRight: 6 }} /> {s}
-                  </Link>
-                ))}
+              <div className={styles.priceBlock}>
+                <div className={styles.priceRow}>
+                  <span className={styles.priceLabel}>Starting from</span>
+                  <span className={styles.priceVal}>{svc.price.split('–')[0].trim()}</span>
+                </div>
+                <div className={styles.priceRow}>
+                  <span className={styles.priceLabel}>Sessions</span>
+                  <span className={styles.priceValAlt}>{svc.sessions}</span>
+                </div>
+              </div>
+
+              <Link href="/book-appointment" className={styles.bookCta}>
+                Book This Treatment
+                <i className="ri-arrow-right-line" />
+              </Link>
+
+              <a
+                href="https://wa.me/919999999999?text=I'd like to book a consultation"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.waCta}
+              >
+                <i className="ri-whatsapp-line" /> WhatsApp Us
+              </a>
+
+              <a href="tel:+919999999999" className={styles.phoneLink}>
+                <i className="ri-phone-line" />
+                +91 99999 99999
+              </a>
+
+              <div className={styles.guarantee}>
+                <i className="ri-shield-check-fill" />
+                <span>30-min response · Free assessment call</span>
               </div>
             </div>
           </aside>
         </div>
+
+        {related.length > 0 && (
+          <section className={styles.relatedSection}>
+            <h2 className={styles.h2}>Related Services</h2>
+            <div className={styles.relatedGrid}>
+              {related.map((r) => (
+                <Link key={r.slug} href={`/services/${r.slug}`} className={styles.relatedCard}>
+                  <div className={styles.relatedIcon}>
+                    <i className={r.icon} />
+                  </div>
+                  <div>
+                    <span className={styles.relatedCategory}>{r.category}</span>
+                    <h3 className={styles.relatedTitle}>{r.title}</h3>
+                    <p className={styles.relatedDesc}>{r.desc}</p>
+                  </div>
+                  <i className={`ri-arrow-right-line ${styles.relatedArrow}`} />
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
+      </div>
+
+      <div className={styles.mobileBar}>
+        <Link href="/book-appointment" className={styles.mobileBook}>
+          <i className="ri-calendar-2-line" /> Book
+        </Link>
+        <a href="https://wa.me/919999999999" target="_blank" rel="noopener noreferrer" className={styles.mobileWa}>
+          <i className="ri-whatsapp-line" /> WhatsApp
+        </a>
+        <a href="tel:+919999999999" className={styles.mobileCall}>
+          <i className="ri-phone-line" /> Call
+        </a>
       </div>
     </div>
   );

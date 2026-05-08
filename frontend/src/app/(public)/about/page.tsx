@@ -42,7 +42,7 @@ export default function AboutPage() {
             <div className={styles.heroText}>
               <p className="section-label">Our Story</p>
               <h1 className={styles.heroTitle}>
-                15 Years of <span>Healing Lives</span><br />Across Gujarat
+                15 Years of <span className="gradient-text">Healing Lives</span><br />Across Gujarat
               </h1>
               <p className={styles.heroDesc}>
                 Founded in 2009, SAI Physiotherapy Spine Care & Paralysis Centre has grown from

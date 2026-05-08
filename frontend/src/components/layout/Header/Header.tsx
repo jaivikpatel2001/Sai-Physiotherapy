@@ -5,21 +5,21 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import styles from './Header.module.css';
 
+const SERVICES_GRID = [
+  { label: 'Back Pain Treatment', icon: 'ri-walk-line', href: '/services/back-pain-treatment', recovery: '8-12 sessions' },
+  { label: 'Spine Care & Disc', icon: 'ri-mental-health-line', href: '/services/spine-care-disc-problems', recovery: '10-14 sessions' },
+  { label: 'Paralysis Rehab', icon: 'ri-heart-pulse-line', href: '/services/paralysis-rehabilitation', recovery: '12-24 weeks' },
+  { label: 'Knee & Joint Care', icon: 'ri-run-line', href: '/services/knee-pain-joint-care', recovery: '6-10 sessions' },
+  { label: 'Sports Injury', icon: 'ri-football-line', href: '/services/sports-injury-rehabilitation', recovery: '4-8 weeks' },
+  { label: 'Neuro Physiotherapy', icon: 'ri-flashlight-line', href: '/services/neuro-physiotherapy', recovery: '12+ weeks' },
+  { label: 'Neck & Cervical', icon: 'ri-emotion-unhappy-line', href: '/services/neck-pain-cervical-spondylosis', recovery: '6-10 sessions' },
+  { label: 'Post-Surgery Rehab', icon: 'ri-hospital-line', href: '/services/post-surgery-rehabilitation', recovery: '6-12 weeks' },
+  { label: 'Pediatric Physio', icon: 'ri-parent-line', href: '/services/pediatric-physiotherapy', recovery: 'Varies' },
+];
+
 const NAV_LINKS = [
   { label: 'Home', href: '/' },
-  {
-    label: 'Services',
-    href: '/services',
-    children: [
-      { label: 'Back Pain Treatment', href: '/services/back-pain-treatment' },
-      { label: 'Spine Care', href: '/services/spine-care-disc-problems' },
-      { label: 'Paralysis Rehabilitation', href: '/services/paralysis-rehabilitation' },
-      { label: 'Knee Pain & Joint Care', href: '/services/knee-pain-joint-care' },
-      { label: 'Sports Injury', href: '/services/sports-injury-rehabilitation' },
-      { label: 'Neuro Physiotherapy', href: '/services/neuro-physiotherapy' },
-      { label: 'View All Services', href: '/services' },
-    ],
-  },
+  { label: 'Services', href: '/services', mega: true },
   { label: 'Doctors', href: '/doctors' },
   { label: 'Gallery', href: '/gallery' },
   { label: 'Blog', href: '/blog' },
@@ -33,7 +33,7 @@ const PHONE = process.env.NEXT_PUBLIC_CLINIC_PHONE || '+91 99999 99999';
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [megaOpen, setMegaOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
@@ -65,9 +65,10 @@ export default function Header() {
               Gujarat&apos;s Most Advanced Physiotherapy Centre
             </span>
             <div className={styles.topBarActions}>
-              <a href={`tel:${PHONE}`} className={styles.topBarPhone}>
+              <a href={`tel:${PHONE}`} className={styles.emergencyBtn}>
+                <span className={styles.emergencyDot} />
                 <i className="ri-phone-line" style={{ fontSize: 13 }} />
-                {PHONE}
+                Emergency: {PHONE}
               </a>
               {isLoggedIn ? (
                 <Link href="/admin" className={styles.staffBtn}>
@@ -84,8 +85,7 @@ export default function Header() {
                 rel="noopener noreferrer"
                 className={styles.whatsappBtn}
               >
-                <i className="ri-whatsapp-line" style={{ fontSize: 14 }} />
-                WhatsApp
+                <i className="ri-whatsapp-line" style={{ fontSize: 14 }} /> WhatsApp
               </a>
             </div>
           </div>
@@ -96,54 +96,72 @@ export default function Header() {
       <header className={`${styles.header} ${isScrolled ? styles.scrolled : ''}`}>
         <div className="container">
           <div className={styles.headerInner}>
-            {/* Logo */}
             <Link href="/" className={styles.logo}>
               <div className={styles.logoIcon}>
                 <i className="ri-pulse-line" style={{ fontSize: 22 }} />
               </div>
               <div className={styles.logoText}>
                 <span className={styles.logoName}>SAI Physiotherapy</span>
-                <span className={styles.logoTagline}>Spine Care & Paralysis Centre</span>
+                <span className={styles.logoTagline}>Spine Care &amp; Paralysis Centre</span>
               </div>
             </Link>
 
-            {/* Desktop Nav */}
-            <nav className={styles.nav}>
+            <nav className={styles.nav} onMouseLeave={() => setMegaOpen(false)}>
               {NAV_LINKS.map((link) => (
                 <div
                   key={link.label}
                   className={styles.navItem}
-                  onMouseEnter={() => link.children && setActiveDropdown(link.label)}
-                  onMouseLeave={() => setActiveDropdown(null)}
+                  onMouseEnter={() => setMegaOpen(!!link.mega)}
                 >
                   <Link href={link.href} className={styles.navLink}>
                     {link.label}
-                    {link.children && <i className="ri-arrow-down-s-line" style={{ fontSize: 14 }} />}
+                    {link.mega && <i className="ri-arrow-down-s-line" style={{ fontSize: 14 }} />}
                   </Link>
-                  {link.children && (
-                    <AnimatePresence>
-                      {activeDropdown === link.label && (
-                        <motion.div
-                          className={styles.dropdown}
-                          initial={{ opacity: 0, y: 8 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: 8 }}
-                          transition={{ duration: 0.15 }}
-                        >
-                          {link.children.map((child) => (
-                            <Link key={child.href} href={child.href} className={styles.dropdownItem}>
-                              {child.label}
-                            </Link>
-                          ))}
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  )}
                 </div>
               ))}
+
+              <AnimatePresence>
+                {megaOpen && (
+                  <motion.div
+                    className={styles.megaMenu}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 8 }}
+                    transition={{ duration: 0.18 }}
+                    onMouseEnter={() => setMegaOpen(true)}
+                  >
+                    <div className={styles.megaInner}>
+                      <div className={styles.megaGrid}>
+                        {SERVICES_GRID.map((s) => (
+                          <Link key={s.href} href={s.href} className={styles.megaItem} onClick={() => setMegaOpen(false)}>
+                            <div className={styles.megaIcon}>
+                              <i className={s.icon} style={{ fontSize: 20 }} />
+                            </div>
+                            <div>
+                              <p className={styles.megaLabel}>{s.label}</p>
+                              <p className={styles.megaRecovery}>
+                                <i className="ri-time-line" style={{ fontSize: 11 }} /> {s.recovery}
+                              </p>
+                            </div>
+                          </Link>
+                        ))}
+                      </div>
+                      <div className={styles.megaFeatured}>
+                        <span className={styles.megaFeaturedTag}>Featured</span>
+                        <h4 className={styles.megaFeaturedTitle}>Need help choosing?</h4>
+                        <p className={styles.megaFeaturedSub}>
+                          Take our 60-second symptom check or talk to a specialist now.
+                        </p>
+                        <Link href="/book-appointment" className={styles.megaFeaturedBtn} onClick={() => setMegaOpen(false)}>
+                          Book Free Consultation <i className="ri-arrow-right-line" style={{ fontSize: 14 }} />
+                        </Link>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </nav>
 
-            {/* CTA */}
             <div className={styles.headerCta}>
               <Link href="/book-appointment" className={styles.bookBtn}>
                 Book Appointment
@@ -160,7 +178,6 @@ export default function Header() {
         </div>
       </header>
 
-      {/* Mobile Menu */}
       <AnimatePresence>
         {mobileOpen && (
           <>
@@ -193,6 +210,7 @@ export default function Header() {
                     onClick={() => setMobileOpen(false)}
                   >
                     {link.label}
+                    <i className="ri-arrow-right-s-line" style={{ fontSize: 16 }} />
                   </Link>
                 ))}
               </nav>

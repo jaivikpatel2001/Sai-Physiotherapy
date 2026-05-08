@@ -6,6 +6,7 @@ import WhyChooseSection from '@/components/sections/WhyChooseSection';
 import DoctorsSection from '@/components/sections/DoctorsSection';
 import TestimonialsSection from '@/components/sections/TestimonialsSection';
 import BlogPreviewSection from '@/components/sections/BlogPreviewSection';
+import CtaSection from '@/components/sections/CtaSection';
 import EmergencyBanner from '@/components/sections/EmergencyBanner';
 
 export const metadata: Metadata = {
@@ -31,6 +32,7 @@ export default function HomePage() {
       <TestimonialsSection />
       <BlogPreviewSection />
       <EmergencyBanner />
+      <CtaSection />
     </>
   );
 }

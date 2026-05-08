@@ -1,175 +1,240 @@
 'use client';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import styles from './HeroSection.module.css';
 
-const TRUST_BADGES = [
-  { icon: 'ri-star-fill', text: '4.9 Rating' },
+const VERIFIED = [
   { icon: 'ri-shield-check-line', text: 'NABH Compliant' },
-  { icon: 'ri-award-line', text: '15+ Years' },
+  { icon: 'ri-award-line', text: 'ISO 9001:2015' },
+  { icon: 'ri-google-fill', text: 'Google 4.9 / 500+ Reviews' },
 ];
 
+const TRUST_METRICS = [
+  { icon: 'ri-user-heart-line', num: '10,000+', label: 'Patients' },
+  { icon: 'ri-award-line', num: '15+', label: 'Years' },
+  { icon: 'ri-shield-check-line', num: '95%', label: 'Recovery' },
+];
+
+const TREATMENTS = [
+  'Back Pain Treatment',
+  'Spine Care',
+  'Knee Pain & Joint Care',
+  'Sports Injury Rehab',
+  'Neuro Physiotherapy',
+];
+
+const DAYS = (() => {
+  const labels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const out: { label: string; date: number; key: string }[] = [];
+  const now = new Date();
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(now);
+    d.setDate(now.getDate() + i);
+    out.push({ label: i === 0 ? 'Today' : labels[d.getDay()], date: d.getDate(), key: d.toISOString() });
+  }
+  return out;
+})();
+
+const SLOTS = ['9:00', '10:30', '12:00', '3:00', '5:00 PM'];
+
 const fadeUp = {
-  hidden: { opacity: 0, y: 30 },
+  hidden: { opacity: 0, y: 24 },
   visible: (i: number) => ({
     opacity: 1, y: 0,
-    transition: { delay: i * 0.12, duration: 0.6, ease: [0.22, 1, 0.36, 1] },
+    transition: { delay: i * 0.08, duration: 0.55, ease: [0.22, 1, 0.36, 1] },
   }),
 };
 
 export default function HeroSection() {
+  const [activeDay, setActiveDay] = useState(0);
+  const [activeSlot, setActiveSlot] = useState(1);
+  const [treatment, setTreatment] = useState(TREATMENTS[0]);
+
   return (
     <section className={styles.hero}>
-      {/* Background */}
       <div className={styles.bg}>
         <div className={styles.bgGradient} />
+        <div className={styles.bgMesh} />
         <div className={styles.bgOrb1} />
         <div className={styles.bgOrb2} />
-        <div className={styles.bgOrb3} />
       </div>
 
       <div className={`container ${styles.content}`}>
+        {/* LEFT */}
         <div className={styles.left}>
-          {/* Trust badges */}
-          <motion.div className={styles.trustBadges} custom={0} variants={fadeUp} initial="hidden" animate="visible">
-            {TRUST_BADGES.map((b) => (
-              <div key={b.text} className={styles.trustBadge}>
-                <i className={b.icon} style={{ fontSize: 14 }} /> {b.text}
+          <motion.div className={styles.eyebrow} custom={0} variants={fadeUp} initial="hidden" animate="visible">
+            <span className={styles.eyebrowDot} />
+            Trusted by 10,000+ patients across Gujarat
+          </motion.div>
+
+          <motion.h1 className={styles.headline} custom={1} variants={fadeUp} initial="hidden" animate="visible">
+            Move Better. Recover Faster.
+            <br />
+            <span className="gradient-text">Live Pain Free.</span>
+          </motion.h1>
+
+          <motion.p className={styles.sub} custom={2} variants={fadeUp} initial="hidden" animate="visible">
+            Evidence-based physiotherapy and rehabilitation built around you. Expert specialists,
+            advanced therapy, and personalised care plans for lasting recovery.
+          </motion.p>
+
+          <motion.div className={styles.ctaGroup} custom={3} variants={fadeUp} initial="hidden" animate="visible">
+            <Link href="/book-appointment" className={styles.ctaPrimary}>
+              Book Consultation <i className="ri-arrow-right-line" style={{ fontSize: 18 }} />
+            </Link>
+            <Link href="/services" className={styles.ctaGhost}>
+              Explore Treatments <i className="ri-arrow-right-line" style={{ fontSize: 16 }} />
+            </Link>
+          </motion.div>
+
+          <motion.div className={styles.trustStrip} custom={4} variants={fadeUp} initial="hidden" animate="visible">
+            {TRUST_METRICS.map((m, i) => (
+              <div key={m.label} className={styles.trustItem}>
+                <i className={m.icon} style={{ fontSize: 18, color: 'var(--color-primary)' }} />
+                <div>
+                  <span className={styles.trustNum}>{m.num}</span>
+                  <span className={styles.trustLabel}>{m.label}</span>
+                </div>
+                {i < TRUST_METRICS.length - 1 && <span className={styles.trustDivider} />}
               </div>
             ))}
           </motion.div>
 
-          {/* Headline */}
-          <motion.h1 className={styles.headline} custom={1} variants={fadeUp} initial="hidden" animate="visible">
-            Gujarat&apos;s{' '}
-            <span className={styles.highlightText}>Most Advanced</span>
-            <br />
-            Physiotherapy &amp;
-            <br />
-            <span className={styles.accentLine}>Rehabilitation Centre</span>
-          </motion.h1>
-
-          <motion.p className={styles.sub} custom={2} variants={fadeUp} initial="hidden" animate="visible">
-            Expert treatment for back pain, spine care, paralysis rehabilitation, sports injuries,
-            and 12+ specialized conditions. 10,000+ patients healed. Book your consultation today.
-          </motion.p>
-
-          {/* CTA Buttons */}
-          <motion.div className={styles.ctaGroup} custom={3} variants={fadeUp} initial="hidden" animate="visible">
-            <Link href="/book-appointment" className={styles.ctaPrimary}>
-              <i className="ri-calendar-line" style={{ fontSize: 18 }} />
-              Book Appointment
-            </Link>
-            <a href="tel:+919999999999" className={styles.ctaSecondary}>
-              <i className="ri-phone-line" style={{ fontSize: 18 }} />
-              Call Now
-            </a>
-          </motion.div>
-
-          {/* Quick stats row */}
-          <motion.div className={styles.quickStats} custom={4} variants={fadeUp} initial="hidden" animate="visible">
-            {[
-              { num: '10,000+', label: 'Patients Healed' },
-              { num: '15+', label: 'Years of Excellence' },
-              { num: '95%', label: 'Recovery Rate' },
-              { num: '12+', label: 'Specializations' },
-            ].map((s) => (
-              <div key={s.label} className={styles.quickStat}>
-                <span className={styles.quickStatNum}>{s.num}</span>
-                <span className={styles.quickStatLabel}>{s.label}</span>
+          <motion.div className={styles.verifiedRow} custom={5} variants={fadeUp} initial="hidden" animate="visible">
+            {VERIFIED.map((v) => (
+              <div key={v.text} className={`glass-card ${styles.verifiedChip}`}>
+                <i className={v.icon} style={{ fontSize: 14 }} />
+                {v.text}
               </div>
             ))}
           </motion.div>
         </div>
 
-        {/* Right: Visual card */}
+        {/* RIGHT — Booking widget mockup */}
         <motion.div
           className={styles.right}
-          initial={{ opacity: 0, scale: 0.92, x: 40 }}
-          animate={{ opacity: 1, scale: 1, x: 0 }}
-          transition={{ duration: 0.8, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+          initial={{ opacity: 0, scale: 0.94, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
         >
-          <div className={styles.heroCard}>
-            <div className={styles.heroCardHeader}>
-              <div className={styles.heroCardAvatar}>
-                <i className="ri-stethoscope-line" style={{ fontSize: 22 }} />
-              </div>
+          <div className={styles.bookingCard}>
+            <div className={styles.cardHeader}>
               <div>
-                <p className={styles.heroCardTitle}>Today&apos;s Availability</p>
-                <p className={styles.heroCardSub}>Slots available for walk-ins</p>
+                <p className={styles.cardEyebrow}>Quick Booking</p>
+                <h3 className={styles.cardTitle}>Book Your Visit</h3>
               </div>
-              <div className={styles.liveIndicator}>
-                <span className={styles.liveDot} />
-                Live
+              <div className={styles.responsePill}>
+                <span className={styles.greenDot} />
+                30-min response
               </div>
             </div>
 
-            <div className={styles.slotGrid}>
-              {['9:00 AM', '10:30 AM', '12:00 PM', '2:00 PM', '4:30 PM', '6:00 PM'].map((t, i) => (
-                <div key={t} className={`${styles.slot} ${i === 1 ? styles.slotBooked : ''}`}>
-                  {t}
-                  {i === 1 && <span className={styles.slotTag}>Booked</span>}
+            {/* Doctor */}
+            <div className={styles.field}>
+              <label className={styles.fieldLabel}>Specialist</label>
+              <div className={styles.doctorSelect}>
+                <div className={styles.doctorAvatar}>RP</div>
+                <div className={styles.doctorMeta}>
+                  <span className={styles.doctorName}>Dr. Rajesh Patel</span>
+                  <span className={styles.doctorSpec}>Senior Physiotherapist · Spine</span>
                 </div>
-              ))}
+                <i className="ri-arrow-down-s-line" style={{ fontSize: 18, color: 'var(--color-text-light)' }} />
+              </div>
             </div>
 
-            <Link href="/book-appointment" className={styles.bookNowBtn}>
-              Reserve Your Slot <i className="ri-arrow-right-line" style={{ fontSize: 16, marginLeft: 4 }} />
-            </Link>
+            {/* Treatment */}
+            <div className={styles.field}>
+              <label className={styles.fieldLabel}>Treatment</label>
+              <select
+                className={styles.fieldSelect}
+                value={treatment}
+                onChange={(e) => setTreatment(e.target.value)}
+              >
+                {TREATMENTS.map((t) => <option key={t}>{t}</option>)}
+              </select>
+            </div>
 
-            <div className={styles.reviewStrip}>
-              <div className={styles.reviewStars}>
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <i key={i} className="ri-star-fill" style={{ fontSize: 16 }} />
+            {/* Date strip */}
+            <div className={styles.field}>
+              <label className={styles.fieldLabel}>Choose Date</label>
+              <div className={styles.dateStrip}>
+                {DAYS.map((d, i) => (
+                  <button
+                    type="button"
+                    key={d.key}
+                    onClick={() => setActiveDay(i)}
+                    className={`${styles.datePill} ${activeDay === i ? styles.datePillActive : ''}`}
+                  >
+                    <span className={styles.dateLabel}>{d.label}</span>
+                    <span className={styles.dateNum}>{d.date}</span>
+                  </button>
                 ))}
               </div>
-              <p className={styles.reviewText}>&ldquo;Best physiotherapy centre in Ahmedabad!&rdquo;</p>
-              <p className={styles.reviewAuthor}>— 500+ Google Reviews</p>
+            </div>
+
+            {/* Slots */}
+            <div className={styles.field}>
+              <label className={styles.fieldLabel}>Available Slots</label>
+              <div className={styles.slotRow}>
+                {SLOTS.map((s, i) => (
+                  <button
+                    type="button"
+                    key={s}
+                    onClick={() => setActiveSlot(i)}
+                    className={`${styles.slotPill} ${activeSlot === i ? styles.slotPillActive : ''}`}
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className={styles.cardActions}>
+              <Link href="/book-appointment" className={styles.confirmBtn}>
+                Confirm Booking <i className="ri-arrow-right-line" style={{ fontSize: 16 }} />
+              </Link>
+              <a
+                href="https://wa.me/919999999999?text=Hi, I'd like to book an appointment"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.whatsBtn}
+              >
+                <i className="ri-whatsapp-line" style={{ fontSize: 18 }} /> WhatsApp Us
+              </a>
             </div>
           </div>
 
-          {/* Floating achievements */}
+          {/* Floating glass cards */}
           <motion.div
-            className={`${styles.floatingBadge} ${styles.floatingBadge1}`}
+            className={`glass-card ${styles.floatTop}`}
             animate={{ y: [0, -8, 0] }}
-            transition={{ repeat: Infinity, duration: 3, ease: 'easeInOut' }}
+            transition={{ repeat: Infinity, duration: 3.4, ease: 'easeInOut' }}
           >
-            <span className={styles.floatingIcon}>
-              <i className="ri-trophy-line" style={{ fontSize: 24 }} />
-            </span>
+            <i className="ri-pulse-line" style={{ fontSize: 18, color: 'var(--color-primary)' }} />
             <div>
-              <p className={styles.floatingTitle}>Best Physio 2024</p>
-              <p className={styles.floatingDesc}>Gujarat Healthcare Awards</p>
+              <p className={styles.floatTitle}>Live Slots Updated</p>
+              <p className={styles.floatSub}><span className={styles.greenDot} /> Just now</p>
             </div>
           </motion.div>
 
           <motion.div
-            className={`${styles.floatingBadge} ${styles.floatingBadge2}`}
+            className={`glass-card ${styles.floatBottom}`}
             animate={{ y: [0, 8, 0] }}
-            transition={{ repeat: Infinity, duration: 3.5, ease: 'easeInOut', delay: 0.5 }}
+            transition={{ repeat: Infinity, duration: 3.8, ease: 'easeInOut', delay: 0.4 }}
           >
-            <span className={styles.floatingIcon}>
-              <i className="ri-checkbox-circle-fill" style={{ fontSize: 24, color: 'var(--color-success)' }} />
-            </span>
+            <div className={styles.avatarStack}>
+              <span className={styles.stackAvatar} style={{ background: 'var(--color-primary)' }}>R</span>
+              <span className={styles.stackAvatar} style={{ background: 'var(--color-accent)' }}>A</span>
+              <span className={styles.stackAvatar} style={{ background: 'var(--color-accent-dark)' }}>M</span>
+            </div>
             <div>
-              <p className={styles.floatingTitle}>Advanced Equipment</p>
-              <p className={styles.floatingDesc}>IFT • TENS • Ultrasound</p>
+              <p className={styles.floatTitle}>+12 booked today</p>
+              <p className={styles.floatSub}>Reserve yours</p>
             </div>
           </motion.div>
         </motion.div>
       </div>
-
-      {/* Scroll indicator */}
-      <motion.div
-        className={styles.scrollHint}
-        animate={{ y: [0, 8, 0] }}
-        transition={{ repeat: Infinity, duration: 2 }}
-      >
-        <div className={styles.scrollMouse}>
-          <div className={styles.scrollWheel} />
-        </div>
-        <span>Scroll to explore</span>
-      </motion.div>
     </section>
   );
 }
