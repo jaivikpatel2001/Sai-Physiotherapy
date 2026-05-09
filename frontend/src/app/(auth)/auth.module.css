@@ -1,12 +1,12 @@
-.layout {
+﻿.layout {
   display: grid;
   grid-template-columns: 1fr 1fr;
   min-height: 100vh;
 }
 
-/* ── Left ──────────────────────────────────────────────────────────────── */
+/* â”€â”€ Left â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .left {
-  background: var(--gradient-cta);
+  background: var(--color-surface);
   padding: var(--space-12);
   display: flex;
   flex-direction: column;
@@ -52,7 +52,6 @@
   align-items: center;
   justify-content: center;
   color: white;
-  backdrop-filter: blur(8px);
 }
 
 .logoName { font-family: var(--font-display); font-size: var(--text-lg); font-weight: 800; color: white; line-height: 1.2; letter-spacing: -0.02em; }
@@ -125,7 +124,7 @@
 }
 .backHome:hover { color: white; }
 
-/* ── Right ─────────────────────────────────────────────────────────────── */
+/* â”€â”€ Right â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .right {
   background: var(--color-bg);
   display: flex;

@@ -1,44 +1,28 @@
+/* Stats — light surface row per Notion stat-row component */
+
 .section {
-  padding: var(--space-20) 0;
-  background: var(--gradient-cta);
+  padding: var(--space-16) 0;
+  background: var(--color-canvas);
   position: relative;
-  overflow: hidden;
-  color: white;
+  color: var(--color-ink);
 }
 
-.section::before {
-  content: '';
-  position: absolute;
-  top: -200px;
-  left: -200px;
-  width: 600px;
-  height: 600px;
-  background: radial-gradient(circle, rgba(20, 184, 166, 0.45) 0%, transparent 70%);
-  border-radius: 50%;
-  filter: blur(80px);
-  pointer-events: none;
-}
-
-.section::after {
-  content: '';
-  position: absolute;
-  bottom: -200px;
-  right: -200px;
-  width: 600px;
-  height: 600px;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.18) 0%, transparent 70%);
-  border-radius: 50%;
-  filter: blur(80px);
-  pointer-events: none;
-}
+.section::before,
+.section::after { display: none; }
 
 .bgAccent { display: none; }
+
+.wrap {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  padding: var(--space-12);
+}
 
 .grid {
   position: relative;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: var(--space-6);
+  gap: 0;
 }
 
 .card {
@@ -46,58 +30,59 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: var(--space-3);
-  padding: var(--space-8);
-  background: rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  border-radius: var(--radius-xl);
-  transition: transform var(--transition-base), background var(--transition-base);
+  gap: var(--space-2);
+  padding: 0 var(--space-6);
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  border-left: 1px solid var(--color-hairline-soft);
 }
 
-.card:hover {
-  transform: translateY(-4px);
-  background: rgba(255, 255, 255, 0.10);
+.card:first-child {
+  border-left: none;
+  padding-left: 0;
 }
 
 .iconWrap {
-  width: 56px;
-  height: 56px;
-  background: rgba(255, 255, 255, 0.14);
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  border-radius: var(--radius-full);
+  width: 36px;
+  height: 36px;
+  background: var(--color-canvas);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
-  margin-bottom: var(--space-2);
+  color: var(--color-primary);
+  margin-bottom: var(--space-1);
 }
 
 .num {
   font-family: var(--font-display);
-  font-size: clamp(3rem, 5vw, 4.5rem);
-  font-weight: 900;
-  color: white;
-  line-height: 1;
-  letter-spacing: -0.04em;
+  font-size: clamp(2.25rem, 4vw, 3rem);
+  font-weight: 600;
+  color: var(--color-ink);
+  line-height: 1.1;
+  letter-spacing: -0.5px;
 }
 
 .label {
-  font-size: var(--text-base);
-  font-weight: 700;
-  color: white;
-  letter-spacing: -0.01em;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-ink);
 }
 
 .desc {
   font-size: var(--text-sm);
-  color: rgba(255, 255, 255, 0.72);
+  color: var(--color-slate);
+  line-height: 1.50;
 }
 
 @media (max-width: 900px) {
-  .grid { grid-template-columns: repeat(2, 1fr); }
+  .grid { grid-template-columns: repeat(2, 1fr); gap: var(--space-6); }
+  .card { border-left: none; padding-left: 0; }
 }
 
 @media (max-width: 480px) {
   .grid { grid-template-columns: 1fr; }
+  .wrap { padding: var(--space-8); }
 }

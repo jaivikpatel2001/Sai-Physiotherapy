@@ -1,4 +1,4 @@
-.page {
+﻿.page {
   min-height: 100vh;
   display: flex;
   align-items: center;
@@ -19,7 +19,7 @@
   color: var(--color-primary-50);
   line-height: 1;
   margin-bottom: var(--space-4);
-  background: var(--gradient-primary);
+  background: var(--color-primary);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -47,7 +47,7 @@
 
 .homeBtn {
   padding: var(--space-3) var(--space-8);
-  background: var(--gradient-primary);
+  background: var(--color-primary);
   color: white;
   border-radius: var(--radius-full);
   font-weight: 700;

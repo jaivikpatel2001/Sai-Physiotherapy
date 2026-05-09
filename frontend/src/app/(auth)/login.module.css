@@ -1,4 +1,4 @@
-.card {
+﻿.card {
   width: 100%;
   max-width: 440px;
   background: white;
@@ -72,7 +72,7 @@
   gap: var(--space-2);
   width: 100%;
   padding: var(--space-4);
-  background: var(--gradient-primary);
+  background: var(--color-primary);
   color: white;
   border: none;
   border-radius: var(--radius-full);
@@ -95,7 +95,7 @@
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ── Demo Box ──────────────────────────────────────────────────────────── */
+/* â”€â”€ Demo Box â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .demoBox {
   margin-top: var(--space-6);
   padding: var(--space-5);

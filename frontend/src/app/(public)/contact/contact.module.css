@@ -1,14 +1,14 @@
-.page { background: var(--color-bg); }
+﻿.page { background: var(--color-bg); }
 
 .hero {
   position: relative;
-  background: var(--gradient-hero);
+  background: var(--color-canvas);
   padding: calc(var(--header-height) + var(--space-14)) 0 var(--space-14);
   text-align: center;
   overflow: hidden;
 }
 
-.heroMesh { position: absolute; inset: 0; background: var(--gradient-mesh); pointer-events: none; }
+.heroMesh { position: absolute; inset: 0; background: transparent; pointer-events: none; }
 .hero > .container { position: relative; z-index: 1; }
 
 .heroTitle {
@@ -28,7 +28,7 @@
   line-height: var(--leading-relaxed);
 }
 
-/* ── Channels ───────────────────────────────────────────────────────── */
+/* â”€â”€ Channels â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .channelsSection { padding: var(--space-12) 0 var(--space-8); }
 
 .channelsGrid {
@@ -100,7 +100,7 @@
   margin-top: var(--space-2);
 }
 
-/* ── Body grid ──────────────────────────────────────────────────────── */
+/* â”€â”€ Body grid â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .bodySection { padding: var(--space-8) 0 var(--space-20); }
 
 .bodyGrid {
@@ -188,7 +188,7 @@
   gap: var(--space-2);
   height: 52px;
   padding: 0 28px;
-  background: var(--gradient-primary);
+  background: var(--color-primary);
   color: var(--color-white);
   border-radius: 12px;
   font-weight: 700;
@@ -221,7 +221,7 @@
 
 .successCheck {
   width: 72px; height: 72px;
-  background: var(--gradient-primary);
+  background: var(--color-primary);
   color: var(--color-white);
   border-radius: 50%;
   display: flex;
@@ -254,7 +254,7 @@
 }
 .againBtn:hover { border-color: var(--color-primary); background: var(--color-primary-50); }
 
-/* ── Map ────────────────────────────────────────────────────────────── */
+/* â”€â”€ Map â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .mapWrap {
   position: relative;
   border-radius: var(--radius-md);
@@ -280,7 +280,7 @@
 
 .mapCta:hover { border-color: var(--color-primary); background: var(--color-primary-50); }
 
-/* ── Hours ──────────────────────────────────────────────────────────── */
+/* â”€â”€ Hours â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .hoursCard {
   background: var(--color-white);
   border: 1px solid var(--color-border-light);
@@ -372,7 +372,7 @@
 .statusOpen   { background: var(--color-mint-100); color: var(--color-success); }
 .statusClosed { background: var(--color-error-bg); color: var(--color-error); }
 
-/* ── Emergency banner ───────────────────────────────────────────────── */
+/* â”€â”€ Emergency banner â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .emergencyBanner {
   display: flex;
   align-items: center;

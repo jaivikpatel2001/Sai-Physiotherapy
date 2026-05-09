@@ -1,9 +1,9 @@
-.page { background: var(--color-bg); }
+﻿.page { background: var(--color-bg); }
 
-/* ── Hero ──────────────────────────────────────────────────────────────── */
+/* â”€â”€ Hero â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .hero {
   position: relative;
-  background: var(--gradient-hero);
+  background: var(--color-canvas);
   padding: calc(var(--header-height) + var(--space-14)) 0 var(--space-20);
   overflow: hidden;
 }
@@ -11,7 +11,7 @@
 .hero::before {
   content: '';
   position: absolute; inset: 0;
-  background: var(--gradient-mesh);
+  background: transparent;
   pointer-events: none;
 }
 
@@ -67,7 +67,7 @@
   font-weight: 600;
 }
 
-/* ── Clinic Card ────────────────────────────────────────────────────────── */
+/* â”€â”€ Clinic Card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .heroVisual {}
 
 .clinicCard {
@@ -127,7 +127,7 @@
 
 .certItem i { color: var(--color-success); flex-shrink: 0; }
 
-/* ── Mission ────────────────────────────────────────────────────────────── */
+/* â”€â”€ Mission â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .missionSection { background: var(--color-white); }
 
 .missionGrid {
@@ -154,7 +154,7 @@
   top: 0; left: 0;
   width: 100%;
   height: 4px;
-  background: var(--gradient-primary);
+  background: var(--color-primary);
 }
 
 .missionIcon {
@@ -181,7 +181,7 @@
   line-height: var(--leading-relaxed);
 }
 
-/* ── Values ─────────────────────────────────────────────────────────────── */
+/* â”€â”€ Values â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .valuesSection { background: var(--color-bg); }
 
 .valuesGrid {
@@ -228,7 +228,7 @@
   line-height: var(--leading-relaxed);
 }
 
-/* ── Timeline ───────────────────────────────────────────────────────────── */
+/* â”€â”€ Timeline â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .timelineSection { background: var(--color-white); }
 
 .timeline {
@@ -302,14 +302,14 @@
   left: 50%;
   width: 18px;
   height: 18px;
-  background: var(--gradient-primary);
+  background: var(--color-primary);
   border: 4px solid var(--color-white);
   border-radius: 50%;
   transform: translateX(-50%);
   box-shadow: var(--shadow-blue);
 }
 
-/* ── Certifications ─────────────────────────────────────────────────────── */
+/* â”€â”€ Certifications â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .certSection { background: var(--color-bg); }
 
 .certGrid {
@@ -325,7 +325,6 @@
   align-items: center;
   gap: var(--space-3);
   background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(10px);
   border: 1px solid var(--color-border-light);
   border-radius: var(--radius-md);
   padding: var(--space-5);
@@ -344,12 +343,12 @@
   font-size: 24px !important;
 }
 
-/* ── CTA ────────────────────────────────────────────────────────────────── */
+/* â”€â”€ CTA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .ctaSection { padding: var(--space-16) 0; background: var(--color-bg); }
 
 .ctaBox {
   position: relative;
-  background: var(--gradient-cta);
+  background: var(--color-surface);
   border-radius: var(--radius-2xl);
   padding: var(--space-16) var(--space-12);
   text-align: center;

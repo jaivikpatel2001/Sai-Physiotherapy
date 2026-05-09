@@ -1,13 +1,13 @@
-.page { background: var(--color-bg); min-height: 100vh; }
+﻿.page { background: var(--color-bg); min-height: 100vh; }
 
 .hero {
   position: relative;
-  background: var(--gradient-hero);
+  background: var(--color-canvas);
   padding: calc(var(--header-height) + var(--space-14)) 0 var(--space-12);
   text-align: center;
   overflow: hidden;
 }
-.heroMesh { position: absolute; inset: 0; background: var(--gradient-mesh); pointer-events: none; }
+.heroMesh { position: absolute; inset: 0; background: transparent; pointer-events: none; }
 .hero > .container { position: relative; z-index: 1; }
 
 .heroTitle {
@@ -68,7 +68,7 @@
   top: var(--space-4);
   left: var(--space-4);
   padding: 6px 14px;
-  background: var(--gradient-cta);
+  background: var(--color-surface);
   color: var(--color-white);
   border-radius: var(--radius-full);
   font-size: var(--text-xs);
@@ -126,7 +126,7 @@
 
 .authorAvatar {
   width: 32px; height: 32px;
-  background: var(--gradient-primary);
+  background: var(--color-primary);
   color: var(--color-white);
   border-radius: 50%;
   display: flex;
@@ -138,7 +138,7 @@
 
 .authorAvatarSm {
   width: 24px; height: 24px;
-  background: var(--gradient-primary);
+  background: var(--color-primary);
   color: var(--color-white);
   border-radius: 50%;
   display: flex;
@@ -177,7 +177,7 @@
 .chip:hover { border-color: var(--color-primary); color: var(--color-primary); }
 
 .chipActive {
-  background: var(--gradient-primary);
+  background: var(--color-primary);
   color: var(--color-white);
   border-color: transparent;
   box-shadow: var(--shadow-blue);
@@ -314,7 +314,7 @@
 .pageBtn:disabled { opacity: 0.4; cursor: not-allowed; }
 
 .pageActive {
-  background: var(--gradient-primary);
+  background: var(--color-primary);
   color: var(--color-white);
   border-color: transparent;
   box-shadow: var(--shadow-blue);

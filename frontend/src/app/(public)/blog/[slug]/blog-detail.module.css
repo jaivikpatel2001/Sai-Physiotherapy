@@ -7,7 +7,7 @@
   overflow: hidden;
 }
 
-.heroMesh { position: absolute; inset: 0; background: var(--gradient-mesh); pointer-events: none; }
+.heroMesh { position: absolute; inset: 0; background: transparent; pointer-events: none; }
 .hero > .container { position: relative; z-index: 1; max-width: 880px; }
 
 .tint_sky      { background: var(--color-sky-50); }
@@ -74,7 +74,7 @@
 
 .authorAvatar {
   width: 40px; height: 40px;
-  background: var(--gradient-primary);
+  background: var(--color-primary);
   color: var(--color-white);
   border-radius: 50%;
   display: flex;
@@ -87,7 +87,7 @@
 
 .authorAvatarLg {
   width: 64px; height: 64px;
-  background: var(--gradient-primary);
+  background: var(--color-primary);
   color: var(--color-white);
   border-radius: 50%;
   display: flex;
@@ -203,7 +203,7 @@
 }
 
 .takeaway {
-  background: var(--gradient-cta);
+  background: var(--color-surface);
   border-radius: var(--radius-xl);
   padding: var(--space-8);
   color: var(--color-white);
@@ -343,7 +343,7 @@
   gap: var(--space-2);
   height: 52px;
   padding: 0 24px;
-  background: var(--gradient-primary);
+  background: var(--color-primary);
   color: var(--color-white);
   border-radius: 12px;
   font-weight: 700;

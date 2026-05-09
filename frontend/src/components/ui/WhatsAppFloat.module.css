@@ -13,17 +13,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 60px;
-  height: 60px;
+  width: 44px;
+  height: 44px;
   background: #25D366;
   border-radius: var(--radius-full);
-  box-shadow: 0 4px 20px rgba(37, 211, 102, 0.45);
-  transition: transform var(--transition-spring), box-shadow var(--transition-base);
+  box-shadow: var(--shadow-md);
+  transition: background var(--transition-base), box-shadow var(--transition-base);
 }
 
 .button:hover {
-  transform: scale(1.12) translateY(-2px);
-  box-shadow: 0 8px 30px rgba(37, 211, 102, 0.55);
+  background: #1ea952;
+  box-shadow: var(--shadow-lg);
 }
 
 .pulseRing {

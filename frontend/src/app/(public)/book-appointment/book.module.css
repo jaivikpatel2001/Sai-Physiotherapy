@@ -1,4 +1,4 @@
-.page {
+﻿.page {
   background: var(--color-bg);
   padding-bottom: var(--space-20);
   position: relative;
@@ -9,12 +9,12 @@
   position: absolute;
   top: 0; left: 0; right: 0;
   height: 480px;
-  background: var(--gradient-hero);
+  background: var(--color-canvas);
   pointer-events: none;
   z-index: 0;
 }
 
-.heroMesh { position: absolute; inset: 0; background: var(--gradient-mesh); }
+.heroMesh { position: absolute; inset: 0; background: transparent; }
 
 .hero {
   position: relative;
@@ -61,12 +61,12 @@
   margin: 0 auto;
 }
 
-/* ── Body Layout ─────────────────────────────────────────────────────── */
+/* â”€â”€ Body Layout â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .bodySection { position: relative; z-index: 1; }
 
 .layout {
   display: grid;
-  grid-template-columns: 1fr 340px;
+  grid-template-columns: minmax(0, 1fr) 340px;
   gap: var(--space-8);
   align-items: start;
 }
@@ -77,7 +77,7 @@
   gap: var(--space-6);
 }
 
-/* ── Stepper ─────────────────────────────────────────────────────────── */
+/* â”€â”€ Stepper â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .stepper {
   position: relative;
   display: grid;
@@ -92,7 +92,9 @@
 
 .stepperTrack {
   position: absolute;
-  top: 38px; left: 14%; right: 14%;
+  top: 38px;
+  left: calc(12.5% + 20px);
+  right: calc(12.5% + 20px);
   height: 3px;
   background: var(--color-border);
   border-radius: 2px;
@@ -101,13 +103,14 @@
 
 .stepperFill {
   position: absolute;
-  top: 38px; left: 14%;
+  top: 38px;
+  left: calc(12.5% + 20px);
   height: 3px;
-  background: var(--gradient-primary);
+  background: var(--color-primary);
   border-radius: 2px;
   z-index: 2;
   transition: width var(--transition-base);
-  max-width: 72%;
+  max-width: calc(75% - 40px);
 }
 
 .stepperItem {
@@ -143,7 +146,7 @@
 }
 
 .s_active .stepCircle {
-  background: var(--gradient-primary);
+  background: var(--color-primary);
   color: var(--color-white);
   border-color: transparent;
   box-shadow: var(--shadow-blue);
@@ -158,7 +161,7 @@
 }
 .s_done .stepLabel { color: var(--color-text); font-weight: 600; }
 
-/* ── Step Card ───────────────────────────────────────────────────────── */
+/* â”€â”€ Step Card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .stepCard {
   background: var(--color-white);
   border: 1px solid var(--color-border-light);
@@ -194,7 +197,7 @@
 
 .req { color: var(--color-error); margin-left: 2px; }
 
-/* ── Service Grid ────────────────────────────────────────────────────── */
+/* â”€â”€ Service Grid â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .serviceGrid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -257,7 +260,7 @@
   padding: var(--space-4);
 }
 
-/* ── Date Strip ──────────────────────────────────────────────────────── */
+/* â”€â”€ Date Strip â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .dateStrip {
   display: flex;
   gap: var(--space-2);
@@ -282,7 +285,7 @@
 .datePill:hover { border-color: var(--color-primary-light); }
 
 .datePillActive {
-  background: var(--gradient-primary);
+  background: var(--color-primary);
   border-color: transparent;
   box-shadow: var(--shadow-blue);
 }
@@ -313,7 +316,7 @@
 .datePillActive .dpDate,
 .datePillActive .dpMonth { color: var(--color-white); }
 
-/* ── Time Slots ──────────────────────────────────────────────────────── */
+/* â”€â”€ Time Slots â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .slotGrid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -335,13 +338,13 @@
 .slotPill:hover { border-color: var(--color-primary); }
 
 .slotActive {
-  background: var(--gradient-primary);
+  background: var(--color-primary);
   color: var(--color-white);
   border-color: transparent;
   box-shadow: 0 6px 16px rgba(37, 99, 235, 0.25);
 }
 
-/* ── Toggle ──────────────────────────────────────────────────────────── */
+/* â”€â”€ Toggle â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .toggleRow {
   display: flex;
   align-items: center;
@@ -380,11 +383,11 @@
 }
 
 .switchOn {
-  background: var(--gradient-primary);
+  background: var(--color-primary);
   color: var(--color-white);
 }
 
-/* ── Form Inputs ─────────────────────────────────────────────────────── */
+/* â”€â”€ Form Inputs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .formGrid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -427,7 +430,7 @@
 .hint { font-size: var(--text-xs); color: var(--color-text-muted); }
 .hintErr { font-size: var(--text-xs); color: var(--color-error); font-weight: 600; }
 
-/* ── Review ──────────────────────────────────────────────────────────── */
+/* â”€â”€ Review â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .reviewCard {
   background: var(--color-bg);
   border: 1px solid var(--color-border-light);
@@ -478,7 +481,7 @@
 
 .privacyNote i { color: var(--color-primary); font-size: 16px; }
 
-/* ── Nav Buttons ─────────────────────────────────────────────────────── */
+/* â”€â”€ Nav Buttons â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .navBtns {
   display: flex;
   justify-content: space-between;
@@ -513,7 +516,7 @@
   gap: var(--space-2);
   height: 52px;
   padding: 0 28px;
-  background: var(--gradient-primary);
+  background: var(--color-primary);
   color: var(--color-white);
   border-radius: 12px;
   font-weight: 700;
@@ -539,7 +542,7 @@
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ── Sidebar Summary ─────────────────────────────────────────────────── */
+/* â”€â”€ Sidebar Summary â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .summary { position: sticky; top: calc(var(--header-height) + var(--space-6)); }
 
 .summaryCard {
@@ -652,7 +655,7 @@
 
 .altLink:hover { color: var(--color-primary); }
 
-/* ── Success State ───────────────────────────────────────────────────── */
+/* â”€â”€ Success State â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .successCard {
   position: relative;
   z-index: 1;
@@ -668,7 +671,7 @@
 
 .successCheck {
   width: 96px; height: 96px;
-  background: var(--gradient-primary);
+  background: var(--color-primary);
   border-radius: 50%;
   display: flex;
   align-items: center;

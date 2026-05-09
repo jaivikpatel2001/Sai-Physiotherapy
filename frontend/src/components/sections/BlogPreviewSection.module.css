@@ -1,4 +1,4 @@
-.section { background: var(--color-white); }
+﻿.section { background: var(--color-white); }
 
 .layout {
   display: grid;
@@ -6,7 +6,7 @@
   gap: var(--space-6);
 }
 
-/* ── Featured ─────────────────────────────────────────────────────────────── */
+/* â”€â”€ Featured â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .featured {
   display: flex;
   flex-direction: column;
@@ -107,7 +107,7 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: var(--gradient-primary);
+  background: var(--color-primary);
   color: white;
   display: flex;
   align-items: center;
@@ -132,7 +132,7 @@
 
 .featured:hover .readMore { gap: 8px; }
 
-/* ── Secondary ────────────────────────────────────────────────────────────── */
+/* â”€â”€ Secondary â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .secondaryCol {
   display: flex;
   flex-direction: column;

@@ -38,28 +38,28 @@ export default function StatsSection() {
 
   return (
     <section className={styles.section} ref={ref}>
-      <div className={styles.bgAccent} />
       <div className="container">
-        <div className={styles.grid}>
-          {STATS.map((s, i) => (
-            <motion.div
-              key={s.label}
-              className={styles.card}
-              style={{ background: s.surface }}
-              initial={{ opacity: 0, y: 40 }}
-              animate={inView ? { opacity: 1, y: 0 } : {}}
-              transition={{ delay: i * 0.1, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <div className={styles.iconWrap}>
-                <i className={s.icon} style={{ fontSize: 28 }} />
-              </div>
-              <div className={styles.num}>
-                {inView ? <Counter target={s.num} suffix={s.suffix} /> : `0${s.suffix}`}
-              </div>
-              <p className={styles.label}>{s.label}</p>
-              <p className={styles.desc}>{s.desc}</p>
-            </motion.div>
-          ))}
+        <div className={styles.wrap}>
+          <div className={styles.grid}>
+            {STATS.map((s, i) => (
+              <motion.div
+                key={s.label}
+                className={styles.card}
+                initial={{ opacity: 0, y: 24 }}
+                animate={inView ? { opacity: 1, y: 0 } : {}}
+                transition={{ delay: i * 0.08, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+              >
+                <div className={styles.iconWrap}>
+                  <i className={s.icon} style={{ fontSize: 18 }} />
+                </div>
+                <div className={styles.num}>
+                  {inView ? <Counter target={s.num} suffix={s.suffix} /> : `0${s.suffix}`}
+                </div>
+                <p className={styles.label}>{s.label}</p>
+                <p className={styles.desc}>{s.desc}</p>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </div>
     </section>

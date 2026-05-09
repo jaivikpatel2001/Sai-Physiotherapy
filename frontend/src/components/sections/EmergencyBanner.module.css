@@ -1,4 +1,4 @@
-.section {
+﻿.section {
   padding: var(--space-20) 0;
   position: relative;
   overflow: hidden;
@@ -7,7 +7,7 @@
 .bg {
   position: absolute;
   inset: 0;
-  background: var(--gradient-hero);
+  background: var(--color-canvas);
 }
 
 .inner {
@@ -24,7 +24,7 @@
   box-shadow: var(--shadow-md);
 }
 
-/* ── Text ──────────────────────────────────────────────────────────────── */
+/* â”€â”€ Text â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .textBlock { display: flex; flex-direction: column; gap: var(--space-5); }
 
 .emergencyTag {
@@ -64,7 +64,7 @@
 }
 
 .highlight {
-  background: var(--gradient-primary);
+  background: var(--color-primary);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -89,7 +89,7 @@
 
 .infoItem i { color: var(--color-primary); flex-shrink: 0; }
 
-/* ── CTAs ──────────────────────────────────────────────────────────────── */
+/* â”€â”€ CTAs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .ctas {
   display: flex;
   flex-direction: column;
@@ -103,7 +103,7 @@
   justify-content: center;
   gap: var(--space-2);
   padding: var(--space-4) var(--space-6);
-  background: var(--gradient-primary);
+  background: var(--color-primary);
   color: white;
   border-radius: var(--radius-full);
   font-weight: 600;

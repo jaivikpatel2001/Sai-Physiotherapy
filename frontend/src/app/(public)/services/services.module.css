@@ -1,8 +1,8 @@
-.page { background: var(--color-bg); min-height: 100vh; }
+﻿.page { background: var(--color-bg); min-height: 100vh; }
 
 .hero {
   position: relative;
-  background: var(--gradient-hero);
+  background: var(--color-canvas);
   padding: calc(var(--header-height) + var(--space-14)) 0 var(--space-14);
   text-align: center;
   overflow: hidden;
@@ -10,7 +10,7 @@
 
 .heroMesh {
   position: absolute; inset: 0;
-  background: var(--gradient-mesh);
+  background: transparent;
   pointer-events: none;
 }
 
@@ -151,7 +151,7 @@
 .quickChip:hover { border-color: var(--color-primary); color: var(--color-primary); }
 
 .quickActive {
-  background: var(--gradient-primary);
+  background: var(--color-primary);
   color: var(--color-white) !important;
   border-color: transparent;
   box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
@@ -307,7 +307,7 @@
   margin-top: var(--space-3);
   height: 44px;
   padding: 0 24px;
-  background: var(--gradient-primary);
+  background: var(--color-primary);
   color: var(--color-white);
   border-radius: 12px;
   font-weight: 700;

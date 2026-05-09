@@ -125,6 +125,7 @@ export default function BookAppointmentPage() {
   }
 
   const progressPct = (step / (STEPS.length - 1)) * 100;
+  const fillWidth = `calc((${progressPct} / 100) * (75% - 40px))`;
 
   return (
     <div className={styles.page}>
@@ -148,7 +149,7 @@ export default function BookAppointmentPage() {
               {/* Stepper */}
               <div className={styles.stepper}>
                 <div className={styles.stepperTrack} />
-                <div className={styles.stepperFill} style={{ width: `${progressPct}%` }} />
+                <div className={styles.stepperFill} style={{ width: fillWidth }} />
                 {STEPS.map((s, i) => {
                   const status = i === step ? 'active' : i < step ? 'done' : 'pending';
                   return (
