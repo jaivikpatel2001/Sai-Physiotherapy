@@ -1,7 +1,17 @@
 'use client';
 import Link from 'next/link';
+import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import styles from './blog-detail.module.css';
+
+const POST_IMAGES: Record<string, string> = {
+  '5-exercises-for-lower-back-pain': '/images/blog/blog_back_pain_exercises.png',
+  'understanding-cervical-spondylosis': '/images/blog/blog_cervical_spondylosis.png',
+  'post-stroke-rehabilitation-guide': '/images/blog/blog_stroke_rehab.png',
+  'knee-osteoarthritis-management': '/images/therapy/therapy_knee_joint.png',
+  'sports-injury-prevention-tips': '/images/blog/blog_sports_injury.png',
+  'frozen-shoulder-treatment': '/images/therapy/consultation_doctor_patient.png',
+};
 
 type Section = { heading: string; body: string; bullets?: string[] };
 type Post = {
@@ -181,9 +191,22 @@ export default function BlogDetailPage({ params }: { params: { slug: string } })
       </section>
 
       <div className="container">
-        <div className={`${styles.coverIcon} ${styles[`tintBox_${post.tint}`]}`}>
-          <i className={post.icon} />
-        </div>
+        {POST_IMAGES[post.slug] ? (
+          <div className={styles.coverImage}>
+            <Image
+              src={POST_IMAGES[post.slug]}
+              alt={post.title}
+              fill
+              sizes="(max-width: 1024px) 100vw, 720px"
+              style={{ objectFit: 'cover' }}
+              priority
+            />
+          </div>
+        ) : (
+          <div className={`${styles.coverIcon} ${styles[`tintBox_${post.tint}`]}`}>
+            <i className={post.icon} />
+          </div>
+        )}
       </div>
 
       <section className={styles.body}>
@@ -272,8 +295,12 @@ export default function BlogDetailPage({ params }: { params: { slug: string } })
             <div className={styles.relatedGrid}>
               {related.map((p) => (
                 <Link key={p.slug} href={`/blog/${p.slug}`} className={styles.relatedCard}>
-                  <div className={`${styles.relCover} ${styles[`tint_${p.tint}`]}`}>
-                    <i className={p.icon} />
+                  <div className={`${styles.relCover} ${styles[`tint_${p.tint}`]}`} style={{ position: 'relative', overflow: 'hidden' }}>
+                    {POST_IMAGES[p.slug] ? (
+                      <Image src={POST_IMAGES[p.slug]} alt={p.title} fill sizes="(max-width: 768px) 100vw, 33vw" style={{ objectFit: 'cover' }} />
+                    ) : (
+                      <i className={p.icon} />
+                    )}
                   </div>
                   <div className={styles.relBody}>
                     <span className={styles.relCat}>{p.category}</span>

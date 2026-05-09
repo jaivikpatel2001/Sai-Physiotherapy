@@ -2,6 +2,7 @@
 import { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import Link from 'next/link';
+import Image from 'next/image';
 import styles from './DoctorsSection.module.css';
 
 const DOCTORS = [
@@ -13,6 +14,7 @@ const DOCTORS = [
     languages: ['English', 'हिंदी', 'ગુજરાતી'],
     available: 'Available today',
     availableType: 'today',
+    image: '/images/doctors/doctor_rajesh_patel.png',
     avatar: 'RP',
     color: 'linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%)',
   },
@@ -24,6 +26,7 @@ const DOCTORS = [
     languages: ['English', 'हिंदी'],
     available: 'Mon, Wed, Fri',
     availableType: 'schedule',
+    image: '/images/doctors/doctor_anita_shah.png',
     avatar: 'AS',
     color: 'linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%)',
   },
@@ -35,6 +38,7 @@ const DOCTORS = [
     languages: ['English', 'हिंदी', 'ગુજરાતી'],
     available: 'Available today',
     availableType: 'today',
+    image: '/images/doctors/doctor_vikram_mehta.png',
     avatar: 'VM',
     color: 'linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%)',
   },
@@ -46,6 +50,7 @@ const DOCTORS = [
     languages: ['English', 'ગુજરાતી'],
     available: 'Tue, Thu, Sat',
     availableType: 'schedule',
+    image: '/images/doctors/doctor_meena_joshi.png',
     avatar: 'MJ',
     color: 'linear-gradient(135deg, #FFF1F2 0%, #FFE4E6 100%)',
   },
@@ -85,7 +90,13 @@ export default function DoctorsSection() {
                   <i className="ri-award-line" style={{ fontSize: 12 }} />
                   {doc.exp}
                 </div>
-                <div className={styles.avatar}>{doc.avatar}</div>
+                <Image
+                  src={doc.image}
+                  alt={doc.name}
+                  fill
+                  style={{ objectFit: 'cover', objectPosition: 'top center' }}
+                  sizes="(max-width: 560px) 280px, (max-width: 1100px) 50vw, 25vw"
+                />
               </div>
 
               <div className={styles.body}>

@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import 'lenis/dist/lenis.css';
+import SmoothScroll from '@/components/providers/SmoothScroll';
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://saiphysiotherapy.com'),
@@ -58,7 +60,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
       </head>
-      <body>{children}</body>
+      <body>
+        <SmoothScroll />
+        {children}
+      </body>
     </html>
   );
 }

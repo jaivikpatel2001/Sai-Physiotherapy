@@ -68,29 +68,39 @@
 }
 
 /* â”€â”€ Clinic Card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-.heroVisual {}
+.heroVisual { display: flex; flex-direction: column; gap: var(--space-4); }
+
+.heroImageWrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
 
 .clinicCard {
   background: var(--color-white);
   border: 1px solid var(--color-border-light);
   border-radius: var(--radius-xl);
-  padding: var(--space-8);
-  text-align: center;
+  padding: var(--space-5) var(--space-6);
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  align-items: center;
   gap: var(--space-4);
-  box-shadow: var(--shadow-glow);
+  box-shadow: var(--shadow-sm);
+  text-align: left;
 }
 
 .clinicEmoji {
-  width: 80px; height: 80px;
-  margin: 0 auto;
+  width: 56px; height: 56px;
   background: var(--color-primary-50);
-  border-radius: 50%;
+  border-radius: var(--radius-md);
   color: var(--color-primary);
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .clinicCard h2 {
@@ -130,10 +140,44 @@
 /* â”€â”€ Mission â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .missionSection { background: var(--color-white); }
 
+.missionLayout {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: var(--space-8);
+  align-items: stretch;
+}
+
+.missionImageWrap {
+  position: relative;
+  width: 100%;
+  min-height: 360px;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+
 .missionGrid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: var(--space-6);
+}
+
+.teamSection { background: var(--color-bg); }
+
+.teamImageWrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 21 / 9;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  margin-top: var(--space-8);
+}
+
+@media (max-width: 900px) {
+  .missionLayout { grid-template-columns: 1fr; }
+  .missionImageWrap { min-height: 240px; aspect-ratio: 4 / 3; }
+  .teamImageWrap { aspect-ratio: 16 / 9; }
 }
 
 .missionCard {
@@ -348,13 +392,16 @@
 
 .ctaBox {
   position: relative;
-  background: var(--color-surface);
+  background:
+    radial-gradient(circle at 0% 0%, rgba(86, 69, 212, 0.45) 0%, transparent 55%),
+    radial-gradient(circle at 100% 100%, rgba(20, 184, 166, 0.30) 0%, transparent 55%),
+    linear-gradient(180deg, #0a1530 0%, #1a2a52 100%);
   border-radius: var(--radius-2xl);
   padding: var(--space-16) var(--space-12);
   text-align: center;
   color: var(--color-white);
   overflow: hidden;
-  box-shadow: 0 40px 100px rgba(30, 58, 138, 0.30);
+  box-shadow: 0 40px 100px rgba(15, 23, 42, 0.35);
 }
 
 .ctaBox::before {
@@ -362,7 +409,7 @@
   position: absolute;
   top: -150px; left: -100px;
   width: 400px; height: 400px;
-  background: radial-gradient(circle, rgba(20, 184, 166, 0.45) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(86, 69, 212, 0.40) 0%, transparent 70%);
   border-radius: 50%;
   filter: blur(60px);
 }

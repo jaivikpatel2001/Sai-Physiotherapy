@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import Image from 'next/image';
 import styles from './contact.module.css';
 
 const CHANNELS = [
@@ -163,16 +164,20 @@ export default function ContactPage() {
               <h2 className={styles.h2}>Find Us</h2>
               <p className={styles.subText}>Convenient location with on-site parking.</p>
               <div className={styles.mapWrap}>
-                <iframe
-                  src="https://maps.google.com/maps?q=Ahmedabad+Gujarat&output=embed"
-                  width="100%"
-                  height="100%"
-                  loading="lazy"
-                  allowFullScreen
-                  referrerPolicy="no-referrer-when-downgrade"
-                  title="SAI Physiotherapy Ahmedabad location"
-                  style={{ border: 0 }}
+                <Image
+                  src="/images/clinic/contact_map_clinic.png"
+                  alt="SAI Physiotherapy clinic location in Ahmedabad"
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  style={{ objectFit: 'cover' }}
                 />
+                <a
+                  href="https://maps.google.com/maps?q=SAI+Physiotherapy+Ahmedabad"
+                  target="_blank" rel="noopener noreferrer"
+                  className={styles.mapOverlayBtn}
+                >
+                  <i className="ri-external-link-line" /> Open in Google Maps
+                </a>
               </div>
               <a
                 href="https://maps.google.com/maps?q=SAI+Physiotherapy+Ahmedabad"

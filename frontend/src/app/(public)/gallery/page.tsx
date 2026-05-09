@@ -1,24 +1,25 @@
 'use client';
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import styles from './gallery.module.css';
 
-const ITEMS = [
-  { icon: 'ri-hospital-line', label: 'Reception & Waiting Area', desc: 'Spacious, comfortable reception with helpful front-desk staff.', tint: 'sky', cat: 'Clinic' },
-  { icon: 'ri-flashlight-line', label: 'Electrotherapy Bay', desc: 'Advanced IFT, TENS and ultrasound therapy equipment.', tint: 'sand', cat: 'Equipment' },
-  { icon: 'ri-boxing-line', label: 'Exercise Therapy Room', desc: 'Fully equipped gym for active rehabilitation.', tint: 'mint', cat: 'Equipment' },
-  { icon: 'ri-hotel-bed-line', label: 'Treatment Beds', desc: '10+ dedicated treatment bays for hands-on physiotherapy.', tint: 'blush', cat: 'Treatments' },
-  { icon: 'ri-mental-health-line', label: 'Neuro Rehab Zone', desc: 'Specialized neurological rehab area with parallel bars.', tint: 'lavender', cat: 'Treatments' },
-  { icon: 'ri-parent-line', label: 'Pediatric Section', desc: 'Child-friendly therapy space with playful equipment.', tint: 'sand', cat: 'Treatments' },
-  { icon: 'ri-stethoscope-line', label: 'Consultation Rooms', desc: 'Private rooms for thorough patient assessment.', tint: 'sky', cat: 'Clinic' },
-  { icon: 'ri-bar-chart-line', label: 'Posture Analysis Lab', desc: 'Advanced posture and gait evaluation facility.', tint: 'mint', cat: 'Equipment' },
-  { icon: 'ri-microscope-line', label: 'Laser & Shockwave', desc: 'Laser, shockwave and spinal traction units.', tint: 'lavender', cat: 'Equipment' },
-  { icon: 'ri-team-line', label: 'Our Team', desc: 'Doctors and assistants — your recovery partners.', tint: 'blush', cat: 'Team' },
-  { icon: 'ri-graduation-cap-line', label: 'Patient Education Day', desc: 'Free monthly workshops for community wellness.', tint: 'mint', cat: 'Events' },
-  { icon: 'ri-trophy-line', label: 'Awards & Recognition', desc: '15 years of trust and patient-care excellence.', tint: 'sky', cat: 'Events' },
+type Item = { src: string; label: string; desc: string; cat: string };
+
+const ITEMS: Item[] = [
+  { src: '/images/clinic/clinic_reception.png', label: 'Reception', desc: 'A warm welcome — spacious reception with helpful front-desk staff.', cat: 'Clinic' },
+  { src: '/images/clinic/clinic_consultation_room.png', label: 'Consultation Room', desc: 'Private rooms for thorough patient assessment and discussion.', cat: 'Clinic' },
+  { src: '/images/clinic/clinic_treatment_room.png', label: 'Treatment Room', desc: 'Dedicated treatment bays for hands-on physiotherapy.', cat: 'Clinic' },
+  { src: '/images/clinic/clinic_electrotherapy.png', label: 'Electrotherapy', desc: 'Advanced IFT, TENS and ultrasound therapy equipment.', cat: 'Clinic' },
+  { src: '/images/clinic/clinic_gym_rehab.png', label: 'Gym & Rehab Floor', desc: 'Fully equipped gym for progressive active rehabilitation.', cat: 'Clinic' },
+  { src: '/images/therapy/back_pain_treatment.png', label: 'Back Pain Therapy', desc: 'Manual therapy and targeted exercise for chronic back pain.', cat: 'Treatments' },
+  { src: '/images/therapy/exercise_rehab_session.png', label: 'Rehab Session', desc: 'A typical progressive rehabilitation session in our gym.', cat: 'Treatments' },
+  { src: '/images/therapy/consultation_doctor_patient.png', label: 'Doctor Consultation', desc: 'One-on-one assessment and treatment planning.', cat: 'Treatments' },
+  { src: '/images/therapy/therapy_pediatric.png', label: 'Pediatric Care', desc: 'Gentle, play-based therapy for children.', cat: 'Treatments' },
+  { src: '/images/gallery/gallery_team_event.png', label: 'Team Event', desc: 'Our team building a culture of compassion and excellence.', cat: 'Events' },
 ];
 
-const FILTERS = ['All', 'Clinic', 'Equipment', 'Treatments', 'Team', 'Events'];
+const FILTERS = ['All', 'Clinic', 'Treatments', 'Events'];
 
 export default function GalleryPage() {
   const [filter, setFilter] = useState('All');
@@ -50,13 +51,24 @@ export default function GalleryPage() {
             ))}
           </div>
 
-          <div className={styles.masonry}>
+          <div className={styles.grid}>
             {filtered.map((item) => (
-              <div key={item.label} className={`${styles.tile} ${styles[`tint_${item.tint}`]}`}>
-                <i className={item.icon} />
-                <h3>{item.label}</h3>
-                <p>{item.desc}</p>
-              </div>
+              <figure key={item.label} className={styles.tile}>
+                <div className={styles.tileImage}>
+                  <Image
+                    src={item.src}
+                    alt={item.label}
+                    fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    style={{ objectFit: 'cover' }}
+                  />
+                  <span className={styles.tileCat}>{item.cat}</span>
+                </div>
+                <figcaption className={styles.tileBody}>
+                  <h3>{item.label}</h3>
+                  <p>{item.desc}</p>
+                </figcaption>
+              </figure>
             ))}
           </div>
 

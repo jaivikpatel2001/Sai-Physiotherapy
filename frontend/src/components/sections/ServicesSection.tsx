@@ -1,6 +1,7 @@
 'use client';
 import { useRef } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion, useInView } from 'framer-motion';
 import styles from './ServicesSection.module.css';
 
@@ -11,9 +12,8 @@ const SERVICES = [
     slug: 'back-pain-treatment',
     desc: 'Evidence-based recovery from acute and chronic back pain.',
     sessions: '8-12 sessions',
-    rating: '4.9',
-    featured: true,
-    surface: 'featured',
+    surface: 'sand',
+    image: '/images/therapy/back_pain_treatment.png',
   },
   {
     icon: 'ri-mental-health-line',
@@ -22,6 +22,7 @@ const SERVICES = [
     desc: 'Specialised treatment for disc and spine conditions.',
     sessions: '10-14 sessions',
     surface: 'sky',
+    image: '/images/therapy/therapy_spine_treatment.png',
   },
   {
     icon: 'ri-heart-pulse-line',
@@ -30,6 +31,7 @@ const SERVICES = [
     desc: 'Stroke and spinal injury rehab programs.',
     sessions: '12-24 weeks',
     surface: 'mint',
+    image: '/images/therapy/therapy_neuro_rehab.png',
   },
   {
     icon: 'ri-run-line',
@@ -38,6 +40,7 @@ const SERVICES = [
     desc: 'Pain relief, ligament and post-op rehab.',
     sessions: '6-10 sessions',
     surface: 'blush',
+    image: '/images/therapy/therapy_knee_joint.png',
   },
   {
     icon: 'ri-football-line',
@@ -46,6 +49,7 @@ const SERVICES = [
     desc: 'Performance-driven recovery for athletes.',
     sessions: '4-8 weeks',
     surface: 'sand',
+    image: '/images/therapy/therapy_sports_rehab.png',
   },
   {
     icon: 'ri-flashlight-line',
@@ -54,6 +58,7 @@ const SERVICES = [
     desc: 'Specialised neuro-rehab care across conditions.',
     sessions: '12+ weeks',
     surface: 'lavender',
+    image: '/images/therapy/therapy_pediatric.png',
   },
 ];
 
@@ -86,41 +91,43 @@ export default function ServicesSection() {
         </div>
 
         <div className={styles.bento}>
-          {SERVICES.map((svc, i) => {
-            const isFeatured = svc.featured;
-            return (
-              <motion.div
-                key={svc.slug}
-                className={`${styles.card} ${isFeatured ? styles.cardFeatured : SURFACE_CLASS[svc.surface]} ${isFeatured ? styles.spanFeatured : i === 1 || i === 2 ? styles.spanSide : styles.spanThird}`}
-                initial={{ opacity: 0, y: 30 }}
-                animate={inView ? { opacity: 1, y: 0 } : {}}
-                transition={{ delay: 0.05 * i, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-              >
-                <Link href={`/services/${svc.slug}`} className={styles.cardLink}>
+          {SERVICES.map((svc, i) => (
+            <motion.div
+              key={svc.slug}
+              className={`${styles.card} ${SURFACE_CLASS[svc.surface]}`}
+              initial={{ opacity: 0, y: 30 }}
+              animate={inView ? { opacity: 1, y: 0 } : {}}
+              transition={{ delay: 0.05 * i, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <Link href={`/services/${svc.slug}`} className={styles.cardLink}>
+                <div className={styles.cardMedia}>
+                  <Image
+                    src={svc.image}
+                    alt={svc.title}
+                    fill
+                    sizes="(max-width: 600px) 100vw, (max-width: 1024px) 50vw, 32vw"
+                    style={{ objectFit: 'cover' }}
+                  />
+                  <div className={styles.cardMediaOverlay} />
                   <div className={styles.cardIcon}>
-                    <i className={svc.icon} style={{ fontSize: isFeatured ? 32 : 26 }} />
+                    <i className={svc.icon} style={{ fontSize: 22 }} />
                   </div>
-                  <div className={styles.cardBody}>
-                    <h3 className={styles.cardTitle}>{svc.title}</h3>
-                    <p className={styles.cardDesc}>{svc.desc}</p>
-                  </div>
-                  <div className={styles.cardFooter}>
-                    <span className={styles.recoveryChip}>
-                      <i className="ri-time-line" style={{ fontSize: 12 }} /> {svc.sessions}
-                    </span>
-                    {isFeatured && svc.rating && (
-                      <span className={styles.ratingChip}>
-                        <i className="ri-star-fill" style={{ fontSize: 12 }} /> {svc.rating} patient rating
-                      </span>
-                    )}
-                    <span className={styles.learnMore}>
-                      Learn more <i className="ri-arrow-right-line" style={{ fontSize: 14 }} />
-                    </span>
-                  </div>
-                </Link>
-              </motion.div>
-            );
-          })}
+                </div>
+                <div className={styles.cardBody}>
+                  <h3 className={styles.cardTitle}>{svc.title}</h3>
+                  <p className={styles.cardDesc}>{svc.desc}</p>
+                </div>
+                <div className={styles.cardFooter}>
+                  <span className={styles.recoveryChip}>
+                    <i className="ri-time-line" style={{ fontSize: 12 }} /> {svc.sessions}
+                  </span>
+                  <span className={styles.learnMore}>
+                    Learn more <i className="ri-arrow-right-line" style={{ fontSize: 14 }} />
+                  </span>
+                </div>
+              </Link>
+            </motion.div>
+          ))}
         </div>
 
         <motion.div className={styles.viewAll} initial={{ opacity: 0, y: 20 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ delay: 0.4, duration: 0.5 }}>

@@ -66,6 +66,17 @@
   color: var(--color-text-muted);
   line-height: var(--leading-relaxed);
   max-width: 760px;
+  margin-bottom: var(--space-8);
+}
+
+.heroImage {
+  position: relative;
+  width: 100%;
+  max-width: 900px;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
   margin-bottom: var(--space-10);
 }
 

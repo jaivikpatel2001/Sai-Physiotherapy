@@ -1,7 +1,23 @@
 'use client';
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import styles from './services.module.css';
+
+const SERVICE_IMAGES: Record<string, string> = {
+  'back-pain-treatment': '/images/therapy/back_pain_treatment.png',
+  'spine-care-disc-problems': '/images/therapy/therapy_spine_treatment.png',
+  'paralysis-rehabilitation': '/images/therapy/therapy_neuro_rehab.png',
+  'knee-pain-joint-care': '/images/therapy/therapy_knee_joint.png',
+  'neck-pain-cervical-spondylosis': '/images/therapy/therapy_spine_treatment.png',
+  'sports-injury-rehabilitation': '/images/therapy/therapy_sports_rehab.png',
+  'neuro-physiotherapy': '/images/therapy/therapy_neuro_rehab.png',
+  'post-surgery-rehabilitation': '/images/therapy/exercise_rehab_session.png',
+  'pediatric-physiotherapy': '/images/therapy/therapy_pediatric.png',
+  'geriatric-care': '/images/therapy/exercise_home_program.png',
+  'shoulder-pain-treatment': '/images/therapy/consultation_assessment.png',
+  'frozen-shoulder': '/images/therapy/consultation_doctor_patient.png',
+};
 
 const SERVICES = [
   { icon: 'ri-walk-line', title: 'Back Pain Treatment', slug: 'back-pain-treatment', category: 'Spine & Back', price: '₹500 – ₹2,000', sessions: '8–12 sessions', desc: 'Expert treatment for all types of back pain using advanced physiotherapy techniques and personalized care plans.', tint: 'sky', symptoms: ['back hurts'] },
@@ -135,8 +151,23 @@ export default function ServicesPage() {
                 <div className={styles.grid}>
                   {filtered.map((svc) => (
                     <Link key={svc.slug} href={`/services/${svc.slug}`} className={styles.card}>
-                      <div className={`${styles.cardIcon} ${styles[`tint_${svc.tint}`]}`}>
-                        <i className={svc.icon} style={{ fontSize: 30 }} />
+                      <div className={`${styles.cardIcon} ${styles[`tint_${svc.tint}`]}`} style={{ position: 'relative', overflow: 'hidden' }}>
+                        {SERVICE_IMAGES[svc.slug] ? (
+                          <>
+                            <Image
+                              src={SERVICE_IMAGES[svc.slug]}
+                              alt={svc.title}
+                              fill
+                              sizes="(max-width: 768px) 100vw, 33vw"
+                              style={{ objectFit: 'cover' }}
+                            />
+                            <span className={styles.iconPill}>
+                              <i className={svc.icon} />
+                            </span>
+                          </>
+                        ) : (
+                          <i className={svc.icon} style={{ fontSize: 30 }} />
+                        )}
                       </div>
                       <span className={styles.cardCategory}>{svc.category}</span>
                       <h2 className={styles.cardTitle}>{svc.title}</h2>

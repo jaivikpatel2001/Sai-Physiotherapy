@@ -2,7 +2,23 @@
 import { useState } from 'react';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import styles from './service-detail.module.css';
+
+const SERVICE_IMAGES: Record<string, string> = {
+  'back-pain-treatment': '/images/therapy/back_pain_treatment.png',
+  'spine-care-disc-problems': '/images/therapy/therapy_spine_treatment.png',
+  'paralysis-rehabilitation': '/images/therapy/therapy_neuro_rehab.png',
+  'knee-pain-joint-care': '/images/therapy/therapy_knee_joint.png',
+  'neck-pain-cervical-spondylosis': '/images/therapy/therapy_spine_treatment.png',
+  'sports-injury-rehabilitation': '/images/therapy/therapy_sports_rehab.png',
+  'neuro-physiotherapy': '/images/therapy/therapy_neuro_rehab.png',
+  'post-surgery-rehabilitation': '/images/therapy/exercise_rehab_session.png',
+  'pediatric-physiotherapy': '/images/therapy/therapy_pediatric.png',
+  'geriatric-care': '/images/therapy/exercise_home_program.png',
+  'shoulder-pain-treatment': '/images/therapy/consultation_assessment.png',
+  'frozen-shoulder': '/images/therapy/consultation_doctor_patient.png',
+};
 
 const SERVICES: Record<string, {
   icon: string; title: string; category: string; price: string; sessions: string;
@@ -290,6 +306,19 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
             <span className="gradient-text">{svc.title.split(' ').slice(-1)[0]}</span>
           </h1>
           <p className={styles.longDesc}>{svc.longDesc}</p>
+
+          {SERVICE_IMAGES[params.slug] && (
+            <div className={styles.heroImage}>
+              <Image
+                src={SERVICE_IMAGES[params.slug]}
+                alt={`${svc.title} — physiotherapy treatment at SAI Physiotherapy`}
+                fill
+                sizes="(max-width: 1024px) 100vw, 900px"
+                style={{ objectFit: 'cover' }}
+                priority
+              />
+            </div>
+          )}
 
           <div className={styles.statsRow}>
             <div className={styles.statCard}>

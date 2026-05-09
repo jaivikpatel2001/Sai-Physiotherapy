@@ -280,6 +280,27 @@
 
 .mapCta:hover { border-color: var(--color-primary); background: var(--color-primary-50); }
 
+.mapOverlayBtn {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--color-primary);
+  border-radius: var(--radius-full);
+  font-weight: 700;
+  font-size: var(--text-sm);
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(4px);
+  z-index: 1;
+  transition: transform var(--transition-fast);
+}
+
+.mapOverlayBtn:hover { transform: translateY(-1px); }
+
 /* â”€â”€ Hours â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .hoursCard {
   background: var(--color-white);

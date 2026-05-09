@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import Image from 'next/image';
 import styles from './about.module.css';
 
 export const metadata: Metadata = {
@@ -64,16 +65,21 @@ export default function AboutPage() {
               </div>
             </div>
             <div className={styles.heroVisual}>
+              <div className={styles.heroImageWrap}>
+                <Image
+                  src="/images/about/about_hero.png"
+                  alt="SAI Physiotherapy clinic — caring for patients across Gujarat"
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 540px"
+                  style={{ objectFit: 'cover' }}
+                  priority
+                />
+              </div>
               <div className={styles.clinicCard}>
-                <div className={styles.clinicEmoji}><i className="ri-hospital-line" style={{ fontSize: 48 }} /></div>
-                <h2>SAI Physiotherapy</h2>
-                <p>Spine Care & Paralysis Centre</p>
-                <div className={styles.certList}>
-                  {CERTIFICATIONS.slice(0, 3).map((c) => (
-                    <div key={c} className={styles.certItem}>
-                      <i className="ri-checkbox-circle-line" style={{ fontSize: 14 }} /> {c}
-                    </div>
-                  ))}
+                <div className={styles.clinicEmoji}><i className="ri-hospital-line" style={{ fontSize: 32 }} /></div>
+                <div>
+                  <h2>SAI Physiotherapy</h2>
+                  <p>Spine Care & Paralysis Centre</p>
                 </div>
               </div>
             </div>
@@ -84,25 +90,56 @@ export default function AboutPage() {
       {/* Mission & Vision */}
       <section className={`section ${styles.missionSection}`}>
         <div className="container">
-          <div className={styles.missionGrid}>
-            <div className={styles.missionCard}>
-              <div className={styles.missionIcon}><i className="ri-focus-3-line" style={{ fontSize: 32 }} /></div>
-              <h2>Our Mission</h2>
-              <p>
-                To provide evidence-based, patient-centred physiotherapy care that empowers individuals
-                to recover fully, prevent re-injury, and achieve their highest functional potential —
-                without compromising on quality or compassion.
-              </p>
+          <div className={styles.missionLayout}>
+            <div className={styles.missionImageWrap}>
+              <Image
+                src="/images/about/stats_happy_patient.png"
+                alt="A recovered patient enjoying restored mobility after physiotherapy"
+                fill
+                sizes="(max-width: 900px) 100vw, 480px"
+                style={{ objectFit: 'cover' }}
+              />
             </div>
-            <div className={styles.missionCard}>
-              <div className={styles.missionIcon}><i className="ri-eye-line" style={{ fontSize: 32 }} /></div>
-              <h2>Our Vision</h2>
-              <p>
-                To be Gujarat&apos;s benchmark physiotherapy institution, setting the standard for
-                clinical excellence, patient experience, and community health education
-                across all specializations.
-              </p>
+            <div className={styles.missionGrid}>
+              <div className={styles.missionCard}>
+                <div className={styles.missionIcon}><i className="ri-focus-3-line" style={{ fontSize: 32 }} /></div>
+                <h2>Our Mission</h2>
+                <p>
+                  To provide evidence-based, patient-centred physiotherapy care that empowers individuals
+                  to recover fully, prevent re-injury, and achieve their highest functional potential —
+                  without compromising on quality or compassion.
+                </p>
+              </div>
+              <div className={styles.missionCard}>
+                <div className={styles.missionIcon}><i className="ri-eye-line" style={{ fontSize: 32 }} /></div>
+                <h2>Our Vision</h2>
+                <p>
+                  To be Gujarat&apos;s benchmark physiotherapy institution, setting the standard for
+                  clinical excellence, patient experience, and community health education
+                  across all specializations.
+                </p>
+              </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Team group photo */}
+      <section className={`section ${styles.teamSection}`}>
+        <div className="container">
+          <div className="section-header">
+            <p className="section-label">Our Team</p>
+            <h2 className="section-title">A Family of <span>Healers</span></h2>
+            <p className="section-desc">Doctors, therapists, and support staff united by one purpose — your recovery.</p>
+          </div>
+          <div className={styles.teamImageWrap}>
+            <Image
+              src="/images/about/about_team_group.png"
+              alt="SAI Physiotherapy team — doctors and therapists"
+              fill
+              sizes="(max-width: 1200px) 100vw, 1100px"
+              style={{ objectFit: 'cover' }}
+            />
           </div>
         </div>
       </section>

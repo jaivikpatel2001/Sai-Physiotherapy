@@ -1,7 +1,17 @@
 'use client';
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import styles from './blog.module.css';
+
+const POST_IMAGES: Record<string, string> = {
+  '5-exercises-for-lower-back-pain': '/images/blog/blog_back_pain_exercises.png',
+  'understanding-cervical-spondylosis': '/images/blog/blog_cervical_spondylosis.png',
+  'post-stroke-rehabilitation-guide': '/images/blog/blog_stroke_rehab.png',
+  'knee-osteoarthritis-management': '/images/therapy/therapy_knee_joint.png',
+  'sports-injury-prevention-tips': '/images/blog/blog_sports_injury.png',
+  'frozen-shoulder-treatment': '/images/therapy/consultation_doctor_patient.png',
+};
 
 const POSTS = [
   { slug: '5-exercises-for-lower-back-pain', category: 'Back Pain', icon: 'ri-walk-line', tint: 'sky', author: 'Dr. Sai Patel', title: '5 Physiotherapist-Approved Exercises for Lower Back Pain Relief', excerpt: 'Lower back pain affects 80% of people. Our senior physiotherapist shares five evidence-based exercises you can do at home for immediate relief.', readTime: '5 min', date: 'April 28, 2026', featured: true },
@@ -36,9 +46,20 @@ export default function BlogPage() {
       <section className={styles.body}>
         <div className="container">
           <Link href={`/blog/${featured.slug}`} className={styles.featured}>
-            <div className={`${styles.featuredCover} ${styles[`tint_${featured.tint}`]}`}>
-              <i className={featured.icon} />
-              <span className={styles.featuredBadge}>Featured</span>
+            <div className={`${styles.featuredCover} ${styles[`tint_${featured.tint}`]}`} style={{ position: 'relative', overflow: 'hidden' }}>
+              {POST_IMAGES[featured.slug] ? (
+                <Image
+                  src={POST_IMAGES[featured.slug]}
+                  alt={featured.title}
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 60vw"
+                  style={{ objectFit: 'cover' }}
+                  priority
+                />
+              ) : (
+                <i className={featured.icon} />
+              )}
+              <span className={styles.featuredBadge} style={{ position: 'relative', zIndex: 1 }}>Featured</span>
             </div>
             <div className={styles.featuredBody}>
               <span className={styles.cat}>{featured.category}</span>
@@ -73,9 +94,19 @@ export default function BlogPage() {
           <div className={styles.grid}>
             {rest.map((post) => (
               <Link key={post.slug} href={`/blog/${post.slug}`} className={styles.card}>
-                <div className={`${styles.cover} ${styles[`tint_${post.tint}`]}`}>
-                  <i className={post.icon} />
-                  <span className={styles.coverCat}>{post.category}</span>
+                <div className={`${styles.cover} ${styles[`tint_${post.tint}`]}`} style={{ position: 'relative', overflow: 'hidden' }}>
+                  {POST_IMAGES[post.slug] ? (
+                    <Image
+                      src={POST_IMAGES[post.slug]}
+                      alt={post.title}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                      style={{ objectFit: 'cover' }}
+                    />
+                  ) : (
+                    <i className={post.icon} />
+                  )}
+                  <span className={styles.coverCat} style={{ position: 'relative', zIndex: 1 }}>{post.category}</span>
                 </div>
                 <div className={styles.cardBody}>
                   <h3 className={styles.cardTitle}>{post.title}</h3>

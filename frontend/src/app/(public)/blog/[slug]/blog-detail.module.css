@@ -138,6 +138,19 @@
   opacity: 0.55;
 }
 
+.coverImage {
+  max-width: 880px;
+  margin: -80px auto 0;
+  aspect-ratio: 16 / 8;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--color-border-light);
+  box-shadow: var(--shadow-md);
+  position: relative;
+  z-index: 2;
+  background: var(--color-bg-alt);
+}
+
 .tintBox_sky      { background: var(--color-sky-50); }
 .tintBox_mint     { background: var(--color-mint-50); }
 .tintBox_blush    { background: var(--color-blush-50); }
@@ -203,20 +216,16 @@
 }
 
 .takeaway {
-  background: var(--color-surface);
+  background:
+    radial-gradient(circle at 0% 0%, rgba(86, 69, 212, 0.45) 0%, transparent 55%),
+    radial-gradient(circle at 100% 100%, rgba(20, 184, 166, 0.30) 0%, transparent 55%),
+    linear-gradient(180deg, #0a1530 0%, #1a2a52 100%);
   border-radius: var(--radius-xl);
   padding: var(--space-8);
   color: var(--color-white);
   position: relative;
   overflow: hidden;
-}
-
-.takeaway::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at 0% 0%, rgba(45, 212, 191, 0.40) 0%, transparent 60%);
-  pointer-events: none;
+  box-shadow: var(--shadow-lg);
 }
 
 .takeaway > * { position: relative; z-index: 1; }
@@ -227,7 +236,7 @@
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--color-accent-light);
+  color: var(--color-brand-purple-300);
   margin-bottom: var(--space-3);
 }
 

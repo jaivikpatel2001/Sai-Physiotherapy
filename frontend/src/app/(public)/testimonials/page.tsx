@@ -1,12 +1,13 @@
 'use client';
 import { useMemo, useState } from 'react';
+import Image from 'next/image';
 import styles from './testimonials.module.css';
 
-const TESTIMONIALS = [
-  { name: 'Priya Sharma', location: 'Ahmedabad', rating: 5, condition: 'Back Pain', duration: '6 weeks', text: 'After suffering from chronic back pain for 3 years, SAI Physiotherapy gave me my life back. Dr. Patel\'s treatment plan was exceptional.', avatar: 'PS' },
-  { name: 'Rajesh Patel', location: 'Gandhinagar', rating: 5, condition: 'Knee Replacement', duration: '12 weeks', text: 'Post knee replacement, the team here made recovery seamless. Exercises and sessions were perfectly planned.', avatar: 'RP' },
-  { name: 'Meena Joshi', location: 'Surat', rating: 5, condition: 'Stroke Rehab', duration: '6 months', text: 'My mother had a stroke and could not walk. After 6 months of rehabilitation at SAI, she walks independently.', avatar: 'MJ' },
-  { name: 'Vikram Shah', location: 'Vadodara', rating: 5, condition: 'Cervical Pain', duration: '5 weeks', text: 'Cervical pain was affecting my work daily. Within 10 sessions I felt 80% better. Excellent professional approach.', avatar: 'VS' },
+const TESTIMONIALS: Array<{ name: string; location: string; rating: number; condition: string; duration: string; text: string; avatar: string; image?: string }> = [
+  { name: 'Priya Sharma', location: 'Ahmedabad', rating: 5, condition: 'Back Pain', duration: '6 weeks', text: 'After suffering from chronic back pain for 3 years, SAI Physiotherapy gave me my life back. Dr. Patel\'s treatment plan was exceptional.', avatar: 'PS', image: '/images/testimonials/testimonial_priya_sharma.png' },
+  { name: 'Rajesh Patel', location: 'Gandhinagar', rating: 5, condition: 'Knee Replacement', duration: '12 weeks', text: 'Post knee replacement, the team here made recovery seamless. Exercises and sessions were perfectly planned.', avatar: 'RP', image: '/images/testimonials/testimonial_rajesh_patel.png' },
+  { name: 'Meena Joshi', location: 'Surat', rating: 5, condition: 'Stroke Rehab', duration: '6 months', text: 'My mother had a stroke and could not walk. After 6 months of rehabilitation at SAI, she walks independently.', avatar: 'MJ', image: '/images/testimonials/testimonial_meena_joshi.png' },
+  { name: 'Vikram Shah', location: 'Vadodara', rating: 5, condition: 'Cervical Pain', duration: '5 weeks', text: 'Cervical pain was affecting my work daily. Within 10 sessions I felt 80% better. Excellent professional approach.', avatar: 'VS', image: '/images/testimonials/testimonial_vikram_shah.png' },
   { name: 'Anita Desai', location: 'Ahmedabad', rating: 4, condition: 'Sports Injury', duration: '8 weeks', text: 'As a runner with a ligament tear, SAI\'s sports rehab program got me back on the track in record time.', avatar: 'AD' },
   { name: 'Harish Kumar', location: 'Rajkot', rating: 5, condition: 'Frozen Shoulder', duration: '8 weeks', text: 'Full mobility restored in 8 weeks. The physiotherapists here are world-class. I can drive and sleep again.', avatar: 'HK' },
   { name: 'Sita Bhatt', location: 'Ahmedabad', rating: 5, condition: 'Post-Op Hip', duration: '10 weeks', text: 'After hip replacement I was scared. The team gave me confidence and got me walking normally within weeks.', avatar: 'SB' },
@@ -101,7 +102,13 @@ export default function TestimonialsPage() {
                   <span className={styles.durChip}><i className="ri-time-line" /> {t.duration}</span>
                 </div>
                 <div className={styles.author}>
-                  <div className={styles.avatar}>{t.avatar}</div>
+                  {t.image ? (
+                    <div className={styles.avatar} style={{ position: 'relative', overflow: 'hidden', padding: 0 }}>
+                      <Image src={t.image} alt={t.name} fill sizes="48px" style={{ objectFit: 'cover' }} />
+                    </div>
+                  ) : (
+                    <div className={styles.avatar}>{t.avatar}</div>
+                  )}
                   <div>
                     <p className={styles.authorName}>{t.name}</p>
                     <p className={styles.authorMeta}>{t.location}</p>

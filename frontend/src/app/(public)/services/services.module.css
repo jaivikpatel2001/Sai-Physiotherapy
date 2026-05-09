@@ -207,14 +207,33 @@
 }
 
 .cardIcon {
-  width: 64px;
-  height: 64px;
+  width: 100%;
+  aspect-ratio: 16 / 9;
   border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--color-primary);
-  margin-bottom: var(--space-2);
+  margin-bottom: var(--space-3);
+  overflow: hidden;
+}
+
+.iconPill {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--color-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(4px);
+  z-index: 1;
 }
 
 .tint_sky      { background: var(--color-sky-50); }

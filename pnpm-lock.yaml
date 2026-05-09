@@ -153,6 +153,9 @@ importers:
       framer-motion:
         specifier: ^11.2.10
         version: 11.18.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      lenis:
+        specifier: ^1.3.23
+        version: 1.3.23(react@18.3.1)
       lucide-react:
         specifier: ^0.394.0
         version: 0.394.0(react@18.3.1)
@@ -1241,6 +1244,20 @@ packages:
 
   kuler@2.0.0:
     resolution: {integrity: sha512-Xq9nH7KlWZmXAtodXDDRE7vs6DU1gTU8zYDHDiWLSip45Egwq3plLHzPn27NgvzL2r1LMPC1vdqh98sQxtqj4A==}
+
+  lenis@1.3.23:
+    resolution: {integrity: sha512-YxYq3TJqj9sJNv0V9SkyQHejt14xwyIwgDaaMK89Uf9SxQfIszu+gTQSSphh6BWlLTNVKvvXAGkg+Zf+oFIevg==}
+    peerDependencies:
+      '@nuxt/kit': '>=3.0.0'
+      react: '>=17.0.0'
+      vue: '>=3.0.0'
+    peerDependenciesMeta:
+      '@nuxt/kit':
+        optional: true
+      react:
+        optional: true
+      vue:
+        optional: true
 
   linebreak@1.1.0:
     resolution: {integrity: sha512-MHp03UImeVhB7XZtjd0E4n6+3xr5Dq/9xI/5FptGk5FrbDR3zagPa2DS6U8ks/3HjbKWG9Q1M2ufOzxV2qLYSQ==}
@@ -3087,6 +3104,10 @@ snapshots:
   kareem@2.6.3: {}
 
   kuler@2.0.0: {}
+
+  lenis@1.3.23(react@18.3.1):
+    optionalDependencies:
+      react: 18.3.1
 
   linebreak@1.1.0:
     dependencies:

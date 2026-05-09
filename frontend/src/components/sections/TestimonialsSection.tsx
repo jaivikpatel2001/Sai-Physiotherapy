@@ -2,13 +2,14 @@
 import { useRef, useState } from 'react';
 import { motion, useInView, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import Image from 'next/image';
 import styles from './TestimonialsSection.module.css';
 
 const TESTIMONIALS = [
-  { name: 'Priya Sharma', location: 'Ahmedabad', rating: 5, condition: 'Back Pain', recovery: 'Recovered in 8 weeks', avatar: 'PS', text: 'After suffering from chronic back pain for 3 years, SAI Physiotherapy gave me my life back. Dr. Patel\'s plan was thoughtful and effective — I felt heard, treated and properly guided.' },
-  { name: 'Rajesh Patel', location: 'Gandhinagar', rating: 5, condition: 'Knee Replacement Rehab', recovery: 'Full mobility in 10 weeks', avatar: 'RP', text: 'Post knee replacement, I was worried about recovery. The team made it seamless. The exercises and physiotherapy sessions were perfectly planned. Highly recommend.' },
-  { name: 'Meena Joshi', location: 'Surat', rating: 5, condition: 'Paralysis Rehab', recovery: 'Walking again in 6 months', avatar: 'MJ', text: 'My mother had a stroke and couldn\'t walk. After 6 months of rehabilitation at SAI, she can now walk independently. The staff is incredibly skilled and caring.' },
-  { name: 'Vikram Shah', location: 'Vadodara', rating: 5, condition: 'Cervical Spondylosis', recovery: 'Pain free in 10 sessions', avatar: 'VS', text: 'Cervical pain was affecting my work daily. They diagnosed correctly and within 10 sessions I felt 80% better. Excellent knowledge and a professional approach.' },
+  { name: 'Priya Sharma', location: 'Ahmedabad', rating: 5, condition: 'Back Pain', recovery: 'Recovered in 8 weeks', avatar: 'PS', image: '/images/testimonials/testimonial_priya_sharma.png', text: 'After suffering from chronic back pain for 3 years, SAI Physiotherapy gave me my life back. Dr. Patel\'s plan was thoughtful and effective — I felt heard, treated and properly guided.' },
+  { name: 'Rajesh Patel', location: 'Gandhinagar', rating: 5, condition: 'Knee Replacement Rehab', recovery: 'Full mobility in 10 weeks', avatar: 'RP', image: '/images/testimonials/testimonial_rajesh_patel.png', text: 'Post knee replacement, I was worried about recovery. The team made it seamless. The exercises and physiotherapy sessions were perfectly planned. Highly recommend.' },
+  { name: 'Meena Joshi', location: 'Surat', rating: 5, condition: 'Paralysis Rehab', recovery: 'Walking again in 6 months', avatar: 'MJ', image: '/images/testimonials/testimonial_meena_joshi.png', text: 'My mother had a stroke and couldn\'t walk. After 6 months of rehabilitation at SAI, she can now walk independently. The staff is incredibly skilled and caring.' },
+  { name: 'Vikram Shah', location: 'Vadodara', rating: 5, condition: 'Cervical Spondylosis', recovery: 'Pain free in 10 sessions', avatar: 'VS', image: '/images/testimonials/testimonial_vikram_shah.png', text: 'Cervical pain was affecting my work daily. They diagnosed correctly and within 10 sessions I felt 80% better. Excellent knowledge and a professional approach.' },
 ];
 
 export default function TestimonialsSection() {
@@ -76,7 +77,9 @@ export default function TestimonialsSection() {
               </div>
               <p className={styles.featuredText}>&ldquo;{featured.text}&rdquo;</p>
               <div className={styles.featuredFooter}>
-                <div className={styles.featuredAvatar}>{featured.avatar}</div>
+                <div className={styles.featuredAvatar} style={{ position: 'relative', overflow: 'hidden', borderRadius: '50%' }}>
+                  <Image src={featured.image} alt={featured.name} fill style={{ objectFit: 'cover' }} sizes="56px" />
+                </div>
                 <div>
                   <p className={styles.featuredName}>{featured.name}</p>
                   <p className={styles.featuredMeta}>{featured.location}</p>
@@ -101,7 +104,9 @@ export default function TestimonialsSection() {
                   className={styles.preview}
                   onClick={() => setActiveIdx(realIdx)}
                 >
-                  <div className={styles.previewAvatar}>{t.avatar}</div>
+                  <div className={styles.previewAvatar} style={{ position: 'relative', overflow: 'hidden', borderRadius: '50%', flexShrink: 0 }}>
+                    <Image src={t.image} alt={t.name} fill style={{ objectFit: 'cover' }} sizes="44px" />
+                  </div>
                   <div className={styles.previewBody}>
                     <div className={styles.previewStars}>
                       {Array.from({ length: t.rating }).map((_, j) => (
