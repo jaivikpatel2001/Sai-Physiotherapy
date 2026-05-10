@@ -41,6 +41,15 @@ const DOTS = [
   { top: '60%',  left: '46%',  size: 10, color: 'var(--color-brand-teal)',         delay: 0.3 },
 ];
 
+const FLOAT_ICONS = [
+  { icon: 'ri-pulse-line',         top: '14%', left: '8%',   size: 22, dur: 7, delay: 0,    color: 'var(--color-primary)' },
+  { icon: 'ri-stethoscope-line',   top: '24%', right: '10%', size: 20, dur: 8, delay: 1.2,  color: 'var(--color-brand-teal)' },
+  { icon: 'ri-heart-pulse-line',   top: '54%', left: '10%',  size: 24, dur: 9, delay: 0.6,  color: 'var(--color-brand-pink-deep)' },
+  { icon: 'ri-walk-line',          top: '66%', right: '12%', size: 22, dur: 7.5, delay: 2,  color: 'var(--color-brand-green)' },
+  { icon: 'ri-mental-health-line', top: '34%', right: '4%',  size: 18, dur: 10, delay: 0.9, color: 'var(--color-brand-orange)' },
+  { icon: 'ri-first-aid-kit-line', top: '78%', left: '4%',   size: 18, dur: 8.5, delay: 1.6, color: 'var(--color-primary-deep)' },
+];
+
 const fadeUp = {
   hidden: { opacity: 0, y: 16 },
   visible: (i: number) => ({
@@ -57,6 +66,50 @@ export default function HeroSection() {
   return (
     <section className={styles.hero}>
       <div className={styles.band}>
+        {/* Drifting soft gradient blobs */}
+        <div className={`${styles.blob} ${styles.blobA}`} aria-hidden />
+        <div className={`${styles.blob} ${styles.blobB}`} aria-hidden />
+        <div className={`${styles.blob} ${styles.blobC}`} aria-hidden />
+
+        {/* Animated ECG / heartbeat line — bottom decoration */}
+        <svg className={styles.ecg} viewBox="0 0 1200 80" preserveAspectRatio="none" aria-hidden>
+          <defs>
+            <linearGradient id="ecgGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="rgba(86, 69, 212, 0)" />
+              <stop offset="20%" stopColor="rgba(86, 69, 212, 0.55)" />
+              <stop offset="50%" stopColor="rgba(20, 157, 153, 0.7)" />
+              <stop offset="80%" stopColor="rgba(86, 69, 212, 0.55)" />
+              <stop offset="100%" stopColor="rgba(86, 69, 212, 0)" />
+            </linearGradient>
+          </defs>
+          <path
+            className={styles.ecgPath}
+            d="M0,40 L180,40 L210,40 L230,18 L250,62 L270,28 L290,52 L310,40 L520,40 L545,40 L565,16 L585,64 L605,30 L625,50 L645,40 L860,40 L885,40 L905,18 L925,60 L945,30 L965,52 L985,40 L1200,40"
+            fill="none"
+            stroke="url(#ecgGradient)"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+
+        {/* Floating physio icons */}
+        {FLOAT_ICONS.map((f, i) => (
+          <i
+            key={i}
+            className={`${f.icon} ${styles.floatIcon}`}
+            style={{
+              top: f.top,
+              left: f.left,
+              right: f.right,
+              fontSize: f.size,
+              color: f.color,
+              animation: `floatSoft ${f.dur}s ease-in-out ${f.delay}s infinite`,
+            }}
+            aria-hidden
+          />
+        ))}
+
         {DOTS.map((d, i) => (
           <span
             key={i}

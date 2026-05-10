@@ -1,4 +1,4 @@
-﻿.section { background: var(--color-bg); }
+﻿.section { background: var(--color-surface-soft); }
 
 .bento {
   display: grid;

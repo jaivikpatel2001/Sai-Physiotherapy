@@ -45,9 +45,15 @@ export default function Footer() {
         {/* Newsletter */}
         <div className={styles.newsletter}>
           <div>
-            <h3 className={styles.newsletterTitle}>Health insights, every month</h3>
+            <span className={styles.newsletterEyebrow}>
+              <span className={styles.newsletterEyebrowDot} />
+              Newsletter
+            </span>
+            <h3 className={styles.newsletterTitle}>
+              Health insights, <span>every month.</span>
+            </h3>
             <p className={styles.newsletterSub}>
-              Recovery tips, exercise guides and clinic updates from our specialists. No spam.
+              Recovery tips, exercise guides and clinic updates from our specialists. No spam — unsubscribe any time.
             </p>
           </div>
           <form

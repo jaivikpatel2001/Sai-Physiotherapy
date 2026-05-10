@@ -3,7 +3,7 @@
 .hero {
   position: relative;
   background: var(--color-canvas);
-  padding: calc(var(--header-height) + var(--space-14)) 0 var(--space-14);
+  padding: var(--space-20) 0;
   text-align: center;
   overflow: hidden;
 }
@@ -33,7 +33,7 @@
   line-height: var(--leading-relaxed);
 }
 
-.body { padding: var(--space-16) 0 var(--space-20); }
+.body { padding: var(--space-20) 0; background: var(--color-surface-soft); }
 
 .layout {
   display: grid;

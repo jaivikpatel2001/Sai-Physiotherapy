@@ -300,53 +300,99 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
             <span>{svc.title}</span>
           </nav>
 
-          <span className={styles.category}>{svc.category}</span>
-          <h1 className={styles.title}>
-            {svc.title.split(' ').slice(0, -1).join(' ')}{' '}
-            <span className="gradient-text">{svc.title.split(' ').slice(-1)[0]}</span>
-          </h1>
-          <p className={styles.longDesc}>{svc.longDesc}</p>
+          <div className={styles.heroSplit}>
+            <div className={styles.heroText}>
+              <span className={styles.category}>
+                <span className={styles.categoryDot} />
+                {svc.category}
+              </span>
+              <h1 className={styles.title}>
+                {svc.title.split(' ').slice(0, -1).join(' ')}{' '}
+                <span className="gradient-text">{svc.title.split(' ').slice(-1)[0]}</span>
+              </h1>
+              <p className={styles.longDesc}>{svc.longDesc}</p>
 
-          {SERVICE_IMAGES[params.slug] && (
-            <div className={styles.heroImage}>
-              <Image
-                src={SERVICE_IMAGES[params.slug]}
-                alt={`${svc.title} — physiotherapy treatment at SAI Physiotherapy`}
-                fill
-                sizes="(max-width: 1024px) 100vw, 900px"
-                style={{ objectFit: 'cover' }}
-                priority
-              />
-            </div>
-          )}
+              <div className={styles.heroCtas}>
+                <Link href="/book-appointment" className={styles.heroCtaPrimary}>
+                  <i className="ri-calendar-2-line" style={{ fontSize: 16 }} />
+                  Book this treatment
+                </Link>
+                <a
+                  href="https://wa.me/919999999999?text=Hi, I have a question about treatment"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.heroCtaGhost}
+                >
+                  <i className="ri-whatsapp-line" style={{ fontSize: 16 }} />
+                  Ask a question
+                </a>
+              </div>
 
-          <div className={styles.statsRow}>
-            <div className={styles.statCard}>
-              <div className={`${styles.statIcon} ${styles.statIconBlue}`}>
-                <i className="ri-time-line" />
+              <div className={styles.heroAssure}>
+                <i className="ri-shield-check-line" style={{ fontSize: 16 }} />
+                No referral needed · 30-min response · Verified specialists
               </div>
-              <div>
-                <p className={styles.statNum}>{svc.recoveryTime}</p>
-                <p className={styles.statLabel}>Recovery Time</p>
+
+              <div className={styles.statsRow}>
+                <div className={styles.statCell}>
+                  <p className={styles.statNum}>{svc.recoveryTime}</p>
+                  <p className={styles.statLabel}>
+                    <i className="ri-time-line" /> Recovery
+                  </p>
+                </div>
+                <div className={styles.statDivider} />
+                <div className={styles.statCell}>
+                  <p className={styles.statNum}>{svc.sessions}</p>
+                  <p className={styles.statLabel}>
+                    <i className="ri-calendar-2-line" /> Sessions
+                  </p>
+                </div>
+                <div className={styles.statDivider} />
+                <div className={styles.statCell}>
+                  <p className={styles.statNum}>{svc.successRate}</p>
+                  <p className={styles.statLabel}>
+                    <i className="ri-trophy-line" /> Success
+                  </p>
+                </div>
               </div>
             </div>
-            <div className={styles.statCard}>
-              <div className={`${styles.statIcon} ${styles.statIconTeal}`}>
-                <i className="ri-calendar-2-line" />
-              </div>
-              <div>
-                <p className={styles.statNum}>{svc.sessions}</p>
-                <p className={styles.statLabel}>Treatment Sessions</p>
-              </div>
-            </div>
-            <div className={styles.statCard}>
-              <div className={`${styles.statIcon} ${styles.statIconGreen}`}>
-                <i className="ri-trophy-line" />
-              </div>
-              <div>
-                <p className={styles.statNum}>{svc.successRate}</p>
-                <p className={styles.statLabel}>Success Rate</p>
-              </div>
+
+            <div className={styles.heroVisual}>
+              <div className={styles.heroOrnamentDot} />
+              <div className={styles.heroOrnamentDot2} />
+              {SERVICE_IMAGES[params.slug] && (
+                <div className={styles.heroImage}>
+                  <Image
+                    src={SERVICE_IMAGES[params.slug]}
+                    alt={`${svc.title} — physiotherapy treatment at SAI Physiotherapy`}
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 540px"
+                    style={{ objectFit: 'cover' }}
+                    priority
+                  />
+                  <div className={styles.heroImageOverlay} />
+
+                  <div className={styles.activeBadge}>
+                    <span className={styles.heroBadgeDot} />
+                    Active recovery program
+                  </div>
+
+                  <div className={styles.floatStat}>
+                    <div className={styles.floatStatIcon}>
+                      <i className="ri-trophy-line" />
+                    </div>
+                    <div>
+                      <p className={styles.floatStatNum}>{svc.successRate}</p>
+                      <p className={styles.floatStatLabel}>Success rate</p>
+                    </div>
+                  </div>
+
+                  <div className={styles.floatRating}>
+                    <i className="ri-star-fill" />
+                    <span><strong>4.9</strong> · 500+ patients</span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -1,6 +1,7 @@
 'use client';
 import { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
+import Image from 'next/image';
 import Link from 'next/link';
 import styles from './CtaSection.module.css';
 
@@ -20,24 +21,44 @@ export default function CtaSection() {
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
         >
-          <div className={styles.glow1} />
-          <div className={styles.glow2} />
+          {/* LEFT — clinic image with floating badge */}
+          <div className={styles.media}>
+            <Image
+              src="/images/therapy/consultation_doctor_patient.png"
+              alt="SAI Physiotherapy specialist consulting a patient"
+              fill
+              sizes="(max-width: 1024px) 100vw, 50vw"
+              style={{ objectFit: 'cover' }}
+            />
+            <div className={styles.mediaOverlay} />
 
+            <div className={styles.statBadge}>
+              <span className={styles.statNum}>10,000+</span>
+              <span className={styles.statLabel}>patients recovered</span>
+            </div>
+
+            <div className={styles.responseBadge}>
+              <span className={styles.responseDot} />
+              30-min response
+            </div>
+          </div>
+
+          {/* RIGHT — content */}
           <div className={styles.content}>
             <span className={styles.eyebrow}>
-              <span className={styles.eyebrowDot} /> Take the first step
+              <span className={styles.eyebrowDot} />
+              Take the first step
             </span>
             <h2 className={styles.heading}>
-              Ready to Move <br className={styles.brHide} />
-              <span className={styles.gradHi}>Pain-Free?</span>
+              Ready to move <span className={styles.gradHi}>pain-free?</span>
             </h2>
             <p className={styles.sub}>
-              Speak to a specialist today. Personalised, evidence-based recovery plans —
-              with a 30-minute response promise.
+              Speak to a specialist today. Personalised, evidence-based recovery
+              plans built around your goals — with a 30-minute response promise.
             </p>
 
             <div className={styles.actions}>
-              <Link href="/book-appointment" className={styles.btnLight}>
+              <Link href="/book-appointment" className={styles.btnPrimary}>
                 <i className="ri-calendar-2-line" style={{ fontSize: 18 }} />
                 Book Appointment
               </Link>
@@ -45,20 +66,24 @@ export default function CtaSection() {
                 href={`https://wa.me/${WHATSAPP}?text=Hi, I'd like to book an appointment`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={styles.btnOutline}
+                className={styles.btnWhatsApp}
               >
                 <i className="ri-whatsapp-line" style={{ fontSize: 18 }} /> WhatsApp
               </a>
-              <a href={`tel:${PHONE}`} className={styles.btnOutline}>
-                <i className="ri-phone-line" style={{ fontSize: 18 }} /> Call Now
-              </a>
             </div>
 
-            <div className={styles.trustRow}>
-              <span><i className="ri-checkbox-circle-fill" style={{ fontSize: 14 }} /> No referral needed</span>
-              <span><i className="ri-checkbox-circle-fill" style={{ fontSize: 14 }} /> 30-min response</span>
-              <span><i className="ri-checkbox-circle-fill" style={{ fontSize: 14 }} /> Verified specialists</span>
-            </div>
+            <a href={`tel:${PHONE}`} className={styles.callLink}>
+              <i className="ri-phone-line" style={{ fontSize: 16 }} />
+              <span>
+                Or call directly · <strong>+91 99999 99999</strong>
+              </span>
+            </a>
+
+            <ul className={styles.trustList}>
+              <li><i className="ri-checkbox-circle-fill" style={{ fontSize: 18 }} /> No referral needed — book directly</li>
+              <li><i className="ri-checkbox-circle-fill" style={{ fontSize: 18 }} /> Verified BPT &amp; MPT specialists</li>
+              <li><i className="ri-checkbox-circle-fill" style={{ fontSize: 18 }} /> 4.9 ★ rating from 500+ verified patients</li>
+            </ul>
           </div>
         </motion.div>
       </div>

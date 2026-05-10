@@ -52,13 +52,14 @@ export default function ContactPage() {
 
       <section className={styles.channelsSection}>
         <div className="container">
-          <div className={styles.channelsGrid}>
+          <div className={styles.channelsCard}>
             {CHANNELS.map((c) => (
               <a
                 key={c.label}
                 href={c.href}
                 target={c.href.startsWith('http') ? '_blank' : undefined}
                 rel={c.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                aria-label={c.cta}
                 className={`${styles.channelCard} ${styles[`tint_${c.tint}`]}`}
               >
                 <div className={styles.channelIcon}>
@@ -68,9 +69,7 @@ export default function ContactPage() {
                   <span className={styles.channelLabel}>{c.label}</span>
                   <span className={styles.channelValue}>{c.value}</span>
                 </div>
-                <span className={styles.channelCta}>
-                  {c.cta} <i className="ri-arrow-right-line" />
-                </span>
+                <i className={`ri-arrow-right-up-line ${styles.channelArrow}`} />
               </a>
             ))}
           </div>

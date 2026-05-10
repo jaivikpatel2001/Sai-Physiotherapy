@@ -1,4 +1,4 @@
-﻿.section { background: var(--color-bg); position: relative; }
+﻿.section { background: var(--color-canvas); position: relative; }
 
 .ratingBanner {
   display: flex;

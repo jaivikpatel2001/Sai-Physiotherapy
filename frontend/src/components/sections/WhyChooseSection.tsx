@@ -67,26 +67,27 @@ export default function WhyChooseSection() {
   return (
     <section className={`section ${styles.section}`} ref={ref}>
       <div className="container">
+        <div className="section-header">
+          <motion.span className="section-label" initial={{ opacity: 0, y: 20 }} animate={inView ? { opacity: 1, y: 0 } : {}}>
+            Why Choose Us
+          </motion.span>
+          <motion.h2 className="section-title" initial={{ opacity: 0, y: 20 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ delay: 0.1 }}>
+            Gujarat&apos;s most <span>trusted</span> physiotherapy centre
+          </motion.h2>
+          <motion.p className="section-desc" initial={{ opacity: 0, y: 20 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ delay: 0.15 }}>
+            Clinical expertise, evidence-based protocols, and compassionate care —
+            the combination that turns rehabilitation into real results.
+          </motion.p>
+        </div>
+
         <div className={styles.layout}>
-          {/* LEFT — sticky editorial column */}
+          {/* LEFT — sticky testimonial column */}
           <motion.aside
             className={styles.sticky}
             initial={{ opacity: 0, y: 20 }}
             animate={inView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.55 }}
           >
-            <span className={styles.eyebrow}>
-              <span className={styles.eyebrowDot} />
-              Why SAI
-            </span>
-            <h2 className={styles.title}>
-              Six reasons families across Gujarat <span className={styles.titleAccent}>trust us</span> with their recovery.
-            </h2>
-            <p className={styles.lead}>
-              Clinical expertise, evidence-based protocols, and compassionate care —
-              the combination that turns rehabilitation into real results.
-            </p>
-
             <div className={styles.quoteCard}>
               <i className="ri-double-quotes-l" style={{ fontSize: 32, color: 'var(--color-primary)', opacity: 0.5 }} />
               <p className={styles.quoteText}>

@@ -4,7 +4,7 @@
 .hero {
   position: relative;
   background: var(--color-canvas);
-  padding: calc(var(--header-height) + var(--space-14)) 0 var(--space-20);
+  padding: var(--space-20) 0;
   overflow: hidden;
 }
 
@@ -138,7 +138,7 @@
 .certItem i { color: var(--color-success); flex-shrink: 0; }
 
 /* â”€â”€ Mission â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-.missionSection { background: var(--color-white); }
+.missionSection { background: var(--color-surface-soft); }
 
 .missionLayout {
   display: grid;
@@ -162,7 +162,7 @@
   gap: var(--space-6);
 }
 
-.teamSection { background: var(--color-bg); }
+.teamSection { background: var(--color-canvas); }
 
 .teamImageWrap {
   position: relative;
@@ -226,7 +226,7 @@
 }
 
 /* â”€â”€ Values â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-.valuesSection { background: var(--color-bg); }
+.valuesSection { background: var(--color-surface-soft); }
 
 .valuesGrid {
   display: grid;
@@ -273,7 +273,7 @@
 }
 
 /* â”€â”€ Timeline â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-.timelineSection { background: var(--color-white); }
+.timelineSection { background: var(--color-canvas); }
 
 .timeline {
   position: relative;
@@ -354,7 +354,7 @@
 }
 
 /* â”€â”€ Certifications â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-.certSection { background: var(--color-bg); }
+.certSection { background: var(--color-surface-soft); }
 
 .certGrid {
   display: grid;
@@ -388,7 +388,7 @@
 }
 
 /* â”€â”€ CTA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-.ctaSection { padding: var(--space-16) 0; background: var(--color-bg); }
+.ctaSection { padding: var(--space-20) 0; background: var(--color-bg); }
 
 .ctaBox {
   position: relative;

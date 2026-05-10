@@ -19,7 +19,7 @@
 .hero {
   position: relative;
   z-index: 1;
-  padding: calc(var(--header-height) + var(--space-12)) 0 var(--space-10);
+  padding: var(--space-20) 0;
   text-align: center;
 }
 
@@ -62,7 +62,7 @@
 }
 
 /* â”€â”€ Body Layout â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-.bodySection { position: relative; z-index: 1; }
+.bodySection { position: relative; z-index: 1; background: var(--color-surface-soft); }
 
 .layout {
   display: grid;
