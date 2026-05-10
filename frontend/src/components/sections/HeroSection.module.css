@@ -111,17 +111,11 @@
   position: absolute;
   z-index: 1;
   pointer-events: none;
-  opacity: 0.32;
-  filter: blur(0.2px);
-  will-change: transform;
+  opacity: 0.42;
+  filter: blur(0.2px) drop-shadow(0 4px 12px rgba(86, 69, 212, 0.12));
+  will-change: transform, opacity;
 }
 
-@keyframes floatSoft {
-  0%, 100% { transform: translate(0, 0) rotate(0deg); }
-  25%      { transform: translate(8px, -10px) rotate(2deg); }
-  50%      { transform: translate(0, -16px) rotate(0deg); }
-  75%      { transform: translate(-8px, -8px) rotate(-2deg); }
-}
 
 @media (prefers-reduced-motion: reduce) {
   .blob, .ecgPath, .floatIcon, .dot { animation: none !important; }
