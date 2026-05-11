@@ -3,23 +3,37 @@
   "version": "1.0.0",
   "private": true,
   "description": "SAI Physiotherapy Spine Care & Paralysis Centre — Enterprise Clinic Management Platform",
+  "workspaces": [
+    "backend",
+    "frontend",
+    "packages/*"
+  ],
   "scripts": {
-    "dev": "turbo run dev",
-    "build": "turbo run build",
-    "lint": "turbo run lint",
-    "test": "turbo run test",
-    "clean": "turbo run clean && rimraf node_modules",
-    "backend:dev": "turbo run dev --filter=backend",
-    "frontend:dev": "turbo run dev --filter=frontend",
-    "seed": "pnpm --filter=backend run seed"
+    "postinstall": "npm run build --workspace=@sai-physio/types --if-present && npm run build --workspace=@sai-physio/utils --if-present",
+    "setup": "npm install && npm run env:copy",
+    "env:copy": "node -e \"const fs=require('fs');['backend/.env','frontend/.env.local'].forEach(f=>{const ex=f.replace(/\\.env(\\.local)?$/,'.env.example');if(!fs.existsSync(f)&&fs.existsSync(ex)){fs.copyFileSync(ex,f);console.log('Created',f);}});\"",
+    "dev": "concurrently -n backend,frontend -c blue,magenta \"npm run dev --workspace=backend\" \"npm run dev --workspace=frontend\"",
+    "dev:backend": "npm run dev --workspace=backend",
+    "dev:frontend": "npm run dev --workspace=frontend",
+    "build": "npm run build --workspace=backend && npm run build --workspace=frontend",
+    "build:backend": "npm run build --workspace=backend",
+    "build:frontend": "npm run build --workspace=frontend",
+    "start": "concurrently -n backend,frontend -c blue,magenta \"npm run start --workspace=backend\" \"npm run start --workspace=frontend\"",
+    "start:backend": "npm run start --workspace=backend",
+    "start:frontend": "npm run start --workspace=frontend",
+    "lint": "npm run lint --workspaces --if-present",
+    "lint:backend": "npm run lint --workspace=backend",
+    "lint:frontend": "npm run lint --workspace=frontend",
+    "test": "npm run test --workspaces --if-present",
+    "seed": "npm run seed --workspace=backend",
+    "clean": "npm run clean --workspaces --if-present && rimraf node_modules"
   },
   "devDependencies": {
-    "turbo": "^2.0.0",
-    "rimraf": "^5.0.0"
+    "concurrently": "^8.2.2",
+    "rimraf": "^5.0.5"
   },
   "engines": {
     "node": ">=20.0.0",
-    "pnpm": ">=9.0.0"
-  },
-  "packageManager": "pnpm@9.0.0"
+    "npm": ">=9.0.0"
+  }
 }

@@ -1,131 +1,142 @@
-# 🏥 SAI Physiotherapy — Enterprise Clinic Management Platform
+# SAI Physiotherapy — Enterprise Clinic Management Platform
 
-**SAI Physiotherapy Spine Care & Paralysis Centre** — Gujarat's leading physiotherapy and rehabilitation center.
+**SAI Physiotherapy Spine Care & Paralysis Centre** — Gujarat's leading physiotherapy and rehabilitation center. Full-stack TypeScript monorepo: public marketing site, patient/admin portal, and clinic management API.
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 sai-physiotherapy/
-├── backend/                    # Express.js REST API (TypeScript)
-├── frontend/                   # Next.js 14 App Router (Phase 2)
+├── backend/                 # Express.js REST API (TypeScript, MongoDB)
+├── frontend/                # Next.js 14 App Router (public site + admin panel)
 ├── packages/
-│   ├── types/                  # Shared TypeScript interfaces
-│   ├── utils/                  # Shared utility functions
-│   └── configs/                # Shared tsconfig + ESLint
-├── docker-compose.yml
-├── nginx.conf
-├── turbo.json
-└── pnpm-workspace.yaml
+│   ├── types/               # Shared TypeScript interfaces & enums
+│   ├── utils/               # Shared utilities (dates, id generators)
+│   └── configs/             # Shared tsconfig / ESLint
+├── docker-compose.yml       # Local stack: backend + MongoDB + Redis + Nginx
+├── nginx.conf               # Reverse proxy config
+└── package.json             # npm workspaces root
 ```
 
-## ⚙️ Tech Stack
+## Tech Stack
 
-| Layer | Technology |
-|-------|-----------|
-| Frontend | Next.js 14, TypeScript, CSS Modules, Framer Motion |
-| Backend | Express.js, TypeScript, MongoDB, Mongoose |
-| Auth | JWT (access + refresh), RBAC |
-| SMS | MSG91 (India) |
-| Email | Nodemailer (SMTP) |
-| Files | Cloudinary |
-| PDF | PDFKit |
-| Docs | Swagger UI (`/api-docs`) |
-| DevOps | Docker, Nginx, PM2, GitHub Actions |
+| Layer       | Technology                                              |
+|-------------|---------------------------------------------------------|
+| Frontend    | Next.js 14 (App Router), React 18, TypeScript, Zustand, Framer Motion, React Hook Form + Zod |
+| Backend     | Express.js, TypeScript, MongoDB + Mongoose, Zod, Winston, Swagger |
+| Auth        | JWT (access 15m + refresh 7d), RBAC                     |
+| Storage     | Cloudinary (documents/images)                           |
+| Messaging   | Nodemailer (SMTP), MSG91 (SMS), WATI (WhatsApp)         |
+| PDF         | PDFKit (receipts, reports)                              |
+| DevOps      | Docker, Nginx, GitHub Actions                           |
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
-- Node.js 20+
-- pnpm (`npm i -g pnpm`)
-- MongoDB Atlas account (or local MongoDB)
+- Node.js **20+**
+- npm **9+**
+- MongoDB (Atlas connection string or local instance)
 
-### 1. Install dependencies
+### 1. Install everything
 ```bash
-pnpm install
+npm install
 ```
+This installs all workspaces (backend, frontend, packages/*) in one pass via npm workspaces.
 
 ### 2. Configure environment
 ```bash
-cp backend/.env.example backend/.env
-# Edit backend/.env and add your MONGODB_URI
+npm run env:copy
 ```
+This copies `backend/.env.example` → `backend/.env` and `frontend/.env.example` → `frontend/.env.local` if they don't exist. Edit them and fill in `MONGODB_URI`, JWT secrets, Cloudinary keys, etc.
 
-### 3. Start backend
+> Or do it manually:
+> ```bash
+> cp backend/.env.example backend/.env
+> cp frontend/.env.example frontend/.env.local
+> ```
+
+### 3. Seed the database (first time only)
 ```bash
-pnpm backend:dev
+npm run seed
 ```
+Creates default users, 12 services, and clinic settings:
+- **Super Admin** — `admin@saiphysio.com` / `Admin@123456`
+- **Doctor** — `doctor@saiphysio.com` / `Doctor@123456`
+- **Receptionist** — `reception@saiphysio.com` / `Recept@123456`
 
-Server runs at: `http://localhost:5000`
-Swagger docs: `http://localhost:5000/api-docs`
-Health check: `http://localhost:5000/health`
-
-### 4. Seed database
+### 4. Start dev (backend + frontend, concurrently)
 ```bash
-pnpm seed
+npm run dev
 ```
+- API → http://localhost:5000
+- Swagger → http://localhost:5000/api-docs
+- Health → http://localhost:5000/health
+- Web → http://localhost:3000
 
-This creates:
-- **Super Admin**: `admin@saiphysio.com` / `Admin@123456`
-- **Doctor**: `doctor@saiphysio.com` / `Doctor@123456`
-- **Receptionist**: `reception@saiphysio.com` / `Recept@123456`
-- **12 physiotherapy services**
-- **Default clinic settings**
+## Root Scripts
 
-## 👥 Roles & Permissions
+| Script                    | What it does                                              |
+|---------------------------|-----------------------------------------------------------|
+| `npm install`             | Install all workspaces                                    |
+| `npm run setup`           | Install + copy `.env.example` files                       |
+| `npm run dev`             | Run backend and frontend in parallel                      |
+| `npm run dev:backend`     | Backend only (ts-node-dev with hot reload)                |
+| `npm run dev:frontend`    | Frontend only (Next.js dev server)                        |
+| `npm run build`           | Build backend (tsc) and frontend (next build)             |
+| `npm run start`           | Start both built apps in production mode                  |
+| `npm run lint`            | Lint all workspaces                                       |
+| `npm run test`            | Run tests across workspaces                               |
+| `npm run seed`            | Seed MongoDB with starter data                            |
+| `npm run clean`           | Remove build artifacts and `node_modules`                 |
 
-| Role | Access |
-|------|--------|
-| `super_admin` | Full access to everything |
-| `admin` | Patients, appointments, billing, reports |
-| `doctor` | Own patients, SOAP notes, prescriptions |
-| `receptionist` | Book appointments, register patients, collect payments |
-| `patient` | Own appointments, history, bills |
+## Roles & Permissions
 
-## 📡 API Reference
+| Role            | Access                                                       |
+|-----------------|--------------------------------------------------------------|
+| `super_admin`   | Full access to everything                                    |
+| `admin`         | Patients, appointments, billing, reports                     |
+| `doctor`        | Assigned patients, SOAP notes, prescriptions                 |
+| `receptionist`  | Book appointments, register patients, collect payments       |
+| `patient`       | Own appointments, history, bills                             |
+
+## API Reference
 
 Base URL: `/api/v1`
 
-| Resource | Endpoint |
-|----------|---------|
-| Auth | `POST /auth/login`, `POST /auth/register` |
-| Patients | `GET/POST /patients`, `GET/PUT/DELETE /patients/:id` |
-| Appointments | `GET/POST /appointments`, `PATCH /appointments/:id/status` |
-| Sessions | `POST /sessions`, `GET /sessions/patient/:id/recovery` |
-| Billing | `GET/POST /billing`, `PATCH /billing/:id/payment` |
-| Services | `GET /services` (public), `POST /services` (admin) |
-| Blog | `GET /blog` (public), `POST /blog` (admin) |
-| Settings | `GET /settings` (public), `PUT /settings` (super_admin) |
-| Analytics | `GET /analytics/dashboard` (admin) |
+| Resource       | Endpoints                                                              |
+|----------------|------------------------------------------------------------------------|
+| Auth           | `POST /auth/login`, `POST /auth/register`, `POST /auth/refresh-token`  |
+| Patients       | `GET/POST /patients`, `GET/PUT/DELETE /patients/:id`                   |
+| Appointments   | `GET/POST /appointments`, `PATCH /appointments/:id/status`             |
+| Sessions       | `POST /sessions`, `GET /sessions/patient/:id/recovery`                 |
+| Billing        | `GET/POST /billing`, `PATCH /billing/:id/payment`                      |
+| Services       | `GET /services` (public), `POST /services` (admin)                     |
+| Blog           | `GET /blog` (public), `POST /blog` (admin)                             |
+| Testimonials   | `GET /testimonials` (public), admin CRUD                               |
+| Settings       | `GET /settings` (public), `PUT /settings` (super_admin)                |
+| Analytics      | `GET /analytics/dashboard` (admin)                                     |
+| Uploads        | `POST /upload` (Cloudinary signed upload)                              |
 
-Full docs: `http://localhost:5000/api-docs`
+Full interactive docs: http://localhost:5000/api-docs
 
-## 🐳 Docker
+## Docker
 
 ```bash
-# Start all services (backend + MongoDB + Redis + Nginx)
-docker-compose up -d
-
-# Stop
+docker-compose up -d    # backend + MongoDB + Redis + Nginx
 docker-compose down
 ```
 
-## 🔐 Security
+## Security
 
-- JWT access tokens (15min) + refresh tokens (7 days)
+- JWT access tokens (15m) + refresh tokens (7d), rotated on use
 - bcrypt password hashing (12 rounds)
-- Helmet security headers
-- Rate limiting (200 req/15min general, 10 req/15min auth)
-- MongoDB sanitization (NoSQL injection prevention)
-- XSS protection
-- CORS configured per environment
+- Helmet security headers, CORS allow-list per environment
+- Rate limiting (200 req/15min general, 10 req/15min on auth routes)
+- `express-mongo-sanitize` (NoSQL injection) + `xss-clean`
 
-## 📋 Phase Roadmap
+## Documentation
 
-- ✅ **Phase 1** — Backend foundation (complete)
-- 🚧 **Phase 2** — Next.js frontend + homepage + services pages
-- ⬜ **Phase 3** — Admin panel + billing UI + appointment calendar
-- ⬜ **Phase 4** — EMR features + notifications + patient portal
-- ⬜ **Phase 5** — Performance + testing + deployment
+- [CLAUDE.md](./CLAUDE.md) — AI-assisted dev context: architecture, modules, conventions
+- [DESIGN.md](./DESIGN.md) — Brand & design system (colors, type, components)
 
 ---
-*Built for SAI Physiotherapy Spine Care & Paralysis Centre, Ahmedabad, Gujarat, India*
+*Built for SAI Physiotherapy Spine Care & Paralysis Centre — Ahmedabad, Gujarat, India*
