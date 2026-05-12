@@ -13,8 +13,8 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "@sai-physio/types": "workspace:*",
-    "@sai-physio/utils": "workspace:*",
+    "@sai-physio/types": "*",
+    "@sai-physio/utils": "*",
     "bcryptjs": "^2.4.3",
     "cloudinary": "^2.2.0",
     "compression": "^1.7.4",

@@ -12,8 +12,8 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^3.6.0",
-    "@sai-physio/types": "workspace:*",
-    "@sai-physio/utils": "workspace:*",
+    "@sai-physio/types": "*",
+    "@sai-physio/utils": "*",
     "@tanstack/react-table": "^8.17.3",
     "axios": "^1.7.2",
     "framer-motion": "^11.2.10",
