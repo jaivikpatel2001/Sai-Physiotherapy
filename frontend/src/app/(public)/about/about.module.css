@@ -393,9 +393,9 @@
 .ctaBox {
   position: relative;
   background:
-    radial-gradient(circle at 0% 0%, rgba(86, 69, 212, 0.45) 0%, transparent 55%),
-    radial-gradient(circle at 100% 100%, rgba(20, 184, 166, 0.30) 0%, transparent 55%),
-    linear-gradient(180deg, #0a1530 0%, #1a2a52 100%);
+    radial-gradient(circle at 0% 0%, rgba(70, 162, 183, 0.45) 0%, transparent 55%),
+    radial-gradient(circle at 100% 100%, rgba(70, 162, 183, 0.30) 0%, transparent 55%),
+    linear-gradient(180deg, #0c2641 0%, #1b4b66 100%);
   border-radius: var(--radius-2xl);
   padding: var(--space-16) var(--space-12);
   text-align: center;
@@ -409,7 +409,7 @@
   position: absolute;
   top: -150px; left: -100px;
   width: 400px; height: 400px;
-  background: radial-gradient(circle, rgba(86, 69, 212, 0.40) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(70, 162, 183, 0.40) 0%, transparent 70%);
   border-radius: 50%;
   filter: blur(60px);
 }

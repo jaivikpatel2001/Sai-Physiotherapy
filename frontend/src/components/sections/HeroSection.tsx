@@ -75,11 +75,11 @@ export default function HeroSection() {
         <svg className={styles.ecg} viewBox="0 0 1200 80" preserveAspectRatio="none" aria-hidden>
           <defs>
             <linearGradient id="ecgGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="rgba(86, 69, 212, 0)" />
-              <stop offset="20%" stopColor="rgba(86, 69, 212, 0.55)" />
-              <stop offset="50%" stopColor="rgba(20, 157, 153, 0.7)" />
-              <stop offset="80%" stopColor="rgba(86, 69, 212, 0.55)" />
-              <stop offset="100%" stopColor="rgba(86, 69, 212, 0)" />
+              <stop offset="0%" stopColor="rgba(70, 162, 183, 0)" />
+              <stop offset="20%" stopColor="rgba(70, 162, 183, 0.55)" />
+              <stop offset="50%" stopColor="rgba(70, 162, 183, 0.7)" />
+              <stop offset="80%" stopColor="rgba(70, 162, 183, 0.55)" />
+              <stop offset="100%" stopColor="rgba(70, 162, 183, 0)" />
             </linearGradient>
           </defs>
           <path

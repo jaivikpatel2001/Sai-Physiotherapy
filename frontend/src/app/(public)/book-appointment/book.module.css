@@ -42,7 +42,7 @@
   width: 8px; height: 8px;
   border-radius: 50%;
   background: var(--color-accent);
-  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.18);
+  box-shadow: 0 0 0 3px rgba(70, 162, 183, 0.18);
 }
 
 .heroTitle {

@@ -14,7 +14,7 @@
   position: absolute;
   top: -120px; right: -100px;
   width: 480px; height: 480px;
-  background: radial-gradient(circle, rgba(20, 184, 166, 0.18) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(70, 162, 183, 0.18) 0%, transparent 70%);
   border-radius: 50%;
   filter: blur(40px);
   pointer-events: none;
@@ -59,7 +59,7 @@
   height: 6px;
   border-radius: 50%;
   background: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(86, 69, 212, 0.18);
+  box-shadow: 0 0 0 3px rgba(70, 162, 183, 0.18);
 }
 
 .heroSplit {

@@ -7,9 +7,9 @@
 /* â”€â”€ Left â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .left {
   background:
-    radial-gradient(circle at 90% 10%, rgba(86, 69, 212, 0.35) 0%, transparent 55%),
-    radial-gradient(circle at 10% 90%, rgba(20, 184, 166, 0.25) 0%, transparent 55%),
-    linear-gradient(180deg, #0a1530 0%, #1a2a52 100%);
+    radial-gradient(circle at 90% 10%, rgba(70, 162, 183, 0.35) 0%, transparent 55%),
+    radial-gradient(circle at 10% 90%, rgba(70, 162, 183, 0.25) 0%, transparent 55%),
+    linear-gradient(180deg, #0c2641 0%, #1b4b66 100%);
   padding: var(--space-12);
   display: flex;
   flex-direction: column;
@@ -24,7 +24,7 @@
   position: absolute;
   top: -120px; right: -120px;
   width: 480px; height: 480px;
-  background: radial-gradient(circle, rgba(86, 69, 212, 0.40) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(70, 162, 183, 0.40) 0%, transparent 70%);
   border-radius: 50%;
 }
 
@@ -33,7 +33,7 @@
   position: absolute;
   bottom: -180px; left: -120px;
   width: 540px; height: 540px;
-  background: radial-gradient(circle, rgba(20, 184, 166, 0.30) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(70, 162, 183, 0.30) 0%, transparent 70%);
   border-radius: 50%;
 }
 
@@ -107,7 +107,7 @@
   height: 8px;
   border-radius: 50%;
   background: var(--color-accent-light);
-  box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.20);
+  box-shadow: 0 0 0 4px rgba(70, 162, 183, 0.20);
   flex-shrink: 0;
 }
 
