@@ -25,7 +25,7 @@ export default function DoctorsPage() {
   return (
     <div className={styles.page}>
       <section className={styles.hero}>
-        <div className={styles.heroMesh} />
+        <div className={`${styles.heroMesh} hero-aura`} />
         <div className="container">
           <p className="section-label" style={{ justifyContent: 'center' }}>Our Experts</p>
           <h1 className={styles.heroTitle}>Meet Our <span className="gradient-text">Specialists</span></h1>

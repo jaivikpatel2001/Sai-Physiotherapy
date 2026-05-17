@@ -289,7 +289,7 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
   return (
     <div className={styles.page}>
       <section className={styles.hero}>
-        <div className={styles.heroMesh} />
+        <div className={`${styles.heroMesh} hero-aura`} />
         <div className={styles.heroOrb} />
         <div className="container">
           <nav className={styles.breadcrumb}>

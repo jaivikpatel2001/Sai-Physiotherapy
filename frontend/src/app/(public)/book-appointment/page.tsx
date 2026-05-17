@@ -82,7 +82,7 @@ export default function BookAppointmentPage() {
     return (
       <div className={styles.page}>
         <div className={styles.heroBg}>
-          <div className={styles.heroMesh} />
+          <div className={`${styles.heroMesh} hero-aura`} />
         </div>
         <div className="container">
           <div className={styles.successCard}>
@@ -130,7 +130,7 @@ export default function BookAppointmentPage() {
   return (
     <div className={styles.page}>
       <div className={styles.heroBg}>
-        <div className={styles.heroMesh} />
+        <div className={`${styles.heroMesh} hero-aura`} />
       </div>
       <section className={styles.hero}>
         <div className="container">

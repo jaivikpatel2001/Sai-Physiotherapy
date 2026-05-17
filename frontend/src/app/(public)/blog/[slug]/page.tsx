@@ -164,7 +164,7 @@ export default function BlogDetailPage({ params }: { params: { slug: string } })
   return (
     <div className={styles.page}>
       <section className={`${styles.hero} ${styles[`tint_${post.tint}`]}`}>
-        <div className={styles.heroMesh} />
+        <div className={`${styles.heroMesh} hero-aura`} />
         <div className="container">
           <Link href="/blog" className={styles.back}>
             <i className="ri-arrow-left-line" /> All Articles

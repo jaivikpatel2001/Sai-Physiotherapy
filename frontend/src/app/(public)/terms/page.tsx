@@ -26,7 +26,7 @@ export default function TermsPage() {
   return (
     <div className={styles.page}>
       <section className={styles.hero}>
-        <div className={styles.heroMesh} />
+        <div className={`${styles.heroMesh} hero-aura`} />
         <div className="container">
           <span className={styles.eyebrow}>Legal</span>
           <h1 className={styles.title}>

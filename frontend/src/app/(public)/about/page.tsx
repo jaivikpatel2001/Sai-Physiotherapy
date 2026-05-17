@@ -36,56 +36,46 @@ const CERTIFICATIONS = [
 export default function AboutPage() {
   return (
     <div className={styles.page}>
-      {/* Hero */}
-      <div className={styles.hero}>
+      {/* Hero (canonical centered header) */}
+      <section className={styles.hero}>
+        <div className={`${styles.heroMesh} hero-aura`} aria-hidden />
         <div className="container">
-          <div className={styles.heroInner}>
-            <div className={styles.heroText}>
-              <p className="section-label">Our Story</p>
-              <h1 className={styles.heroTitle}>
-                15 Years of <span className="gradient-text">Healing Lives</span><br />Across Gujarat
-              </h1>
-              <p className={styles.heroDesc}>
-                Founded in 2009, SAI Physiotherapy Spine Care & Paralysis Centre has grown from
-                a single-room clinic to Gujarat&apos;s most trusted physiotherapy destination —
-                treating over 10,000 patients and counting.
-              </p>
-              <div className={styles.heroStats}>
-                {[
-                  { num: '2009', label: 'Established' },
-                  { num: '10K+', label: 'Patients Healed' },
-                  { num: '4.9', label: 'Google Rating' },
-                  { num: '12+', label: 'Doctors' },
-                ].map((s) => (
-                  <div key={s.label} className={styles.heroStat}>
-                    <span className={styles.heroStatNum}>{s.num}</span>
-                    <span className={styles.heroStatLabel}>{s.label}</span>
-                  </div>
-                ))}
+          <p className="section-label" style={{ justifyContent: 'center' }}>Our Story</p>
+          <h1 className={styles.heroTitle}>
+            15 Years of <span className="gradient-text">Healing Lives</span> Across Gujarat
+          </h1>
+          <p className={styles.heroDesc}>
+            Founded in 2009, SAI Physiotherapy Spine Care &amp; Paralysis Centre has grown from
+            a single-room clinic to Gujarat&apos;s most trusted physiotherapy destination —
+            treating over 10,000 patients and counting.
+          </p>
+
+          <div className={styles.heroStats}>
+            {[
+              { num: '2009', label: 'Established' },
+              { num: '10K+', label: 'Patients Healed' },
+              { num: '4.9', label: 'Google Rating' },
+              { num: '12+', label: 'Doctors' },
+            ].map((s) => (
+              <div key={s.label} className={styles.heroStat}>
+                <span className={styles.heroStatNum}>{s.num}</span>
+                <span className={styles.heroStatLabel}>{s.label}</span>
               </div>
-            </div>
-            <div className={styles.heroVisual}>
-              <div className={styles.heroImageWrap}>
-                <Image
-                  src="/images/about/about_hero.png"
-                  alt="SAI Physiotherapy clinic — caring for patients across Gujarat"
-                  fill
-                  sizes="(max-width: 1024px) 100vw, 540px"
-                  style={{ objectFit: 'cover' }}
-                  priority
-                />
-              </div>
-              <div className={styles.clinicCard}>
-                <div className={styles.clinicEmoji}><i className="ri-hospital-line" style={{ fontSize: 32 }} /></div>
-                <div>
-                  <h2>SAI Physiotherapy</h2>
-                  <p>Spine Care & Paralysis Centre</p>
-                </div>
-              </div>
-            </div>
+            ))}
+          </div>
+
+          <div className={styles.heroImageWrap}>
+            <Image
+              src="/images/about/about_hero.png"
+              alt="SAI Physiotherapy clinic — caring for patients across Gujarat"
+              fill
+              sizes="(max-width: 1024px) 100vw, 1100px"
+              style={{ objectFit: 'cover' }}
+              priority
+            />
           </div>
         </div>
-      </div>
+      </section>
 
       {/* Mission & Vision */}
       <section className={`section ${styles.missionSection}`}>

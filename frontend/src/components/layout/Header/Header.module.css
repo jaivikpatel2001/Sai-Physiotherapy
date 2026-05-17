@@ -2,7 +2,8 @@
   background: var(--color-surface);
   color: var(--color-charcoal);
   font-size: var(--text-xs);
-  padding: var(--space-2) 0;
+  /* Fill the status-bar / notch strip with the top-bar surface (WebView) */
+  padding: calc(var(--space-2) + env(safe-area-inset-top, 0px)) 0 var(--space-2);
   position: relative;
   z-index: calc(var(--z-sticky) + 1);
   border-bottom: 1px solid var(--color-hairline);
@@ -114,9 +115,15 @@
   align-items: center;
 }
 
+/* Once the relative top-bar has scrolled away, the sticky header pins to the
+   viewport top — i.e. under the status bar in a WebView. Reserve & paint the
+   safe-area strip with the header's own surface so nothing slips under the
+   notch. (.scrolled is toggled by Header.tsx at scrollY > 20.) */
 .header.scrolled {
   background: var(--color-canvas);
   border-bottom-color: var(--color-hairline);
+  padding-top: env(safe-area-inset-top, 0px);
+  height: calc(var(--header-height) + env(safe-area-inset-top, 0px));
 }
 
 .headerInner {
@@ -397,7 +404,12 @@
   z-index: var(--z-modal);
   display: flex;
   flex-direction: column;
-  padding: var(--space-6);
+  /* Clear status bar, gesture/nav bar and any landscape notch (WebView) */
+  padding:
+    calc(var(--space-6) + env(safe-area-inset-top, 0px))
+    calc(var(--space-6) + env(safe-area-inset-right, 0px))
+    calc(var(--space-6) + env(safe-area-inset-bottom, 0px))
+    var(--space-6);
   overflow-y: auto;
 }
 

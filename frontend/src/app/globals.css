@@ -253,6 +253,9 @@ html {
   /* Native smooth scroll disabled — Lenis handles it. Falls back when JS is off / reduced-motion. */
   scroll-behavior: auto;
   -webkit-text-size-adjust: 100%;
+  /* App-shell background behind the status-bar / overscroll area so a WebView
+     rubber-band never flashes white. */
+  background-color: var(--color-canvas);
 }
 
 body {
@@ -264,6 +267,9 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+  /* Native-app feel inside Android/iOS WebView */
+  overscroll-behavior-y: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 a {
@@ -402,8 +408,10 @@ h5 {
   max-width: var(--container-max);
   margin-left: auto;
   margin-right: auto;
-  padding-left: var(--space-8);
-  padding-right: var(--space-8);
+  /* Respect landscape notch / curved-edge safe areas without shrinking the
+     gutter on normal screens (env is 0 there). */
+  padding-left: max(var(--space-8), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--space-8), env(safe-area-inset-right, 0px));
 }
 
 .container-wide {
@@ -411,8 +419,8 @@ h5 {
   max-width: var(--container-wide);
   margin-left: auto;
   margin-right: auto;
-  padding-left: var(--space-8);
-  padding-right: var(--space-8);
+  padding-left: max(var(--space-8), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--space-8), env(safe-area-inset-right, 0px));
 }
 
 .section {
@@ -650,6 +658,58 @@ h5 {
 
 .animate-pulse-slow {
   animation: pulse 3s ease-in-out infinite;
+}
+
+/* ── Hero Aura — shared premium healthcare hero backdrop ─────────────────── */
+/* Applied to every page's .heroMesh layer so all heroes feel consistent &
+   elevated. Calming brand mesh + a soft "breathing" healing ring + a faint
+   clinical dot grid. Subtle by design — text stays fully readable. */
+@keyframes heroBreathe {
+  0%, 100% { transform: translate(-50%, -50%) scale(1);    opacity: 0.55; }
+  50%      { transform: translate(-50%, -50%) scale(1.08); opacity: 0.8; }
+}
+
+/* `div.hero-aura` (0,1,1) intentionally out-specifies the CSS-module
+   `.heroMesh { background: transparent }` (0,1,0) regardless of inject order. */
+div.hero-aura {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 12% 18%, rgba(70, 162, 183, 0.13) 0%, transparent 45%),
+    radial-gradient(circle at 88% 12%, rgba(191, 214, 217, 0.30) 0%, transparent 42%),
+    radial-gradient(circle at 78% 88%, rgba(235, 120, 61, 0.07) 0%, transparent 48%);
+}
+
+/* Faint clinical dot grid, fading toward the centre so it never fights text */
+.hero-aura::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(12, 38, 65, 0.05) 1px, transparent 1.4px);
+  background-size: 26px 26px;
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 45%, transparent 35%, #000 100%);
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 45%, transparent 35%, #000 100%);
+}
+
+/* Soft breathing healing ring behind the headline */
+.hero-aura::before {
+  content: '';
+  position: absolute;
+  top: 42%;
+  left: 50%;
+  width: clamp(320px, 42vw, 620px);
+  height: clamp(320px, 42vw, 620px);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(70, 162, 183, 0.16) 0%, rgba(70, 162, 183, 0.05) 45%, transparent 70%);
+  transform: translate(-50%, -50%);
+  animation: heroBreathe 7s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-aura::before { animation: none; }
 }
 
 /* ── Gradient Text — purple, sparingly ──────────────────────────────────── */
@@ -1237,8 +1297,8 @@ h5 {
 
   .container,
   .container-wide {
-    padding-left: var(--space-4);
-    padding-right: var(--space-4);
+    padding-left: max(var(--space-4), env(safe-area-inset-left, 0px));
+    padding-right: max(var(--space-4), env(safe-area-inset-right, 0px));
   }
 
   .section {
@@ -1265,8 +1325,10 @@ h5 {
 }
 
 /* ── Mobile bottom nav spacing ──────────────────────────────────────────── */
+/* Clear the fixed bottom nav (≈62px) PLUS the Android gesture / nav-button
+   strip. env() resolves to 0 in normal browsers, so this is safe everywhere. */
 @media (max-width: 768px) {
   body {
-    padding-bottom: 88px;
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
   }
 }

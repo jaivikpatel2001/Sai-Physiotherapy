@@ -1,53 +1,49 @@
 ﻿.page { background: var(--color-bg); }
 
 /* â”€â”€ Hero â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── Hero (canonical centered header — matches doctors/blog/services) ─────── */
 .hero {
   position: relative;
   background: var(--color-canvas);
   padding: var(--space-20) 0;
+  text-align: center;
   overflow: hidden;
 }
 
-.hero::before {
-  content: '';
-  position: absolute; inset: 0;
+.heroMesh {
+  position: absolute;
+  inset: 0;
   background: transparent;
   pointer-events: none;
 }
 
 .hero > .container { position: relative; z-index: 1; }
 
-.heroInner {
-  display: grid;
-  grid-template-columns: 1fr 420px;
-  gap: var(--space-16);
-  align-items: center;
-}
-
-.heroText { display: flex; flex-direction: column; gap: var(--space-5); }
-
 .heroTitle {
   font-family: var(--font-display);
   font-size: var(--text-h1);
   font-weight: 800;
   color: var(--color-text);
-  line-height: 1.1;
+  line-height: 1.15;
   letter-spacing: -0.035em;
+  margin: var(--space-3) 0 var(--space-4);
 }
 
 .heroDesc {
   font-size: var(--text-lg);
   color: var(--color-text-muted);
   line-height: var(--leading-relaxed);
-  max-width: 560px;
+  max-width: 620px;
+  margin: 0 auto;
 }
 
 .heroStats {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: var(--space-6);
-  padding-top: var(--space-5);
-  margin-top: var(--space-3);
+  max-width: 680px;
+  margin: var(--space-10) auto 0;
+  padding-top: var(--space-6);
   border-top: 1px solid var(--color-border);
 }
 
@@ -67,53 +63,15 @@
   font-weight: 600;
 }
 
-/* â”€â”€ Clinic Card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-.heroVisual { display: flex; flex-direction: column; gap: var(--space-4); }
-
 .heroImageWrap {
   position: relative;
   width: 100%;
-  aspect-ratio: 4 / 3;
+  max-width: 1000px;
+  aspect-ratio: 21 / 9;
+  margin: var(--space-12) auto 0;
   border-radius: var(--radius-xl);
   overflow: hidden;
-  box-shadow: var(--shadow-md);
-}
-
-.clinicCard {
-  background: var(--color-white);
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-xl);
-  padding: var(--space-5) var(--space-6);
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: var(--space-4);
-  box-shadow: var(--shadow-sm);
-  text-align: left;
-}
-
-.clinicEmoji {
-  width: 56px; height: 56px;
-  background: var(--color-primary-50);
-  border-radius: var(--radius-md);
-  color: var(--color-primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.clinicCard h2 {
-  font-family: var(--font-display);
-  font-size: var(--text-xl);
-  font-weight: 800;
-  color: var(--color-text);
-  letter-spacing: -0.02em;
-}
-
-.clinicCard p {
-  font-size: var(--text-sm);
-  color: var(--color-text-muted);
+  box-shadow: var(--shadow-lg);
 }
 
 .certList {
@@ -468,8 +426,6 @@
 .ctaSecondary:hover { background: rgba(255, 255, 255, 0.10); border-color: var(--color-white); }
 
 @media (max-width: 1024px) {
-  .heroInner { grid-template-columns: 1fr; }
-  .heroVisual { max-width: 480px; }
   .missionGrid { grid-template-columns: 1fr; }
   .valuesGrid { grid-template-columns: repeat(2, 1fr); }
   .left .timelineCard { margin-right: 0; text-align: left; }

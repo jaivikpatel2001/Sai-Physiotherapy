@@ -38,7 +38,7 @@ export default function ContactPage() {
   return (
     <div className={styles.page}>
       <section className={styles.hero}>
-        <div className={styles.heroMesh} />
+        <div className={`${styles.heroMesh} hero-aura`} />
         <div className="container">
           <p className="section-label" style={{ justifyContent: 'center' }}>Get In Touch</p>
           <h1 className={styles.heroTitle}>

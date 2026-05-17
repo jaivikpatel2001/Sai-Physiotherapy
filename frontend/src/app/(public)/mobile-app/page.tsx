@@ -301,53 +301,51 @@ function PhoneMockup({ variant = 'home' }: { variant?: 'home' | 'consult' | 'pro
 export default function MobileAppPage() {
   return (
     <div className={styles.page}>
-      {/* ── Hero ─────────────────────────────────────────────────────── */}
+      {/* ── Hero (canonical centered header) ─────────────────────────── */}
       <section className={styles.hero}>
+        <div className={`${styles.heroMesh} hero-aura`} aria-hidden />
         <div className="container">
-          <div className={styles.heroInner}>
-            <div className={styles.heroText}>
-              <span className={styles.heroBadge}>
-                <i className="ri-smartphone-line" /> SAI Physio Mobile App
+          <p className="section-label" style={{ justifyContent: 'center' }}>SAI Physio App</p>
+          <h1 className={styles.heroTitle}>
+            Your recovery, <span className="gradient-text">in your pocket.</span>
+          </h1>
+          <p className={styles.heroDesc}>
+            Book appointments, consult on video, follow guided exercises and pay your bills —
+            all in one secure app, designed for Gujarati families and the way you actually live.
+          </p>
+
+          <div className={styles.heroDownloads}>
+            <a href={DOWNLOAD_CTA.play} target="_blank" rel="noopener noreferrer" className={styles.storeBtn}>
+              <i className="ri-google-play-fill" />
+              <span>
+                <small>GET IT ON</small>
+                <strong>Google Play</strong>
               </span>
-              <h1 className={styles.heroTitle}>
-                Your recovery, <span className="gradient-text">in your pocket.</span>
-              </h1>
-              <p className={styles.heroDesc}>
-                Book appointments, consult on video, follow guided exercises and pay your bills —
-                all in one secure app, designed for Gujarati families and the way you actually live.
-              </p>
-              <div className={styles.heroDownloads}>
-                <a href={DOWNLOAD_CTA.play} target="_blank" rel="noopener noreferrer" className={styles.storeBtn}>
-                  <i className="ri-google-play-fill" />
-                  <span>
-                    <small>GET IT ON</small>
-                    <strong>Google Play</strong>
-                  </span>
-                </a>
-                <a href={DOWNLOAD_CTA.appstore} target="_blank" rel="noopener noreferrer" className={styles.storeBtn}>
-                  <i className="ri-apple-fill" />
-                  <span>
-                    <small>Download on the</small>
-                    <strong>App Store</strong>
-                  </span>
-                </a>
-              </div>
-              <div className={styles.heroProof}>
-                <div className={styles.heroProofAvatars}>
-                  {['RP', 'PS', 'HJ', 'MD'].map((a) => (
-                    <span key={a} className={styles.heroProofAvatar}>{a}</span>
-                  ))}
-                </div>
-                <div>
-                  <Stars count={5} />
-                  <p>Rated <strong>4.8 / 5</strong> by 18,000+ patients across Gujarat</p>
-                </div>
-              </div>
+            </a>
+            <a href={DOWNLOAD_CTA.appstore} target="_blank" rel="noopener noreferrer" className={styles.storeBtn}>
+              <i className="ri-apple-fill" />
+              <span>
+                <small>Download on the</small>
+                <strong>App Store</strong>
+              </span>
+            </a>
+          </div>
+
+          <div className={styles.heroProof}>
+            <div className={styles.heroProofAvatars}>
+              {['RP', 'PS', 'HJ', 'MD'].map((a) => (
+                <span key={a} className={styles.heroProofAvatar}>{a}</span>
+              ))}
             </div>
-            <div className={styles.heroPhones} aria-hidden>
-              <div className={styles.heroPhoneBack}><PhoneMockup variant="progress" /></div>
-              <div className={styles.heroPhoneFront}><PhoneMockup variant="home" /></div>
+            <div>
+              <Stars count={5} />
+              <p>Rated <strong>4.8 / 5</strong> by 18,000+ patients across Gujarat</p>
             </div>
+          </div>
+
+          <div className={styles.heroPhones} aria-hidden>
+            <div className={styles.heroPhoneBack}><PhoneMockup variant="progress" /></div>
+            <div className={styles.heroPhoneFront}><PhoneMockup variant="home" /></div>
           </div>
         </div>
       </section>
@@ -372,7 +370,7 @@ export default function MobileAppPage() {
       </section>
 
       {/* ── Features ─────────────────────────────────────────────────── */}
-      <section className={styles.section}>
+      <section className="section">
         <div className="container">
           <div className="section-header">
             <p className="section-label">Everything in one app</p>
@@ -399,7 +397,7 @@ export default function MobileAppPage() {
       </section>
 
       {/* ── Book in Seconds ─────────────────────────────────────────── */}
-      <section className={`${styles.section} ${styles.sectionAlt}`}>
+      <section className={`section ${styles.sectionAlt}`}>
         <div className="container">
           <div className={styles.split}>
             <div className={styles.splitText}>
@@ -435,7 +433,7 @@ export default function MobileAppPage() {
       </section>
 
       {/* ── Manage Health Anywhere ──────────────────────────────────── */}
-      <section className={styles.section}>
+      <section className="section">
         <div className="container">
           <div className={`${styles.split} ${styles.splitReverse}`}>
             <div className={styles.splitPhone}>
@@ -473,7 +471,7 @@ export default function MobileAppPage() {
       </section>
 
       {/* ── Why patients love ──────────────────────────────────────── */}
-      <section className={`${styles.section} ${styles.sectionLove}`}>
+      <section className={`section ${styles.sectionLove}`}>
         <div className="container">
           <div className="section-header">
             <p className="section-label">Why patients love our app</p>
@@ -541,7 +539,7 @@ export default function MobileAppPage() {
       </section>
 
       {/* ── Testimonials ───────────────────────────────────────────── */}
-      <section className={styles.section}>
+      <section className="section">
         <div className="container">
           <div className="section-header">
             <p className="section-label">Patient stories</p>
@@ -568,7 +566,7 @@ export default function MobileAppPage() {
       </section>
 
       {/* ── FAQ ────────────────────────────────────────────────────── */}
-      <section className={`${styles.section} ${styles.sectionAlt}`}>
+      <section className={`section ${styles.sectionAlt}`}>
         <div className="container">
           <div className="section-header">
             <p className="section-label">FAQ</p>

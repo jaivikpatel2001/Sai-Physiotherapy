@@ -43,7 +43,7 @@ export default function TestimonialsPage() {
   return (
     <div className={styles.page}>
       <section className={styles.hero}>
-        <div className={styles.heroMesh} />
+        <div className={`${styles.heroMesh} hero-aura`} />
         <div className="container">
           <p className="section-label" style={{ justifyContent: 'center' }}>Patient Stories</p>
           <h1 className={styles.heroTitle}>Real Stories, <span className="gradient-text">Real Results</span></h1>

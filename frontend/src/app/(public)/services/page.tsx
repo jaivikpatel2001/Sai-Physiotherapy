@@ -68,7 +68,7 @@ export default function ServicesPage() {
   return (
     <div className={styles.page}>
       <div className={styles.hero}>
-        <div className={styles.heroMesh} />
+        <div className={`${styles.heroMesh} hero-aura`} />
         <div className="container">
           <p className="section-label" style={{ justifyContent: 'center' }}>Our Specializations</p>
           <h1 className={styles.heroTitle}>Expert Physiotherapy <span className="gradient-text">Services</span></h1>

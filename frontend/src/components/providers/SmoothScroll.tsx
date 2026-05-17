@@ -29,10 +29,13 @@ export default function SmoothScroll() {
     rafId = requestAnimationFrame(raf);
 
     document.documentElement.classList.add('lenis-active');
+    // Expose for route-change scroll reset (consumed by (public)/template.tsx)
+    (window as Window & { __lenis?: Lenis }).__lenis = lenis;
 
     return () => {
       cancelAnimationFrame(rafId);
       lenis.destroy();
+      delete (window as Window & { __lenis?: Lenis }).__lenis;
       document.documentElement.classList.remove('lenis-active');
     };
   }, []);
