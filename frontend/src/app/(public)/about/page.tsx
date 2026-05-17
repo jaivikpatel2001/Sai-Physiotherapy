@@ -2,11 +2,17 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import styles from './about.module.css';
+import { pageMeta } from '@/lib/seo/metadata';
+import JsonLd from '@/components/seo/JsonLd';
+import { breadcrumbSchema } from '@/lib/seo/schema';
 
-export const metadata: Metadata = {
-  title: 'About SAI Physiotherapy — Our Story, Mission & Team',
-  description: 'Learn about SAI Physiotherapy Spine Care & Paralysis Centre — Gujarat\'s leading physiotherapy center since 2009. Our mission, values, and expert team.',
-};
+export const metadata: Metadata = pageMeta({
+  title: 'About SAI Physiotherapy — Our Story, Mission & Expert Team',
+  description:
+    "Learn about SAI Physiotherapy Spine Care & Paralysis Centre — Gujarat's leading physiotherapy centre since 2009. NABH-aligned care, 10,000+ patients, expert BPT/MPT team.",
+  path: '/about',
+  keywords: ['about SAI Physiotherapy', 'physiotherapy clinic Ahmedabad since 2009', 'NABH physiotherapy Gujarat'],
+});
 
 const MILESTONES = [
   { year: '2009', title: 'Founded', desc: 'SAI Physiotherapy opened its doors in Ahmedabad with a vision to provide world-class physiotherapy care.' },
@@ -36,6 +42,7 @@ const CERTIFICATIONS = [
 export default function AboutPage() {
   return (
     <div className={styles.page}>
+      <JsonLd data={breadcrumbSchema([{ name: 'About', path: '/about' }])} />
       {/* Hero (canonical centered header) */}
       <section className={styles.hero}>
         <div className={`${styles.heroMesh} hero-aura`} aria-hidden />

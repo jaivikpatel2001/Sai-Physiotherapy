@@ -1,11 +1,34 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import styles from './mobile-app.module.css';
+import { pageMeta } from '@/lib/seo/metadata';
+import JsonLd from '@/components/seo/JsonLd';
+import { breadcrumbSchema } from '@/lib/seo/schema';
+import { CLINIC, SITE_URL } from '@/lib/seo/clinic';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMeta({
   title: 'SAI Physio App — Book Appointments, Video Consults & Track Recovery',
   description:
     'Download the SAI Physiotherapy mobile app. Book appointments, consult on video, get prescriptions, view reports and pay — all from your phone. Free on Android & iOS.',
+  path: '/mobile-app',
+  keywords: ['physiotherapy app India', 'SAI Physio app', 'book physiotherapy app Ahmedabad', 'video consultation physiotherapy'],
+});
+
+const appSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'MobileApplication',
+  name: `${CLINIC.name} App`,
+  operatingSystem: 'ANDROID, IOS',
+  applicationCategory: 'HealthApplication',
+  url: `${SITE_URL}/mobile-app`,
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'INR' },
+  aggregateRating: {
+    '@type': 'AggregateRating',
+    ratingValue: '4.8',
+    ratingCount: '18000',
+    bestRating: '5',
+  },
+  publisher: { '@id': `${SITE_URL}/#organization` },
 };
 
 const APP_STATS = [
@@ -301,6 +324,9 @@ function PhoneMockup({ variant = 'home' }: { variant?: 'home' | 'consult' | 'pro
 export default function MobileAppPage() {
   return (
     <div className={styles.page}>
+      <JsonLd
+        data={[breadcrumbSchema([{ name: 'Mobile App', path: '/mobile-app' }]), appSchema]}
+      />
       {/* ── Hero (canonical centered header) ─────────────────────────── */}
       <section className={styles.hero}>
         <div className={`${styles.heroMesh} hero-aura`} aria-hidden />

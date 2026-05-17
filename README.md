@@ -8,6 +8,10 @@
 sai-physiotherapy/
 ├── backend/                 # Express.js REST API (TypeScript, MongoDB)
 ├── frontend/                # Next.js 14 App Router (public site + admin panel)
+│   └── src/
+│       ├── app/             # routes + robots.ts/sitemap.ts/manifest.ts; globals.css = design system
+│       ├── components/      # layout · sections · ui · seo · providers
+│       └── lib/seo/         # clinic NAP · content index · pageMeta() · schema graph · track
 ├── packages/
 │   ├── types/               # Shared TypeScript interfaces & enums
 │   ├── utils/               # Shared utilities (dates, id generators)
@@ -21,7 +25,8 @@ sai-physiotherapy/
 
 | Layer       | Technology                                              |
 |-------------|---------------------------------------------------------|
-| Frontend    | Next.js 14 (App Router), React 18, TypeScript, Zustand, Framer Motion, React Hook Form + Zod |
+| Frontend    | Next.js 14 (App Router, RSC/SSG), React 18, TypeScript, CSS Modules, Zustand, Framer Motion, Lenis, React Hook Form + Zod |
+| SEO/AEO/GEO | `lib/seo` system — `pageMeta()`, JSON-LD entity graph, dynamic `robots`/`sitemap`/`manifest`, GA4 |
 | Backend     | Express.js, TypeScript, MongoDB + Mongoose, Zod, Winston, Swagger |
 | Auth        | JWT (access 15m + refresh 7d), RBAC                     |
 | Storage     | Cloudinary (documents/images)                           |
@@ -53,6 +58,15 @@ This copies `backend/.env.example` → `backend/.env` and `frontend/.env.example
 > cp backend/.env.example backend/.env
 > cp frontend/.env.example frontend/.env.local
 > ```
+
+**Key `frontend/.env.local` vars** (SEO/analytics depend on these):
+
+| Var | Purpose |
+|-----|---------|
+| `NEXT_PUBLIC_API_URL` | Backend API base |
+| `NEXT_PUBLIC_SITE_URL` | **Production origin** — drives canonical URLs, OG, sitemap, JSON-LD |
+| `NEXT_PUBLIC_GA_ID` | Enables GA4 analytics (inert if unset) |
+| `NEXT_PUBLIC_WHATSAPP_NUMBER`, `NEXT_PUBLIC_CLINIC_PHONE` | Contact CTAs |
 
 ### 3. Seed the database (first time only)
 ```bash
@@ -133,10 +147,19 @@ docker-compose down
 - Rate limiting (200 req/15min general, 10 req/15min on auth routes)
 - `express-mongo-sanitize` (NoSQL injection) + `xss-clean`
 
+## Frontend, SEO & Mobile
+
+- **Design system**: all tokens + shared utilities in `frontend/src/app/globals.css`. CSS Modules only (no Tailwind). Canonical hero + global `.section` pattern on every page — see [DESIGN.md](./DESIGN.md).
+- **SEO/AEO/GEO**: every page uses `pageMeta()` + `<JsonLd>`; client pages get a sibling server `layout.tsx`. Site-wide `@graph` (MedicalClinic/Organization/WebSite) injected in root layout. `/robots.txt`, `/sitemap.xml`, `/manifest.webmanifest` generated dynamically. AI crawlers (GPTBot, PerplexityBot, Google-Extended…) allowed.
+- **Animation**: per-route transitions (`(public)/template.tsx`), `RouteProgress` bar, CSS/SVG `Preloader`, Lenis smooth scroll — Framer Motion, shared easing, reduced-motion safe.
+- **Mobile/WebView**: `viewportFit:'cover'` + `env(safe-area-inset-*)` everywhere (never hardcoded); native-app bottom nav; off-white app shell.
+
 ## Documentation
 
-- [CLAUDE.md](./CLAUDE.md) — AI-assisted dev context: architecture, modules, conventions
-- [DESIGN.md](./DESIGN.md) — Brand & design system (colors, type, components)
+- **[CLAUDE.md](./CLAUDE.md)** — master development rulebook & single source of truth: the 8 non-negotiables, UI/SEO/animation/mobile/architecture standards, future-development enforcement. **Read before any change.**
+- **[DESIGN.md](./DESIGN.md)** — design system spec: color/type/space tokens, canonical hero & section patterns, components, motion language, mobile/WebView, accessibility/EEAT.
+
+> Docs must always mirror the real implementation. If you change architecture, tokens, SEO, or animation patterns, update CLAUDE.md / DESIGN.md (and this README) in the same change.
 
 ---
 *Built for SAI Physiotherapy Spine Care & Paralysis Centre — Ahmedabad, Gujarat, India*

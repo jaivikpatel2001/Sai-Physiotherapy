@@ -3,6 +3,11 @@ import './globals.css';
 import 'lenis/dist/lenis.css';
 import SmoothScroll from '@/components/providers/SmoothScroll';
 import Preloader from '@/components/ui/Preloader/Preloader';
+import JsonLd from '@/components/seo/JsonLd';
+import Analytics from '@/components/seo/Analytics';
+import { CLINIC, SITE_URL, BASE_KEYWORDS } from '@/lib/seo/clinic';
+import { siteGraph } from '@/lib/seo/schema';
+import { SERVICES_SEO } from '@/lib/seo/content';
 
 // Native-app viewport: cover the notch/status-bar area so env(safe-area-inset-*)
 // becomes non-zero inside Android/iOS WebView containers. Theme-color paints the
@@ -19,29 +24,47 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://saiphysiotherapy.com'),
+  metadataBase: new URL(SITE_URL),
   title: {
-    default: 'SAI Physiotherapy Spine Care & Paralysis Centre | Ahmedabad, Gujarat',
-    template: '%s | SAI Physiotherapy',
+    default: `${CLINIC.legalName} | Physiotherapy in Ahmedabad, Gujarat`,
+    template: `%s | ${CLINIC.name}`,
   },
-  description:
-    "Gujarat's leading physiotherapy and rehabilitation center. Expert treatment for back pain, spine care, paralysis, sports injuries, and more in Ahmedabad.",
-  keywords: [
-    'physiotherapy ahmedabad',
-    'spine care gujarat',
-    'paralysis rehabilitation',
-    'back pain treatment ahmedabad',
-    'sai physiotherapy',
-    'neuro physiotherapy',
-    'sports injury rehabilitation',
-  ],
+  description: CLINIC.description,
+  keywords: BASE_KEYWORDS,
+  applicationName: CLINIC.name,
+  alternates: { canonical: '/' },
+  authors: [{ name: CLINIC.legalName, url: SITE_URL }],
+  creator: CLINIC.legalName,
+  publisher: CLINIC.legalName,
+  category: 'Health',
   openGraph: {
     type: 'website',
     locale: 'en_IN',
-    siteName: 'SAI Physiotherapy Spine Care & Paralysis Centre',
+    url: SITE_URL,
+    siteName: CLINIC.legalName,
+    title: `${CLINIC.legalName} | Physiotherapy in Ahmedabad, Gujarat`,
+    description: CLINIC.description,
+    images: [{ url: CLINIC.ogImage, width: 1200, height: 630, alt: CLINIC.legalName }],
   },
-  robots: { index: true, follow: true },
+  twitter: {
+    card: 'summary_large_image',
+    title: CLINIC.legalName,
+    description: CLINIC.description,
+    images: [CLINIC.ogImage],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+      'max-video-preview': -1,
+    },
+  },
   icons: { icon: '/favicon.ico' },
+  manifest: '/manifest.webmanifest',
   // Fullscreen WebView / installed-PWA behaviour: translucent status bar so the
   // app shell paints edge-to-edge under it, no auto-linkifying phone numbers.
   appleWebApp: {
@@ -54,38 +77,20 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en-IN">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              '@context': 'https://schema.org',
-              '@type': 'MedicalClinic',
-              name: 'SAI Physiotherapy Spine Care & Paralysis Centre',
-              description: "Gujarat's leading physiotherapy and rehabilitation center",
-              url: 'https://saiphysiotherapy.com',
-              telephone: '+919999999999',
-              address: {
-                '@type': 'PostalAddress',
-                addressLocality: 'Ahmedabad',
-                addressRegion: 'Gujarat',
-                addressCountry: 'IN',
-              },
-              medicalSpecialty: 'PhysicalTherapy',
-              openingHours: ['Mo-Fr 08:00-20:00', 'Sa 08:00-18:00', 'Su 09:00-13:00'],
-              priceRange: '₹₹',
-              aggregateRating: { '@type': 'AggregateRating', ratingValue: '4.9', reviewCount: '500' },
-            }),
-          }}
-        />
+        {/* Site-wide knowledge graph: Organization + MedicalClinic/Physiotherapy
+            /LocalBusiness + WebSite(SearchAction). One @id-linked entity for
+            Google, AI Overview, ChatGPT, Gemini & Perplexity. */}
+        <JsonLd data={siteGraph(SERVICES_SEO)} />
       </head>
       <body>
         <Preloader />
         <SmoothScroll />
         {children}
+        <Analytics />
       </body>
     </html>
   );
