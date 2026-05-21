@@ -16,10 +16,16 @@ const envSchema = z.object({
   // Frontend URL (CORS)
   FRONTEND_URL: z.string().url().default('http://localhost:3000'),
 
-  // Cloudinary (optional — required for file uploads)
-  CLOUDINARY_CLOUD_NAME: z.string().optional(),
-  CLOUDINARY_API_KEY: z.string().optional(),
-  CLOUDINARY_API_SECRET: z.string().optional(),
+  // Backend public origin (used to build URLs for files served from /uploads)
+  BACKEND_URL: z.string().url().default('http://localhost:5000'),
+
+  // Cloudflare R2 (optional — when all five are set, R2 is primary with local
+  // /uploads as automatic runtime fallback. When any is blank, local-only.)
+  R2_ACCOUNT_ID: z.string().optional(),
+  R2_ACCESS_KEY_ID: z.string().optional(),
+  R2_SECRET_ACCESS_KEY: z.string().optional(),
+  R2_BUCKET: z.string().optional(),
+  R2_PUBLIC_URL: z.string().url().optional().or(z.literal('').transform(() => undefined)),
 
   // Email (SMTP)
   SMTP_HOST: z.string().optional(),

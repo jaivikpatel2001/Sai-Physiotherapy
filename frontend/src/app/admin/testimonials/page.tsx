@@ -1,7 +1,17 @@
-﻿'use client';
+'use client';
 import { useEffect, useMemo, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { adminTestimonialsApi } from '@/lib/api';
 import { formatDate } from '@sai-physio/utils';
+import {
+  PageHeader,
+  AddButton,
+  ActionMenu,
+  Modal,
+  ConfirmDialog,
+  AsyncBoundary,
+  StatusBadge,
+} from '@/components/admin';
 import styles from '../admin.module.css';
 
 interface Testimonial {
@@ -18,13 +28,37 @@ interface Testimonial {
   createdAt: string;
 }
 
+interface TestimonialForm {
+  patientName: string;
+  patientAge?: number;
+  condition: string;
+  rating: number;
+  review: string;
+  videoUrl?: string;
+  isApproved: boolean;
+  isFeatured: boolean;
+}
+
 type StatusFilter = 'all' | 'pending' | 'approved';
+
+const defaultForm: TestimonialForm = {
+  patientName: '',
+  condition: '',
+  rating: 5,
+  review: '',
+  videoUrl: '',
+  isApproved: true,
+  isFeatured: false,
+};
 
 export default function TestimonialsPage() {
   const [items, setItems] = useState<Testimonial[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
+  const [editing, setEditing] = useState<Testimonial | null>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const fetchData = async () => {
     setLoading(true);
@@ -33,13 +67,15 @@ export default function TestimonialsPage() {
       const res = await adminTestimonialsApi.getAll();
       setItems(res.data?.data ?? res.data ?? []);
     } catch (e: unknown) {
-      setError((e as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to load testimonials');
+      setError((e as { response?: { data?: { error?: string } } })?.response?.data?.error || 'Failed to load testimonials');
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => {
+    void fetchData();
+  }, []);
 
   const filtered = useMemo(() => {
     if (statusFilter === 'pending') return items.filter((t) => !t.isApproved);
@@ -50,7 +86,7 @@ export default function TestimonialsPage() {
   const moderate = async (id: string, isApproved: boolean) => {
     try {
       await adminTestimonialsApi.moderate(id, { isApproved });
-      setItems((prev) => prev.map((t) => t._id === id ? { ...t, isApproved } : t));
+      setItems((prev) => prev.map((t) => (t._id === id ? { ...t, isApproved } : t)));
     } catch {
       setError('Failed to moderate');
     }
@@ -59,100 +95,271 @@ export default function TestimonialsPage() {
   const toggleFeatured = async (id: string, current: boolean) => {
     try {
       await adminTestimonialsApi.moderate(id, { isApproved: true, isFeatured: !current });
-      setItems((prev) => prev.map((t) => t._id === id ? { ...t, isFeatured: !current, isApproved: true } : t));
+      setItems((prev) => prev.map((t) => (t._id === id ? { ...t, isFeatured: !current, isApproved: true } : t)));
     } catch {
       setError('Failed to toggle featured');
     }
   };
 
-  const remove = async (id: string) => {
-    if (!confirm('Delete this testimonial?')) return;
-    try {
-      await adminTestimonialsApi.remove(id);
-      setItems((prev) => prev.filter((t) => t._id !== id));
-    } catch {
-      setError('Failed to delete');
-    }
+  const handleDelete = async () => {
+    if (!deletingId) return;
+    await adminTestimonialsApi.remove(deletingId);
+    setItems((prev) => prev.filter((t) => t._id !== deletingId));
+    setDeletingId(null);
   };
 
   return (
     <>
-      <div className={styles.pageHeader}>
-        <div>
-          <h1 className={styles.pageTitle}>Testimonials</h1>
-          <p className={styles.pageSub}>Approve or reject patient reviews</p>
-        </div>
-        <div className={styles.hstack}>
-          <i className={`ri-filter-line ${styles.muted}`} style={{ fontSize: 16 }} />
-          <select className="form-input" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}>
-            <option value="all">All</option>
-            <option value="pending">Pending</option>
-            <option value="approved">Approved</option>
-          </select>
+      <PageHeader
+        title="Testimonials"
+        subtitle="Approve, feature, or add patient testimonials."
+        actions={
+          <>
+            <select
+              className="form-input"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
+              style={{ minWidth: 140 }}
+            >
+              <option value="all">All</option>
+              <option value="pending">Pending</option>
+              <option value="approved">Approved</option>
+            </select>
+            <AddButton label="Add Testimonial" onClick={() => { setEditing(null); setShowModal(true); }} />
+          </>
+        }
+      />
+
+      <div className={styles.adminCard}>
+        <div style={{ padding: 'var(--space-6)' }}>
+          <AsyncBoundary
+            loading={loading}
+            error={error || null}
+            empty={filtered.length === 0}
+            emptyTitle="No testimonials"
+            emptyDescription="Add a testimonial manually or wait for visitors to submit one."
+            emptyIcon="ri-message-3-line"
+            emptyAction={<AddButton label="Add Testimonial" onClick={() => { setEditing(null); setShowModal(true); }} />}
+          >
+            <div className={styles.cardGrid}>
+              {filtered.map((t) => (
+                <div key={t._id} className={styles.serviceCard}>
+                  <div className={styles.serviceCardBody}>
+                    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
+                      <div>
+                        <div className={styles.serviceCardName}>
+                          {t.patientName}
+                          {t.patientAge ? `, ${t.patientAge}` : ''}
+                        </div>
+                        <div className={styles.serviceCardMeta}>{t.condition}</div>
+                      </div>
+                      <StatusBadge
+                        label={t.isApproved ? 'Approved' : 'Pending'}
+                        tone={t.isApproved ? 'success' : 'warning'}
+                      />
+                    </div>
+                    <div className={styles.stars}>
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <i
+                          key={i}
+                          className={i < t.rating ? 'ri-star-fill' : 'ri-star-line'}
+                          style={{ fontSize: 14 }}
+                        />
+                      ))}
+                    </div>
+                    <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text)', lineHeight: 'var(--leading-snug)' }}>
+                      {t.review}
+                    </p>
+                    <div className={styles.serviceCardMeta}>
+                      {formatDate(t.createdAt)} · {t.source.replace('_', ' ')}
+                      {t.isFeatured && (
+                        <>
+                          {' · '}
+                          <span style={{ color: 'var(--color-accent-cta)', fontWeight: 600 }}>Featured</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  <div className={styles.serviceCardActions} style={{ justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', gap: 6 }}>
+                      {!t.isApproved ? (
+                        <button
+                          className={`${styles.btn} ${styles.btnPrimary} ${styles.btnSm}`}
+                          onClick={() => moderate(t._id, true)}
+                        >
+                          <i className="ri-check-line" style={{ fontSize: 14 }} /> Approve
+                        </button>
+                      ) : (
+                        <button
+                          className={`${styles.btn} ${styles.btnSecondary} ${styles.btnSm}`}
+                          onClick={() => moderate(t._id, false)}
+                        >
+                          <i className="ri-close-line" style={{ fontSize: 14 }} /> Unapprove
+                        </button>
+                      )}
+                      {t.isApproved && (
+                        <button
+                          className={`${styles.btn} ${styles.btnSecondary} ${styles.btnSm}`}
+                          onClick={() => toggleFeatured(t._id, t.isFeatured)}
+                        >
+                          <i className={t.isFeatured ? 'ri-star-fill' : 'ri-star-line'} style={{ fontSize: 14 }} />
+                        </button>
+                      )}
+                    </div>
+                    <ActionMenu
+                      onEdit={() => { setEditing(t); setShowModal(true); }}
+                      onDelete={() => setDeletingId(t._id)}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </AsyncBoundary>
         </div>
       </div>
 
-      {error && <div className={styles.errorBox}><i className="ri-error-warning-line" style={{ fontSize: 16 }} />{error}</div>}
+      <TestimonialFormModal
+        open={showModal}
+        initial={editing}
+        onClose={() => setShowModal(false)}
+        onSaved={() => { setShowModal(false); void fetchData(); }}
+      />
 
-      {loading ? (
-        <div className={styles.spinner} />
-      ) : filtered.length === 0 ? (
-        <div className={styles.adminCard}>
-          <div className={styles.empty}>
-            <i className={`ri-message-3-line ${styles.emptyIcon}`} style={{ fontSize: 40 }} />
-            <span>No testimonials in this view</span>
+      <ConfirmDialog
+        open={!!deletingId}
+        title="Delete this testimonial?"
+        message="This permanently removes the testimonial from the database."
+        confirmLabel="Delete"
+        onConfirm={handleDelete}
+        onCancel={() => setDeletingId(null)}
+      />
+    </>
+  );
+}
+
+function TestimonialFormModal({
+  open,
+  initial,
+  onClose,
+  onSaved,
+}: {
+  open: boolean;
+  initial: Testimonial | null;
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const isEdit = !!initial;
+  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<TestimonialForm>({
+    defaultValues: defaultForm,
+  });
+  const [err, setErr] = useState('');
+
+  useEffect(() => {
+    if (!open) return;
+    if (initial) {
+      reset({
+        patientName: initial.patientName,
+        patientAge: initial.patientAge,
+        condition: initial.condition,
+        rating: initial.rating,
+        review: initial.review,
+        videoUrl: initial.videoUrl ?? '',
+        isApproved: initial.isApproved,
+        isFeatured: initial.isFeatured,
+      });
+    } else {
+      reset(defaultForm);
+    }
+    setErr('');
+  }, [open, initial, reset]);
+
+  const onSubmit = async (form: TestimonialForm) => {
+    setErr('');
+    const payload = {
+      ...form,
+      rating: Number(form.rating),
+      patientAge: form.patientAge ? Number(form.patientAge) : undefined,
+    };
+    try {
+      if (isEdit && initial) await adminTestimonialsApi.update(initial._id, payload);
+      else await adminTestimonialsApi.create(payload);
+      onSaved();
+    } catch (e: unknown) {
+      setErr((e as { response?: { data?: { error?: string } } })?.response?.data?.error || 'Failed to save');
+    }
+  };
+
+  return (
+    <Modal
+      open={open}
+      onClose={onClose}
+      title={isEdit ? 'Edit Testimonial' : 'Add Testimonial'}
+      size="md"
+      footer={
+        <>
+          <button type="button" onClick={onClose} className={`${styles.btn} ${styles.btnSecondary}`}>Cancel</button>
+          <button
+            type="submit"
+            form="testimonial-form"
+            disabled={isSubmitting}
+            className={`${styles.btn} ${styles.btnPrimary}`}
+          >
+            {isSubmitting ? 'Saving…' : isEdit ? 'Update' : 'Create'}
+          </button>
+        </>
+      }
+    >
+      <form id="testimonial-form" onSubmit={handleSubmit(onSubmit)}>
+        {err && (
+          <div className={styles.errorBox}>
+            <i className="ri-error-warning-line" /> {err}
+          </div>
+        )}
+
+        <div className={styles.formGrid}>
+          <div className="form-group">
+            <label className="form-label">Patient name *</label>
+            <input className="form-input" {...register('patientName', { required: true })} />
+            {errors.patientName && <div className="form-error">Required</div>}
+          </div>
+          <div className="form-group">
+            <label className="form-label">Age</label>
+            <input type="number" min={1} className="form-input" {...register('patientAge', { valueAsNumber: true })} />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Condition *</label>
+            <input className="form-input" {...register('condition', { required: true })} />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Rating *</label>
+            <select className="form-input" {...register('rating', { valueAsNumber: true })}>
+              {[5, 4, 3, 2, 1].map((r) => (
+                <option key={r} value={r}>{r} star{r !== 1 ? 's' : ''}</option>
+              ))}
+            </select>
+          </div>
+          <div className="form-group full">
+            <label className="form-label">Review *</label>
+            <textarea rows={4} className="form-input" {...register('review', { required: true, minLength: 10 })} />
+          </div>
+          <div className="form-group full">
+            <label className="form-label">Video URL (optional)</label>
+            <input className="form-input" placeholder="https://youtube.com/…" {...register('videoUrl')} />
+          </div>
+          <div className="form-group">
+            <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+              <input type="checkbox" {...register('isApproved')} />
+              <span>Publish immediately</span>
+            </label>
+          </div>
+          <div className="form-group">
+            <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+              <input type="checkbox" {...register('isFeatured')} />
+              <span>Feature on home page</span>
+            </label>
           </div>
         </div>
-      ) : (
-        <div className={styles.cardGrid}>
-          {filtered.map((t) => (
-            <div key={t._id} className={styles.serviceCard}>
-              <div className={styles.serviceCardBody}>
-                <div className={styles.hstack} style={{ justifyContent: 'space-between' }}>
-                  <div>
-                    <div className={styles.serviceCardName}>{t.patientName}{t.patientAge ? `, ${t.patientAge}` : ''}</div>
-                    <div className={styles.serviceCardMeta}>{t.condition}</div>
-                  </div>
-                  <span className={`${styles.badge} ${t.isApproved ? styles.badgeSuccess : styles.badgeWarning}`}>
-                    {t.isApproved ? 'Approved' : 'Pending'}
-                  </span>
-                </div>
-                <div className={styles.stars}>
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <i key={i} className={i < t.rating ? "ri-star-fill" : "ri-star-line"} style={{ fontSize: 14 }} />
-                  ))}
-                </div>
-                <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text)', lineHeight: 'var(--leading-snug)' }}>
-                  {t.review}
-                </p>
-                <div className={styles.serviceCardMeta}>
-                  {formatDate(t.createdAt)} · {t.source.replace('_', ' ')}
-                  {t.isFeatured && <> · <span style={{ color: 'var(--color-accent-dark)', fontWeight: 600 }}>Featured</span></>}
-                </div>
-              </div>
-              <div className={styles.serviceCardActions}>
-                {!t.isApproved ? (
-                  <button className={`${styles.btn} ${styles.btnPrimary} ${styles.btnSm}`} onClick={() => moderate(t._id, true)}>
-                    <i className="ri-check-line" style={{ fontSize: 14 }} /> Approve
-                  </button>
-                ) : (
-                  <button className={`${styles.btn} ${styles.btnSecondary} ${styles.btnSm}`} onClick={() => moderate(t._id, false)}>
-                    <i className="ri-close-line" style={{ fontSize: 14 }} /> Unapprove
-                  </button>
-                )}
-                {t.isApproved && (
-                  <button className={`${styles.btn} ${styles.btnSecondary} ${styles.btnSm}`} onClick={() => toggleFeatured(t._id, t.isFeatured)}>
-                    <i className="ri-star-line" style={{ fontSize: 14 }} /> {t.isFeatured ? 'Unfeature' : 'Feature'}
-                  </button>
-                )}
-                <button className={`${styles.btn} ${styles.btnGhost} ${styles.btnSm}`} onClick={() => remove(t._id)} style={{ color: 'var(--color-error)' }}>
-                  <i className="ri-delete-bin-line" style={{ fontSize: 14 }} />
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </>
+      </form>
+    </Modal>
   );
 }

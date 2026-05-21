@@ -9,6 +9,7 @@ import TestimonialsSection from '@/components/sections/TestimonialsSection';
 import BlogPreviewSection from '@/components/sections/BlogPreviewSection';
 import CtaSection from '@/components/sections/CtaSection';
 import EmergencyBanner from '@/components/sections/EmergencyBanner';
+import { getServices, getDoctors, getFeaturedTestimonials, getBlogs } from '@/lib/cms';
 
 export const metadata: Metadata = pageMeta({
   title: 'SAI Physiotherapy Spine Care & Paralysis Centre | Ahmedabad, Gujarat',
@@ -17,16 +18,23 @@ export const metadata: Metadata = pageMeta({
   path: '/',
 });
 
-export default function HomePage() {
+export default async function HomePage() {
+  const [services, doctors, testimonials, blogs] = await Promise.all([
+    getServices(),
+    getDoctors(),
+    getFeaturedTestimonials(),
+    getBlogs(),
+  ]);
+
   return (
     <>
       <HeroSection />
       <StatsSection />
-      <ServicesSection />
+      <ServicesSection services={services} />
       <WhyChooseSection />
-      <DoctorsSection />
-      <TestimonialsSection />
-      <BlogPreviewSection />
+      <DoctorsSection doctors={doctors} />
+      <TestimonialsSection testimonials={testimonials} />
+      <BlogPreviewSection blogs={blogs} />
       <EmergencyBanner />
       <CtaSection />
     </>

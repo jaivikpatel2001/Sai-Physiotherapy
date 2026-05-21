@@ -271,8 +271,8 @@ function NewAppointmentModal({ onClose, onSaved }: { onClose: () => void; onSave
   };
 
   return (
-    <div className={styles.modalBackdrop} onClick={onClose}>
-      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+    <div className={styles.modalBackdrop} onClick={onClose} data-lenis-prevent>
+      <div className={styles.modal} onClick={(e) => e.stopPropagation()} data-lenis-prevent>
         <div className={styles.modalHeader}>
           <div className={styles.modalTitle}>New Appointment</div>
           <button className={styles.iconBtn} onClick={onClose}><i className="ri-close-line" style={{ fontSize: 18 }} /></button>

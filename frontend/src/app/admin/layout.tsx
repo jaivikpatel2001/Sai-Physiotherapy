@@ -18,8 +18,11 @@ const NAV: NavLink[] = [
   { href: '/admin/patients', label: 'Patients', icon: 'ri-team-line', roles: [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DOCTOR, UserRole.RECEPTIONIST] },
   { href: '/admin/billing', label: 'Billing', icon: 'ri-receipt-line', roles: [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.RECEPTIONIST] },
   { href: '/admin/services', label: 'Services', icon: 'ri-stethoscope-line', roles: ADMINS },
+  { href: '/admin/doctors', label: 'Doctors', icon: 'ri-user-heart-line', roles: ADMINS },
   { href: '/admin/blog', label: 'Blog', icon: 'ri-file-text-line', roles: [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DOCTOR] },
+  { href: '/admin/gallery', label: 'Gallery', icon: 'ri-image-2-line', roles: ADMINS },
   { href: '/admin/testimonials', label: 'Testimonials', icon: 'ri-message-3-line', roles: ADMINS },
+  { href: '/admin/pages', label: 'CMS Pages', icon: 'ri-pages-line', roles: ADMINS },
   { href: '/admin/users', label: 'Users', icon: 'ri-shield-user-line', roles: ADMINS },
   { href: '/admin/settings', label: 'Settings', icon: 'ri-settings-3-line', roles: [UserRole.SUPER_ADMIN] },
 ];
@@ -69,7 +72,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     <div className={styles.shell}>
       {menuOpen && <div className={styles.sidebarBackdrop} onClick={() => setMenuOpen(false)} />}
 
-      <aside className={`${styles.sidebar} ${menuOpen ? styles.sidebarOpen : ''}`}>
+      <aside
+        className={`${styles.sidebar} ${menuOpen ? styles.sidebarOpen : ''}`}
+        data-lenis-prevent
+      >
         <div className={styles.sidebarHeader}>
           <div className={styles.sidebarLogo}>
             <i className="ri-pulse-line" style={{ fontSize: 22, color: 'white' }} />

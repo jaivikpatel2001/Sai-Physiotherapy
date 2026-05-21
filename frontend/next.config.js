@@ -8,9 +8,14 @@ const nextConfig = {
     formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 60 * 60 * 24 * 30,
     remotePatterns: [
-      { protocol: 'https', hostname: 'res.cloudinary.com' },
       { protocol: 'https', hostname: 'images.unsplash.com' },
       { protocol: 'https', hostname: 'lh3.googleusercontent.com' },
+      // Cloudflare R2 — custom domain and pub-*.r2.dev hosts
+      { protocol: 'https', hostname: '*.r2.dev' },
+      { protocol: 'https', hostname: '*.r2.cloudflarestorage.com' },
+      { protocol: 'https', hostname: 'cdn.saiphysiotherapy.com' },
+      // Local backend uploads in dev
+      { protocol: 'http', hostname: 'localhost', port: '5000', pathname: '/uploads/**' },
     ],
   },
   // Long-cache hashed static assets (TTFB / repeat-visit performance).

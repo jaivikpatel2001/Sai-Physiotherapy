@@ -58,7 +58,10 @@ export interface IPatient extends ITimestamps {
     _id: string;
     type: 'mri' | 'xray' | 'report' | 'prescription' | 'other';
     url: string;
-    cloudinaryId: string;
+    storageKey: string;
+    storageProvider: 'r2' | 'local';
+    mimetype?: string;
+    size?: number;
     uploadedAt: Date;
     uploadedBy: string;
   }>;

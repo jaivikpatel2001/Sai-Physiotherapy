@@ -21,7 +21,6 @@ const NAV_LINKS = [
   { label: 'Home', href: '/' },
   { label: 'Services', href: '/services', mega: true },
   { label: 'Doctors', href: '/doctors' },
-  { label: 'Mobile App', href: '/mobile-app' },
   { label: 'Gallery', href: '/gallery' },
   { label: 'Blog', href: '/blog' },
   { label: 'About', href: '/about' },

@@ -1,66 +1,45 @@
 'use client';
-import { useRef } from 'react';
+import { useRef, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion, useInView } from 'framer-motion';
 import styles from './ServicesSection.module.css';
+import type { CmsService } from '@/lib/cms';
 
-const SERVICES = [
-  {
-    icon: 'ri-walk-line',
-    title: 'Back Pain Treatment',
-    slug: 'back-pain-treatment',
-    desc: 'Evidence-based recovery from acute and chronic back pain.',
-    sessions: '8-12 sessions',
-    surface: 'sand',
-    image: '/images/therapy/back_pain_treatment.png',
-  },
-  {
-    icon: 'ri-mental-health-line',
-    title: 'Spine Care & Disc',
-    slug: 'spine-care-disc-problems',
-    desc: 'Specialised treatment for disc and spine conditions.',
-    sessions: '10-14 sessions',
-    surface: 'sky',
-    image: '/images/therapy/therapy_spine_treatment.png',
-  },
-  {
-    icon: 'ri-heart-pulse-line',
-    title: 'Paralysis Rehabilitation',
-    slug: 'paralysis-rehabilitation',
-    desc: 'Stroke and spinal injury rehab programs.',
-    sessions: '12-24 weeks',
-    surface: 'mint',
-    image: '/images/therapy/therapy_neuro_rehab.png',
-  },
-  {
-    icon: 'ri-run-line',
-    title: 'Knee & Joint Care',
-    slug: 'knee-pain-joint-care',
-    desc: 'Pain relief, ligament and post-op rehab.',
-    sessions: '6-10 sessions',
-    surface: 'blush',
-    image: '/images/therapy/therapy_knee_joint.png',
-  },
-  {
-    icon: 'ri-football-line',
-    title: 'Sports Injury Rehab',
-    slug: 'sports-injury-rehabilitation',
-    desc: 'Performance-driven recovery for athletes.',
-    sessions: '4-8 weeks',
-    surface: 'sand',
-    image: '/images/therapy/therapy_sports_rehab.png',
-  },
-  {
-    icon: 'ri-flashlight-line',
-    title: 'Neuro Physiotherapy',
-    slug: 'neuro-physiotherapy',
-    desc: 'Specialised neuro-rehab care across conditions.',
-    sessions: '12+ weeks',
-    surface: 'lavender',
-    image: '/images/therapy/therapy_pediatric.png',
-  },
+interface ServiceCard {
+  icon: string;
+  title: string;
+  slug: string;
+  desc: string;
+  sessions: string;
+  surface: string;
+  image: string;
+}
+
+const FALLBACK_SERVICES: ServiceCard[] = [
+  { icon: 'ri-walk-line', title: 'Back Pain Treatment', slug: 'back-pain-treatment', desc: 'Evidence-based recovery from acute and chronic back pain.', sessions: '8-12 sessions', surface: 'sand', image: '/images/therapy/back_pain_treatment.png' },
+  { icon: 'ri-mental-health-line', title: 'Spine Care & Disc', slug: 'spine-care-disc-problems', desc: 'Specialised treatment for disc and spine conditions.', sessions: '10-14 sessions', surface: 'sky', image: '/images/therapy/therapy_spine_treatment.png' },
+  { icon: 'ri-heart-pulse-line', title: 'Paralysis Rehabilitation', slug: 'paralysis-rehabilitation', desc: 'Stroke and spinal injury rehab programs.', sessions: '12-24 weeks', surface: 'mint', image: '/images/therapy/therapy_neuro_rehab.png' },
+  { icon: 'ri-run-line', title: 'Knee & Joint Care', slug: 'knee-pain-joint-care', desc: 'Pain relief, ligament and post-op rehab.', sessions: '6-10 sessions', surface: 'blush', image: '/images/therapy/therapy_knee_joint.png' },
+  { icon: 'ri-football-line', title: 'Sports Injury Rehab', slug: 'sports-injury-rehabilitation', desc: 'Performance-driven recovery for athletes.', sessions: '4-8 weeks', surface: 'sand', image: '/images/therapy/therapy_sports_rehab.png' },
+  { icon: 'ri-flashlight-line', title: 'Neuro Physiotherapy', slug: 'neuro-physiotherapy', desc: 'Specialised neuro-rehab care across conditions.', sessions: '12+ weeks', surface: 'lavender', image: '/images/therapy/therapy_pediatric.png' },
 ];
+
+const SURFACE_CYCLE = ['sand', 'sky', 'mint', 'blush', 'lavender'] as const;
+const ICON_CYCLE = ['ri-walk-line', 'ri-mental-health-line', 'ri-heart-pulse-line', 'ri-run-line', 'ri-football-line', 'ri-flashlight-line'];
+const PLACEHOLDER_IMAGE = '/images/therapy/back_pain_treatment.png';
+
+function fromCms(services: CmsService[]): ServiceCard[] {
+  return services.map((s, i) => ({
+    icon: ICON_CYCLE[i % ICON_CYCLE.length],
+    title: s.name,
+    slug: s.slug,
+    desc: s.shortDescription,
+    sessions: s.duration,
+    surface: SURFACE_CYCLE[i % SURFACE_CYCLE.length],
+    image: s.bannerImage || PLACEHOLDER_IMAGE,
+  }));
+}
 
 const SURFACE_CLASS: Record<string, string> = {
   sky: styles.surfaceSky,
@@ -70,7 +49,15 @@ const SURFACE_CLASS: Record<string, string> = {
   lavender: styles.surfaceLavender,
 };
 
-export default function ServicesSection() {
+interface Props {
+  services?: CmsService[] | null;
+}
+
+export default function ServicesSection({ services }: Props = {}) {
+  const SERVICES = useMemo(
+    () => (services && services.length > 0 ? fromCms(services).slice(0, 6) : FALLBACK_SERVICES),
+    [services],
+  );
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: '-80px' });
 

@@ -1,11 +1,82 @@
 'use client';
-import { useRef } from 'react';
+import { useRef, useMemo } from 'react';
 import { motion, useInView } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
 import styles from './BlogPreviewSection.module.css';
+import type { CmsBlog } from '@/lib/cms';
 
-const FEATURED = {
+interface FeaturedCard {
+  slug: string;
+  category: string;
+  title: string;
+  excerpt: string;
+  readTime: string;
+  date: string;
+  author: string;
+  image: string;
+  authorImage: string;
+  icon: string;
+  surface: string;
+}
+
+interface SecondaryCard {
+  slug: string;
+  category: string;
+  title: string;
+  readTime: string;
+  date: string;
+  image: string;
+  icon: string;
+  surface: string;
+}
+
+const SECONDARY_SURFACE = [
+  'linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%)',
+  'linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%)',
+];
+
+function estReadTime(html: string | undefined): string {
+  if (!html) return '5 min';
+  const words = html.replace(/<[^>]+>/g, ' ').split(/\s+/).length;
+  return `${Math.max(2, Math.round(words / 200))} min`;
+}
+
+function formatDate(d: string | undefined): string {
+  if (!d) return '';
+  return new Date(d).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+
+function fromCms(blogs: CmsBlog[]): { featured: FeaturedCard; secondary: SecondaryCard[] } | null {
+  if (blogs.length === 0) return null;
+  const [first, ...rest] = blogs;
+  const featured: FeaturedCard = {
+    slug: first.slug,
+    category: first.category ?? 'Health Tips',
+    title: first.title,
+    excerpt: first.excerpt,
+    readTime: estReadTime(first.content),
+    date: formatDate(first.publishedAt),
+    author: first.author?.name ?? 'SAI Physiotherapy',
+    image: first.featuredImage || '/images/blog/blog_back_pain_exercises.png',
+    authorImage: first.author?.avatar || '/images/doctors/doctor_rajesh_patel.png',
+    icon: 'ri-walk-line',
+    surface: 'linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 50%, #BAE6FD 100%)',
+  };
+  const secondary: SecondaryCard[] = rest.slice(0, 2).map((b, i) => ({
+    slug: b.slug,
+    category: b.category ?? 'Health Tips',
+    title: b.title,
+    readTime: estReadTime(b.content),
+    date: formatDate(b.publishedAt),
+    image: b.featuredImage || '/images/blog/blog_cervical_spondylosis.png',
+    icon: i === 0 ? 'ri-mental-health-line' : 'ri-heart-pulse-line',
+    surface: SECONDARY_SURFACE[i % SECONDARY_SURFACE.length],
+  }));
+  return { featured, secondary };
+}
+
+const FALLBACK_FEATURED: FeaturedCard = {
   slug: '5-exercises-for-lower-back-pain',
   category: 'Back Pain',
   title: '5 Physiotherapist-Approved Exercises for Lower Back Pain Relief',
@@ -19,7 +90,7 @@ const FEATURED = {
   surface: 'linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 50%, #BAE6FD 100%)',
 };
 
-const SECONDARY = [
+const FALLBACK_SECONDARY: SecondaryCard[] = [
   {
     slug: 'understanding-cervical-spondylosis',
     category: 'Spine Care',
@@ -42,9 +113,17 @@ const SECONDARY = [
   },
 ];
 
-export default function BlogPreviewSection() {
+interface Props {
+  blogs?: CmsBlog[] | null;
+}
+
+export default function BlogPreviewSection({ blogs }: Props = {}) {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: '-80px' });
+  const { featured: FEATURED, secondary: SECONDARY } = useMemo(() => {
+    const cms = blogs ? fromCms(blogs) : null;
+    return cms ?? { featured: FALLBACK_FEATURED, secondary: FALLBACK_SECONDARY };
+  }, [blogs]);
 
   return (
     <section className={`section ${styles.section}`} ref={ref}>

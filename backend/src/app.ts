@@ -1,4 +1,5 @@
 import express, { Application, Request, Response } from 'express';
+import path from 'node:path';
 import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
@@ -10,6 +11,7 @@ import { swaggerSpec } from './config/swagger';
 import { httpLogger } from './config/logger';
 import { errorHandler } from './middleware/error.middleware';
 import { env } from './config/env';
+import { LOCAL_UPLOAD_ROOT } from './services/storage.service';
 
 // Route imports
 import authRoutes from './routes/auth.routes';
@@ -23,6 +25,9 @@ import testimonialRoutes from './routes/testimonial.routes';
 import settingsRoutes from './routes/settings.routes';
 import analyticsRoutes from './routes/analytics.routes';
 import uploadRoutes from './routes/upload.routes';
+import galleryRoutes from './routes/gallery.routes';
+import doctorRoutes from './routes/doctor.routes';
+import pageRoutes from './routes/page.routes';
 
 const app: Application = express();
 
@@ -30,7 +35,14 @@ const app: Application = express();
 app.set('trust proxy', 1);
 
 // ─── Security Middleware ──────────────────────────────────────────────────────
-app.use(helmet());
+// Helmet's cross-origin-resource-policy defaults to same-origin which blocks
+// /uploads/* images from loading on the Next.js frontend on a different origin.
+// Loosen to cross-origin so <img>/next/image can fetch them.
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+  }),
+);
 app.use(
   cors({
     origin: env.NODE_ENV === 'production' ? env.FRONTEND_URL : '*',
@@ -68,6 +80,24 @@ app.use(compression());
 // ─── HTTP Logging ─────────────────────────────────────────────────────────────
 app.use(httpLogger);
 
+// ─── Static uploads (local-fallback storage) ─────────────────────────────────
+// Files written by services/storage.service.ts when R2 is unavailable land
+// under backend/uploads/{module}/yyyy/mm/<file>. Served read-only with a
+// long-lived immutable cache; missing files fall through to the global 404.
+app.use(
+  '/uploads',
+  express.static(LOCAL_UPLOAD_ROOT, {
+    dotfiles: 'deny',
+    maxAge: '365d',
+    immutable: true,
+    setHeaders: (res) => {
+      res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+    },
+  }),
+);
+
+void path;
+
 // ─── Health Check ─────────────────────────────────────────────────────────────
 app.get('/health', (_req: Request, res: Response) => {
   res.status(200).json({
@@ -99,6 +129,9 @@ app.use(`${API_PREFIX}/testimonials`, testimonialRoutes);
 app.use(`${API_PREFIX}/settings`, settingsRoutes);
 app.use(`${API_PREFIX}/analytics`, analyticsRoutes);
 app.use(`${API_PREFIX}/upload`, uploadRoutes);
+app.use(`${API_PREFIX}/gallery`, galleryRoutes);
+app.use(`${API_PREFIX}/doctors`, doctorRoutes);
+app.use(`${API_PREFIX}/pages`, pageRoutes);
 
 // ─── 404 Handler ──────────────────────────────────────────────────────────────
 app.use('*', (req: Request, res: Response) => {

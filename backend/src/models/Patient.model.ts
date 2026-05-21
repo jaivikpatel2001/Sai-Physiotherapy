@@ -30,7 +30,10 @@ export interface IPatientDocument extends Document {
     _id: mongoose.Types.ObjectId;
     type: 'mri' | 'xray' | 'report' | 'prescription' | 'other';
     url: string;
-    cloudinaryId: string;
+    storageKey: string;
+    storageProvider: 'r2' | 'local';
+    mimetype?: string;
+    size?: number;
     uploadedAt: Date;
     uploadedBy: mongoose.Types.ObjectId;
   }>;
@@ -73,7 +76,10 @@ const patientSchema = new Schema<IPatientDocument>(
       {
         type: { type: String, enum: ['mri', 'xray', 'report', 'prescription', 'other'] },
         url: { type: String },
-        cloudinaryId: { type: String },
+        storageKey: { type: String },
+        storageProvider: { type: String, enum: ['r2', 'local'], default: 'local' },
+        mimetype: { type: String },
+        size: { type: Number },
         uploadedAt: { type: Date, default: Date.now },
         uploadedBy: { type: Schema.Types.ObjectId, ref: 'User' },
       },

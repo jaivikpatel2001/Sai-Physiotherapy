@@ -121,11 +121,24 @@ export const billingApi = {
 // ── Analytics ─────────────────────────────────────────────────────────────────
 export const analyticsApi = {
   getDashboard: () => api.get('/analytics/dashboard'),
-  getAppointmentTrend: (params?: Record<string, string>) =>
+  getAppointmentTrend: (params?: Record<string, string | number>) =>
     api.get('/analytics/appointments/trend', { params }),
-  getRevenue: (params?: Record<string, string>) => api.get('/analytics/revenue', { params }),
+  getAppointmentStatus: (params?: Record<string, string | number>) =>
+    api.get('/analytics/appointments/status', { params }),
+  getUpcomingAppointments: (params?: Record<string, string | number>) =>
+    api.get('/analytics/appointments/upcoming', { params }),
+  getRevenue: (params?: Record<string, string | number>) => api.get('/analytics/revenue', { params }),
+  getRecentPayments: (params?: Record<string, string | number>) =>
+    api.get('/analytics/payments/recent', { params }),
   getServiceBreakdown: () => api.get('/analytics/services/breakdown'),
   getDoctorWorkload: () => api.get('/analytics/doctors/workload'),
+  getTopDoctors: (params?: Record<string, string | number>) =>
+    api.get('/analytics/doctors/top', { params }),
+  getPatientGrowth: (params?: Record<string, string | number>) =>
+    api.get('/analytics/patients/growth', { params }),
+  getRecentActivity: (params?: Record<string, string | number>) =>
+    api.get('/analytics/activity/recent', { params }),
+  getContentSummary: () => api.get('/analytics/content/summary'),
 };
 
 // ── Admin: Blog ───────────────────────────────────────────────────────────────
@@ -140,6 +153,8 @@ export const adminBlogApi = {
 // ── Admin: Testimonials ───────────────────────────────────────────────────────
 export const adminTestimonialsApi = {
   getAll: (params?: Record<string, string | number>) => api.get('/testimonials/admin', { params }),
+  create: (data: unknown) => api.post('/testimonials/admin', data),
+  update: (id: string, data: unknown) => api.put(`/testimonials/${id}`, data),
   moderate: (id: string, data: { isApproved: boolean; isFeatured?: boolean }) =>
     api.patch(`/testimonials/${id}/moderate`, data),
   remove: (id: string) => api.delete(`/testimonials/${id}`),
@@ -163,4 +178,93 @@ export const adminSettingsApi = {
 export const usersApi = {
   getAll: (params?: Record<string, string | number>) => api.get('/auth/users', { params }),
   toggleStatus: (id: string) => api.patch(`/auth/users/${id}/toggle-status`),
+};
+
+// ── Gallery (public + admin) ─────────────────────────────────────────────────
+export const galleryApi = {
+  getPublished: (params?: Record<string, string | number>) => api.get('/gallery', { params }),
+};
+export const adminGalleryApi = {
+  getAll: (params?: Record<string, string | number>) => api.get('/gallery/admin/list', { params }),
+  getById: (id: string) => api.get(`/gallery/${id}`),
+  create: (data: unknown) => api.post('/gallery', data),
+  update: (id: string, data: unknown) => api.put(`/gallery/${id}`, data),
+  remove: (id: string) => api.delete(`/gallery/${id}`),
+};
+
+// ── Doctors (public + admin) ─────────────────────────────────────────────────
+export const doctorsApi = {
+  getPublished: (params?: Record<string, string | number>) => api.get('/doctors', { params }),
+  getBySlug: (slug: string) => api.get(`/doctors/slug/${slug}`),
+};
+export const adminDoctorsApi = {
+  getAll: (params?: Record<string, string | number>) => api.get('/doctors/admin/list', { params }),
+  getById: (id: string) => api.get(`/doctors/${id}`),
+  create: (data: unknown) => api.post('/doctors', data),
+  update: (id: string, data: unknown) => api.put(`/doctors/${id}`, data),
+  remove: (id: string) => api.delete(`/doctors/${id}`),
+};
+
+// ── CMS Pages (public + admin) ───────────────────────────────────────────────
+export const pagesApi = {
+  getPublished: (params?: Record<string, string | number>) => api.get('/pages', { params }),
+  getBySlug: (slug: string) => api.get(`/pages/slug/${slug}`),
+};
+export const adminPagesApi = {
+  getAll: (params?: Record<string, string | number>) => api.get('/pages/admin/list', { params }),
+  getById: (id: string) => api.get(`/pages/${id}`),
+  create: (data: unknown) => api.post('/pages', data),
+  update: (id: string, data: unknown) => api.put(`/pages/${id}`, data),
+  remove: (id: string) => api.delete(`/pages/${id}`),
+};
+
+// ── Uploads (multipart) ───────────────────────────────────────────────────────
+export type StorageModule =
+  | 'gallery'
+  | 'services'
+  | 'doctors'
+  | 'testimonials'
+  | 'blogs'
+  | 'users'
+  | 'patients'
+  | 'pages'
+  | 'settings';
+
+export interface UploadedFile {
+  url: string;
+  key: string;
+  storage: 'r2' | 'local';
+  mimetype: string;
+  size: number;
+  originalName: string;
+}
+
+export const uploadApi = {
+  status: () => api.get('/upload/status'),
+  uploadImage: (module: StorageModule, file: File) => {
+    const form = new FormData();
+    form.append('file', file);
+    return api.post(`/upload/image/${module}`, form, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+      timeout: 60000,
+    });
+  },
+  uploadImages: (module: StorageModule, files: File[]) => {
+    const form = new FormData();
+    files.forEach((f) => form.append('files', f));
+    return api.post(`/upload/images/${module}`, form, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+      timeout: 120000,
+    });
+  },
+  uploadDocument: (file: File) => {
+    const form = new FormData();
+    form.append('file', file);
+    return api.post('/upload/document', form, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+      timeout: 60000,
+    });
+  },
+  remove: (key: string, storage: 'r2' | 'local') =>
+    api.delete('/upload', { data: { key, storage } }),
 };

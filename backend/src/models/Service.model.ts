@@ -9,6 +9,8 @@ export interface IServiceDocument extends Document {
   price: { from: number; to?: number };
   duration: string;
   bannerImage: string;
+  bannerStorageKey?: string;
+  bannerStorageProvider?: 'r2' | 'local';
   images: string[];
   treatmentProcess: string[];
   benefits: string[];
@@ -40,6 +42,8 @@ const serviceSchema = new Schema<IServiceDocument>(
     },
     duration: { type: String, default: '30-45 minutes' },
     bannerImage: { type: String, default: '' },
+    bannerStorageKey: { type: String },
+    bannerStorageProvider: { type: String, enum: ['r2', 'local'] },
     images: [{ type: String }],
     treatmentProcess: [{ type: String }],
     benefits: [{ type: String }],

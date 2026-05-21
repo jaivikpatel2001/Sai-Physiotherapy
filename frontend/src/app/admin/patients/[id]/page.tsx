@@ -271,8 +271,12 @@ function AddSessionModal({ patientId, onClose, onSaved }: { patientId: string; o
   };
 
   return (
-    <div className={styles.modalBackdrop} onClick={onClose}>
-      <div className={`${styles.modal} ${styles.modalLg}`} onClick={(e) => e.stopPropagation()}>
+    <div className={styles.modalBackdrop} onClick={onClose} data-lenis-prevent>
+      <div
+        className={`${styles.modal} ${styles.modalLg}`}
+        onClick={(e) => e.stopPropagation()}
+        data-lenis-prevent
+      >
         <div className={styles.modalHeader}>
           <div className={styles.modalTitle}>New Treatment Session</div>
           <button className={styles.iconBtn} onClick={onClose}><i className="ri-close-line" style={{ fontSize: 18 }} /></button>

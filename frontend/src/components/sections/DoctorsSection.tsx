@@ -1,11 +1,58 @@
 'use client';
-import { useRef } from 'react';
+import { useRef, useMemo } from 'react';
 import { motion, useInView } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
 import styles from './DoctorsSection.module.css';
+import type { CmsDoctor } from '@/lib/cms';
 
-const DOCTORS = [
+interface DoctorCard {
+  name: string;
+  title: string;
+  qual: string;
+  exp: string;
+  languages: string[];
+  available: string;
+  availableType: 'today' | 'schedule';
+  image: string;
+  avatar: string;
+  color: string;
+}
+
+const COLOR_CYCLE = [
+  'linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%)',
+  'linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%)',
+  'linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%)',
+  'linear-gradient(135deg, #FFF1F2 0%, #FFE4E6 100%)',
+];
+
+function todayLabel(days: string[]): { label: string; type: 'today' | 'schedule' } {
+  const todayShort = (['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'] as const)[new Date().getDay()];
+  if (days.includes(todayShort)) return { label: 'Available today', type: 'today' };
+  const upper = days.map((d) => d.charAt(0).toUpperCase() + d.slice(1));
+  return { label: upper.slice(0, 3).join(', '), type: 'schedule' };
+}
+
+function fromCms(doctors: CmsDoctor[]): DoctorCard[] {
+  return doctors.map((d, i) => {
+    const av = todayLabel(d.availability?.days ?? []);
+    const initials = d.name.split(' ').map((p) => p[0]).slice(0, 2).join('').toUpperCase();
+    return {
+      name: d.name,
+      title: d.designation,
+      qual: d.qualifications?.join(', ') || '—',
+      exp: `${d.experienceYears}+ yrs`,
+      languages: d.languages ?? [],
+      available: av.label,
+      availableType: av.type,
+      image: d.photo.url,
+      avatar: initials,
+      color: COLOR_CYCLE[i % COLOR_CYCLE.length],
+    };
+  });
+}
+
+const FALLBACK_DOCTORS: DoctorCard[] = [
   {
     name: 'Dr. Rajesh Patel',
     title: 'Spine & Ortho Specialist',
@@ -56,9 +103,17 @@ const DOCTORS = [
   },
 ];
 
-export default function DoctorsSection() {
+interface Props {
+  doctors?: CmsDoctor[] | null;
+}
+
+export default function DoctorsSection({ doctors }: Props = {}) {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: '-80px' });
+  const DOCTORS = useMemo(
+    () => (doctors && doctors.length > 0 ? fromCms(doctors).slice(0, 4) : FALLBACK_DOCTORS),
+    [doctors],
+  );
 
   return (
     <section className={`section ${styles.section}`} ref={ref}>

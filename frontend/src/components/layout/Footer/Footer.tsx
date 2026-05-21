@@ -3,6 +3,11 @@ import Link from 'next/link';
 import { useState } from 'react';
 import styles from './Footer.module.css';
 
+export interface FooterCmsLink {
+  slug: string;
+  label: string;
+}
+
 const SERVICES = [
   { label: 'Back Pain Treatment', href: '/services/back-pain-treatment' },
   { label: 'Spine Care & Disc Problems', href: '/services/spine-care-disc-problems' },
@@ -31,7 +36,11 @@ const BUSINESS_HOURS = [
   { day: 'Sunday', time: '9:00 AM – 1:00 PM' },
 ];
 
-export default function Footer() {
+interface FooterProps {
+  cmsLinks?: FooterCmsLink[];
+}
+
+export default function Footer({ cmsLinks = [] }: FooterProps = {}) {
   const year = new Date().getFullYear();
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
@@ -190,9 +199,20 @@ export default function Footer() {
           <div className={styles.bottomInner}>
             <p>© {year} SAI Physiotherapy Spine Care &amp; Paralysis Centre. All rights reserved.</p>
             <div className={styles.bottomLinks}>
-              <Link href="/privacy-policy">Privacy</Link>
-              <span className={styles.sep}>·</span>
-              <Link href="/terms">Terms</Link>
+              {cmsLinks.length > 0 ? (
+                cmsLinks.map((link, idx) => (
+                  <span key={link.slug} style={{ display: 'inline-flex', alignItems: 'center' }}>
+                    {idx > 0 && <span className={styles.sep}>·</span>}
+                    <Link href={`/${link.slug}`}>{link.label}</Link>
+                  </span>
+                ))
+              ) : (
+                <>
+                  <Link href="/privacy-policy">Privacy</Link>
+                  <span className={styles.sep}>·</span>
+                  <Link href="/terms">Terms</Link>
+                </>
+              )}
               <span className={styles.sep}>·</span>
               <Link href="/sitemap">Sitemap</Link>
             </div>

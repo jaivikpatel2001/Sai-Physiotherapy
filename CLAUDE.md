@@ -25,7 +25,7 @@ Every change must preserve all of these. If a request conflicts with one, flag i
 
 **SAI Physiotherapy Spine Care & Paralysis Centre** — a clinic management platform for a real physiotherapy practice in Ahmedabad, Gujarat:
 
-- **Public marketing site + mobile-app-style experience** (services, doctors, blog, testimonials, mobile-app landing, online booking).
+- **Public marketing site + mobile-app-style experience** (services, doctors, blog, testimonials, online booking).
 - **Admin/clinic-staff portal** (patient records, calendar, SOAP notes, billing, analytics).
 - **REST API** backing both — RBAC, JWT, file uploads, email/SMS/WhatsApp.
 

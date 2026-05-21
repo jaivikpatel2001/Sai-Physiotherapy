@@ -24,6 +24,25 @@ export const submitTestimonial = asyncHandler(async (req: Request, res: Response
   sendSuccess({ res, statusCode: 201, message: 'Thank you! Your review will be published after moderation.', data: testimonial });
 });
 
+export const createTestimonialAdmin = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const testimonial = await Testimonial.create({
+    ...req.body,
+    source: req.body?.source || 'manual',
+    isApproved: req.body?.isApproved ?? true,
+  });
+  sendSuccess({ res, statusCode: 201, message: 'Testimonial created', data: testimonial });
+});
+
+export const updateTestimonialAdmin = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const testimonial = await Testimonial.findByIdAndUpdate(
+    req.params.id,
+    { $set: req.body },
+    { new: true, runValidators: true },
+  );
+  if (!testimonial) throw new AppError('Testimonial not found', 404);
+  sendSuccess({ res, message: 'Testimonial updated', data: testimonial });
+});
+
 export const getAllTestimonialsAdmin = asyncHandler(async (req: AuthRequest, res: Response) => {
   const { page, limit, skip } = getPaginationParams(req.query);
   const [testimonials, total] = await Promise.all([

@@ -1,22 +1,55 @@
 'use client';
-import { useRef, useState } from 'react';
+import { useRef, useState, useMemo } from 'react';
 import { motion, useInView, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
 import styles from './TestimonialsSection.module.css';
+import type { CmsTestimonial } from '@/lib/cms';
 
-const TESTIMONIALS = [
+interface TestimonialCard {
+  name: string;
+  location: string;
+  rating: number;
+  condition: string;
+  recovery: string;
+  avatar: string;
+  image: string;
+  text: string;
+}
+
+const FALLBACK_TESTIMONIALS: TestimonialCard[] = [
   { name: 'Priya Sharma', location: 'Ahmedabad', rating: 5, condition: 'Back Pain', recovery: 'Recovered in 8 weeks', avatar: 'PS', image: '/images/testimonials/testimonial_priya_sharma.png', text: 'After suffering from chronic back pain for 3 years, SAI Physiotherapy gave me my life back. Dr. Patel\'s plan was thoughtful and effective — I felt heard, treated and properly guided.' },
   { name: 'Rajesh Patel', location: 'Gandhinagar', rating: 5, condition: 'Knee Replacement Rehab', recovery: 'Full mobility in 10 weeks', avatar: 'RP', image: '/images/testimonials/testimonial_rajesh_patel.png', text: 'Post knee replacement, I was worried about recovery. The team made it seamless. The exercises and physiotherapy sessions were perfectly planned. Highly recommend.' },
   { name: 'Meena Joshi', location: 'Surat', rating: 5, condition: 'Paralysis Rehab', recovery: 'Walking again in 6 months', avatar: 'MJ', image: '/images/testimonials/testimonial_meena_joshi.png', text: 'My mother had a stroke and couldn\'t walk. After 6 months of rehabilitation at SAI, she can now walk independently. The staff is incredibly skilled and caring.' },
   { name: 'Vikram Shah', location: 'Vadodara', rating: 5, condition: 'Cervical Spondylosis', recovery: 'Pain free in 10 sessions', avatar: 'VS', image: '/images/testimonials/testimonial_vikram_shah.png', text: 'Cervical pain was affecting my work daily. They diagnosed correctly and within 10 sessions I felt 80% better. Excellent knowledge and a professional approach.' },
 ];
 
-export default function TestimonialsSection() {
+function fromCms(items: CmsTestimonial[]): TestimonialCard[] {
+  return items.map((t) => ({
+    name: t.patientName,
+    location: '',
+    rating: t.rating,
+    condition: t.condition,
+    recovery: '',
+    avatar: t.patientName.split(' ').map((p) => p[0]).slice(0, 2).join('').toUpperCase(),
+    image: '/images/testimonials/testimonial_priya_sharma.png',
+    text: t.review,
+  }));
+}
+
+interface Props {
+  testimonials?: CmsTestimonial[] | null;
+}
+
+export default function TestimonialsSection({ testimonials }: Props = {}) {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: '-80px' });
   const [activeIdx, setActiveIdx] = useState(0);
-  const featured = TESTIMONIALS[activeIdx];
+  const TESTIMONIALS = useMemo(
+    () => (testimonials && testimonials.length > 0 ? fromCms(testimonials).slice(0, 8) : FALLBACK_TESTIMONIALS),
+    [testimonials],
+  );
+  const featured = TESTIMONIALS[activeIdx] ?? TESTIMONIALS[0];
   const others = TESTIMONIALS.filter((_, i) => i !== activeIdx).slice(0, 3);
 
   return (

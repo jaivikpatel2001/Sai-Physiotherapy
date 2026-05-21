@@ -6,6 +6,8 @@ export interface IBlogDocument extends Document {
   excerpt: string;
   content: string;
   featuredImage: string;
+  featuredStorageKey?: string;
+  featuredStorageProvider?: 'r2' | 'local';
   author: mongoose.Types.ObjectId;
   category: string;
   tags: string[];
@@ -29,6 +31,8 @@ const blogSchema = new Schema<IBlogDocument>(
     excerpt: { type: String, required: true, maxlength: 500 },
     content: { type: String, required: true }, // TipTap HTML
     featuredImage: { type: String, default: '' },
+    featuredStorageKey: { type: String },
+    featuredStorageProvider: { type: String, enum: ['r2', 'local'] },
     author: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     category: { type: String, required: true, default: 'Health Tips' },
     tags: [{ type: String }],
