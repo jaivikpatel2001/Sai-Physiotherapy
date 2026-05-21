@@ -1,0 +1,184 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   Premium healthcare intro preloader
+   Calming brand palette · CSS/SVG only · safe-area aware · reduced-motion safe
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.root {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Calm off-white → faint aqua wash; no white flash on cold load */
+  background:
+    radial-gradient(circle at 50% 38%, rgba(70, 162, 183, 0.10) 0%, transparent 55%),
+    linear-gradient(180deg, var(--color-surface-soft) 0%, #eef5f5 100%);
+  /* Respect notch / status bar inside WebView */
+  padding:
+    env(safe-area-inset-top, 0px)
+    env(safe-area-inset-right, 0px)
+    env(safe-area-inset-bottom, 0px)
+    env(safe-area-inset-left, 0px);
+  opacity: 1;
+  transition: opacity 650ms ease, visibility 650ms ease;
+  will-change: opacity;
+}
+
+.closing {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.stage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-6);
+  animation: introIn 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes introIn {
+  from { opacity: 0; transform: translateY(10px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ── Breathing healing rings ─────────────────────────────────────────────── */
+.ring {
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  width: 96px;
+  height: 96px;
+  margin-left: -48px;
+  border-radius: 50%;
+  border: 1.5px solid var(--color-primary);
+  opacity: 0;
+  transform: scale(0.5);
+  animation: ripple 2800ms cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+.ring:nth-child(2) { animation-delay: 0.7s; }
+.ring:nth-child(3) { animation-delay: 1.4s; }
+
+@keyframes ripple {
+  0%   { opacity: 0;    transform: scale(0.5); }
+  35%  { opacity: 0.45; }
+  100% { opacity: 0;    transform: scale(2.1); }
+}
+
+/* ── Monogram badge + animated ECG pulse ─────────────────────────────────── */
+.badge {
+  position: relative;
+  z-index: 1;
+  width: 132px;
+  height: 132px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, var(--color-brand-navy) 0%, var(--color-brand-navy-mid) 100%);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    0 18px 40px -12px rgba(12, 38, 65, 0.45),
+    0 0 0 6px rgba(255, 255, 255, 0.55);
+  animation: badgeBreathe 3.2s ease-in-out infinite;
+}
+
+@keyframes badgeBreathe {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.045); }
+}
+
+.pulse {
+  width: 76px;
+  height: auto;
+  color: var(--color-brand-teal);
+}
+
+.pulsePath {
+  stroke-dasharray: 320;
+  stroke-dashoffset: 320;
+  animation: drawPulse 2.4s ease-in-out infinite;
+}
+
+@keyframes drawPulse {
+  0%   { stroke-dashoffset: 320; opacity: 0.35; }
+  45%  { stroke-dashoffset: 0;   opacity: 1; }
+  75%  { stroke-dashoffset: 0;   opacity: 1; }
+  100% { stroke-dashoffset: -320; opacity: 0.35; }
+}
+
+/* ── Brand wordmark ──────────────────────────────────────────────────────── */
+.brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  z-index: 1;
+}
+
+.name {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--color-brand-navy);
+}
+
+.tag {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-primary-deep);
+}
+
+/* ── Indeterminate progress shimmer ──────────────────────────────────────── */
+.bar {
+  position: relative;
+  width: 168px;
+  height: 4px;
+  border-radius: var(--radius-full);
+  background: rgba(12, 38, 65, 0.10);
+  overflow: hidden;
+  z-index: 1;
+}
+
+.barFill {
+  position: absolute;
+  inset: 0;
+  width: 42%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-brand-teal) 100%);
+  animation: slide 1.4s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+
+@keyframes slide {
+  0%   { transform: translateX(-120%); }
+  100% { transform: translateX(320%); }
+}
+
+/* ── Mobile-first sizing ─────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .badge { width: 112px; height: 112px; }
+  .pulse { width: 64px; }
+  .ring  { width: 80px; height: 80px; margin-left: -40px; }
+  .bar   { width: 140px; }
+}
+
+/* ── Accessibility — calm, no motion ─────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .stage,
+  .ring,
+  .badge,
+  .pulsePath,
+  .barFill {
+    animation: none;
+  }
+  .ring { display: none; }
+  .pulsePath { stroke-dashoffset: 0; opacity: 1; }
+  .barFill { width: 100%; }
+}

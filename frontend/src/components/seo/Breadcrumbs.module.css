@@ -1,0 +1,40 @@
+.wrap {
+  padding: var(--space-4) 0 0;
+}
+
+.list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: var(--text-sm);
+}
+
+.item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-text-muted);
+}
+
+.item i {
+  font-size: 15px;
+  color: var(--color-text-light);
+}
+
+.link {
+  color: var(--color-text-muted);
+  transition: color var(--transition-fast);
+}
+
+.link:hover {
+  color: var(--color-primary);
+}
+
+.current {
+  color: var(--color-text);
+  font-weight: 600;
+}

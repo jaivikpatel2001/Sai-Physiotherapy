@@ -1,0 +1,62 @@
+.wrapper {
+  position: fixed;
+  bottom: calc(28px + env(safe-area-inset-bottom, 0px));
+  right: calc(28px + env(safe-area-inset-right, 0px));
+  z-index: var(--z-toast);
+}
+
+/* Float above the fixed bottom nav (≈62px) + the Android gesture bar */
+@media (max-width: 768px) {
+  .wrapper {
+    bottom: calc(78px + env(safe-area-inset-bottom, 0px));
+    right: calc(16px + env(safe-area-inset-right, 0px));
+  }
+}
+
+.button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: #25D366;
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-md);
+  transition: background var(--transition-base), box-shadow var(--transition-base);
+}
+
+.button:hover {
+  background: #1ea952;
+  box-shadow: var(--shadow-lg);
+}
+
+.pulseRing {
+  position: absolute;
+  inset: -8px;
+  border-radius: var(--radius-full);
+  background: rgba(37, 211, 102, 0.3);
+  animation: pulse-ring 2s ease-out infinite;
+}
+
+@keyframes pulse-ring {
+  0%   { transform: scale(0.9); opacity: 1; }
+  100% { transform: scale(1.4); opacity: 0; }
+}
+
+.close {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 20px;
+  height: 20px;
+  background: var(--color-error);
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  transition: background var(--transition-fast);
+}
+
+.close:hover { background: #dc2626; }
