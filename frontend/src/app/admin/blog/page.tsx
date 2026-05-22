@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
-import { adminBlogApi, type UploadedFile } from '@/lib/api';
+import { useBlogsStore, type UploadedFile } from '@/store';
 import { formatDate } from '@sai-physio/utils';
 import {
   PageHeader,
@@ -62,34 +62,23 @@ const defaultForm: BlogForm = {
 };
 
 export default function BlogAdminPage() {
-  const [posts, setPosts] = useState<BlogPost[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const posts = useBlogsStore((s) => s.items) as unknown as BlogPost[];
+  const loading = useBlogsStore((s) => s.status === 'loading');
+  const error = useBlogsStore((s) => s.error?.message ?? '');
+  const fetchList = useBlogsStore((s) => s.fetchList);
+  const removeBlog = useBlogsStore((s) => s.remove);
+
   const [editing, setEditing] = useState<BlogPost | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  const fetchData = async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const res = await adminBlogApi.getAll();
-      setPosts(res.data?.data ?? res.data ?? []);
-    } catch (e: unknown) {
-      setError((e as { response?: { data?: { error?: string } } })?.response?.data?.error || 'Failed to load posts');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    void fetchData();
-  }, []);
+    void fetchList();
+  }, [fetchList]);
 
   const handleDelete = async () => {
     if (!deletingId) return;
-    await adminBlogApi.remove(deletingId);
-    setPosts((arr) => arr.filter((p) => p._id !== deletingId));
+    await removeBlog(deletingId);
     setDeletingId(null);
   };
 
@@ -167,7 +156,7 @@ export default function BlogAdminPage() {
         open={showModal}
         post={editing}
         onClose={() => setShowModal(false)}
-        onSaved={() => { setShowModal(false); void fetchData(); }}
+        onSaved={() => { setShowModal(false); void fetchList(undefined, { force: true }); }}
       />
 
       <ConfirmDialog
@@ -206,6 +195,8 @@ function BlogFormModal({
   const titleVal = watch('title');
   const slugVal = watch('slug');
   const [err, setErr] = useState('');
+  const createBlog = useBlogsStore((s) => s.create);
+  const updateBlog = useBlogsStore((s) => s.update);
 
   useEffect(() => {
     if (!open) return;
@@ -253,13 +244,11 @@ function BlogFormModal({
       tags: form.tags,
       status: form.status,
     };
-    try {
-      if (isEdit && post) await adminBlogApi.update(post._id, payload);
-      else await adminBlogApi.create(payload);
-      onSaved();
-    } catch (e: unknown) {
-      setErr((e as { response?: { data?: { error?: string } } })?.response?.data?.error || 'Failed to save');
-    }
+    const result = isEdit && post
+      ? await updateBlog(post._id, payload as never)
+      : await createBlog(payload as never);
+    if (result) onSaved();
+    else setErr('Failed to save');
   };
 
   return (

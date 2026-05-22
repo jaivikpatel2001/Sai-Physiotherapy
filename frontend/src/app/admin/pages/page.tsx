@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
-import { adminPagesApi } from '@/lib/api';
+import { usePagesStore } from '@/store';
 import { formatDate } from '@sai-physio/utils';
 import {
   PageHeader,
@@ -68,34 +68,23 @@ const defaultForm: PageForm = {
 };
 
 export default function PagesAdminPage() {
-  const [pages, setPages] = useState<CmsPage[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const pages = usePagesStore((s) => s.items) as unknown as CmsPage[];
+  const loading = usePagesStore((s) => s.status === 'loading');
+  const error = usePagesStore((s) => s.error?.message ?? '');
+  const fetchList = usePagesStore((s) => s.fetchList);
+  const removePage = usePagesStore((s) => s.remove);
+
   const [editing, setEditing] = useState<CmsPage | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  const fetchData = async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const res = await adminPagesApi.getAll();
-      setPages(res.data?.data ?? []);
-    } catch (e: unknown) {
-      setError((e as { response?: { data?: { error?: string } } })?.response?.data?.error || 'Failed to load pages');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    void fetchData();
-  }, []);
+    void fetchList();
+  }, [fetchList]);
 
   const handleDelete = async () => {
     if (!deletingId) return;
-    await adminPagesApi.remove(deletingId);
-    setPages((arr) => arr.filter((p) => p._id !== deletingId));
+    await removePage(deletingId);
     setDeletingId(null);
   };
 
@@ -171,7 +160,7 @@ export default function PagesAdminPage() {
         open={showModal}
         page={editing}
         onClose={() => setShowModal(false)}
-        onSaved={() => { setShowModal(false); void fetchData(); }}
+        onSaved={() => { setShowModal(false); void fetchList(undefined, { force: true }); }}
       />
 
       <ConfirmDialog
@@ -210,6 +199,8 @@ function PageFormModal({
   const [err, setErr] = useState('');
   const titleVal = watch('title');
   const slugVal = watch('slug');
+  const createPage = usePagesStore((s) => s.create);
+  const updatePage = usePagesStore((s) => s.update);
 
   useEffect(() => {
     if (!open) return;
@@ -254,13 +245,11 @@ function PageFormModal({
         keywords: form.keywords,
       },
     };
-    try {
-      if (isEdit && page) await adminPagesApi.update(page._id, payload);
-      else await adminPagesApi.create(payload);
-      onSaved();
-    } catch (e: unknown) {
-      setErr((e as { response?: { data?: { error?: string } } })?.response?.data?.error || 'Failed to save');
-    }
+    const result = isEdit && page
+      ? await updatePage(page._id, payload as never)
+      : await createPage(payload as never);
+    if (result) onSaved();
+    else setErr('Failed to save');
   };
 
   return (

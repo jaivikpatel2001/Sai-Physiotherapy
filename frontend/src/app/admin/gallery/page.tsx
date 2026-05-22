@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import Image from 'next/image';
-import { adminGalleryApi, type UploadedFile } from '@/lib/api';
+import { useGalleryStore, type UploadedFile } from '@/store';
 import {
   PageHeader,
   AddButton,
@@ -46,36 +46,24 @@ const CATEGORIES: Array<{ value: GalleryItem['category']; label: string }> = [
 ];
 
 export default function GalleryAdminPage() {
-  const [items, setItems] = useState<GalleryItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const items = useGalleryStore((s) => s.items) as unknown as GalleryItem[];
+  const loading = useGalleryStore((s) => s.status === 'loading');
+  const error = useGalleryStore((s) => s.error?.message ?? '');
+  const fetchList = useGalleryStore((s) => s.fetchList);
+  const removeItem = useGalleryStore((s) => s.remove);
+
   const [filter, setFilter] = useState<string>('');
   const [editing, setEditing] = useState<GalleryItem | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  const fetchData = async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const res = await adminGalleryApi.getAll(filter ? { category: filter } : undefined);
-      setItems(res.data?.data ?? []);
-    } catch (e: unknown) {
-      setError((e as { response?: { data?: { error?: string } } })?.response?.data?.error || 'Failed to load gallery');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    void fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filter]);
+    void fetchList(filter ? { category: filter } : {}, { force: true });
+  }, [filter, fetchList]);
 
   const handleDelete = async () => {
     if (!deletingId) return;
-    await adminGalleryApi.remove(deletingId);
-    setItems((arr) => arr.filter((i) => i._id !== deletingId));
+    await removeItem(deletingId);
     setDeletingId(null);
   };
 
@@ -190,7 +178,7 @@ export default function GalleryAdminPage() {
         onClose={() => setShowModal(false)}
         onSaved={() => {
           setShowModal(false);
-          void fetchData();
+          void fetchList(undefined, { force: true });
         }}
       />
 
@@ -236,6 +224,8 @@ function GalleryFormModal({
     },
   });
   const [err, setErr] = useState('');
+  const createItem = useGalleryStore((s) => s.create);
+  const updateItem = useGalleryStore((s) => s.update);
 
   useEffect(() => {
     if (!open) return;
@@ -290,13 +280,11 @@ function GalleryFormModal({
         mimetype: form.image.mimetype,
       },
     };
-    try {
-      if (isEdit && item) await adminGalleryApi.update(item._id, payload);
-      else await adminGalleryApi.create(payload);
-      onSaved();
-    } catch (e: unknown) {
-      setErr((e as { response?: { data?: { error?: string } } })?.response?.data?.error || 'Failed to save');
-    }
+    const result = isEdit && item
+      ? await updateItem(item._id, payload as never)
+      : await createItem(payload as never);
+    if (result) onSaved();
+    else setErr('Failed to save');
   };
 
   return (

@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { settingsApi, adminSettingsApi } from '@/lib/api';
+import { useSettingsStore } from '@/store';
 import { getRole } from '@/lib/auth';
 import { UserRole } from '@sai-physio/types';
 import styles from '../admin.module.css';
@@ -58,47 +58,54 @@ export default function SettingsPage() {
   const role = getRole();
   const allowed = role === UserRole.SUPER_ADMIN;
   const { register, handleSubmit, reset, formState: { isSubmitting } } = useForm<SettingsForm>();
-  const [loading, setLoading] = useState(true);
+  const data = useSettingsStore((s) => s.data) as ClinicSettings | null;
+  const storeLoading = useSettingsStore((s) => s.status === 'loading');
+  const storeError = useSettingsStore((s) => s.error?.message ?? '');
+  const fetchSettings = useSettingsStore((s) => s.fetch);
+  const updateSettings = useSettingsStore((s) => s.update);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [hydrated, setHydrated] = useState(false);
+  const loading = allowed ? (!hydrated && storeLoading) : false;
 
   useEffect(() => {
-    if (!allowed) { setLoading(false); return; }
-    (async () => {
-      try {
-        const res = await settingsApi.get();
-        const s: ClinicSettings = res.data?.data ?? res.data ?? {};
-        const weekdayHrs = s.businessHours?.find((h) => h.day === 'monday');
-        const weekendHrs = s.businessHours?.find((h) => h.day === 'sunday');
-        reset({
-          clinicName: s.clinicName ?? '',
-          tagline: s.tagline ?? '',
-          logo: s.logo ?? '',
-          phones: (s.contact?.phones ?? []).join(', '),
-          whatsapp: s.contact?.whatsapp ?? '',
-          emails: (s.contact?.emails ?? []).join(', '),
-          address: s.contact?.address ?? '',
-          city: s.contact?.city ?? '',
-          state: s.contact?.state ?? '',
-          pincode: s.contact?.pincode ?? '',
-          googleMapsUrl: s.contact?.googleMapsUrl ?? '',
-          facebook: s.socialMedia?.facebook ?? '',
-          instagram: s.socialMedia?.instagram ?? '',
-          youtube: s.socialMedia?.youtube ?? '',
-          twitter: s.socialMedia?.twitter ?? '',
-          linkedin: s.socialMedia?.linkedin ?? '',
-          hoursWeekday: weekdayHrs ? `${weekdayHrs.openTime}-${weekdayHrs.closeTime}` : '09:00-19:00',
-          hoursWeekend: weekendHrs ? (weekendHrs.isClosed ? 'closed' : `${weekendHrs.openTime}-${weekendHrs.closeTime}`) : 'closed',
-          metaTitle: s.seo?.globalMetaTitle ?? '',
-          metaDescription: s.seo?.globalMetaDescription ?? '',
-        });
-      } catch (e: unknown) {
-        setError((e as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to load settings');
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, [allowed, reset]);
+    if (!allowed) return;
+    void fetchSettings();
+  }, [allowed, fetchSettings]);
+
+  useEffect(() => {
+    if (storeError) setError(storeError);
+  }, [storeError]);
+
+  useEffect(() => {
+    if (!allowed || !data || hydrated) return;
+    const s = data;
+    const weekdayHrs = s.businessHours?.find((h) => h.day === 'monday');
+    const weekendHrs = s.businessHours?.find((h) => h.day === 'sunday');
+    reset({
+      clinicName: s.clinicName ?? '',
+      tagline: s.tagline ?? '',
+      logo: s.logo ?? '',
+      phones: (s.contact?.phones ?? []).join(', '),
+      whatsapp: s.contact?.whatsapp ?? '',
+      emails: (s.contact?.emails ?? []).join(', '),
+      address: s.contact?.address ?? '',
+      city: s.contact?.city ?? '',
+      state: s.contact?.state ?? '',
+      pincode: s.contact?.pincode ?? '',
+      googleMapsUrl: s.contact?.googleMapsUrl ?? '',
+      facebook: s.socialMedia?.facebook ?? '',
+      instagram: s.socialMedia?.instagram ?? '',
+      youtube: s.socialMedia?.youtube ?? '',
+      twitter: s.socialMedia?.twitter ?? '',
+      linkedin: s.socialMedia?.linkedin ?? '',
+      hoursWeekday: weekdayHrs ? `${weekdayHrs.openTime}-${weekdayHrs.closeTime}` : '09:00-19:00',
+      hoursWeekend: weekendHrs ? (weekendHrs.isClosed ? 'closed' : `${weekendHrs.openTime}-${weekendHrs.closeTime}`) : 'closed',
+      metaTitle: s.seo?.globalMetaTitle ?? '',
+      metaDescription: s.seo?.globalMetaDescription ?? '',
+    });
+    setHydrated(true);
+  }, [allowed, data, hydrated, reset]);
 
   const parseHours = (raw: string): { openTime: string; closeTime: string; isClosed: boolean } => {
     if (raw.trim().toLowerCase() === 'closed') return { openTime: '', closeTime: '', isClosed: true };
@@ -142,12 +149,9 @@ export default function SettingsPage() {
         globalMetaDescription: form.metaDescription,
       },
     };
-    try {
-      await adminSettingsApi.update(payload);
-      setSuccess('Settings saved successfully');
-    } catch (e: unknown) {
-      setError((e as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to save');
-    }
+    const result = await updateSettings(payload);
+    if (result) setSuccess('Settings saved successfully');
+    else setError('Failed to save');
   };
 
   if (!allowed) {

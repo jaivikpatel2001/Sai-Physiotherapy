@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { usersApi, authApi } from '@/lib/api';
+import { useUsersStore, authApi } from '@/store';
 import { getRole } from '@/lib/auth';
 import { UserRole } from '@sai-physio/types';
 import { formatDate } from '@sai-physio/utils';
@@ -40,33 +40,19 @@ const ROLE_BADGE: Record<string, string> = {
 export default function UsersPage() {
   const role = getRole();
   const allowed = role === UserRole.SUPER_ADMIN || role === UserRole.ADMIN;
-  const [users, setUsers] = useState<StaffUser[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const users = useUsersStore((s) => s.items) as unknown as StaffUser[];
+  const storeLoading = useUsersStore((s) => s.status === 'loading');
+  const error = useUsersStore((s) => s.error?.message ?? '');
+  const fetchList = useUsersStore((s) => s.fetchList);
+  const toggleUserStatus = useUsersStore((s) => s.toggleStatus);
+
   const [showModal, setShowModal] = useState(false);
+  const loading = allowed ? storeLoading : false;
 
-  const fetchData = async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const res = await usersApi.getAll();
-      setUsers(res.data?.data ?? res.data ?? []);
-    } catch (e: unknown) {
-      setError((e as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to load users');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => { if (allowed) fetchData(); else setLoading(false); }, [allowed]);
+  useEffect(() => { if (allowed) void fetchList(); }, [allowed, fetchList]);
 
   const toggleStatus = async (id: string) => {
-    try {
-      await usersApi.toggleStatus(id);
-      setUsers((prev) => prev.map((u) => u._id === id ? { ...u, isActive: !u.isActive } : u));
-    } catch {
-      setError('Failed to toggle status');
-    }
+    await toggleUserStatus(id);
   };
 
   if (!allowed) {
@@ -140,7 +126,7 @@ export default function UsersPage() {
         </div>
       </div>
 
-      {showModal && <NewUserModal onClose={() => setShowModal(false)} onSaved={() => { setShowModal(false); fetchData(); }} />}
+      {showModal && <NewUserModal onClose={() => setShowModal(false)} onSaved={() => { setShowModal(false); void fetchList(undefined, { force: true }); }} />}
     </>
   );
 }

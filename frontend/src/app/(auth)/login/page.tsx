@@ -1,44 +1,43 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useAuthStore } from '@/store';
 import styles from '../login.module.css';
 
 export default function LoginPage() {
+  const router = useRouter();
+  const login = useAuthStore((s) => s.login);
+  const storeLoading = useAuthStore((s) => s.status === 'loading');
   const [show, setShow] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [form, setForm] = useState({ email: '', password: '' });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError('');
-    try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Login failed');
-      const { accessToken, refreshToken, user } = data.data;
-      localStorage.setItem('accessToken', accessToken);
-      localStorage.setItem('refreshToken', refreshToken);
-      if (user) localStorage.setItem('user', JSON.stringify(user));
-
-      const role = user?.role;
-      const dest =
-        role === 'super_admin' || role === 'admin' ? '/admin' :
-        role === 'doctor' ? '/admin/appointments' :
-        role === 'receptionist' ? '/admin/appointments' :
-        '/admin';
-      window.location.href = dest;
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Login failed. Please try again.');
-    } finally {
-      setLoading(false);
+    const user = await login(form);
+    if (!user) {
+      const storeError = useAuthStore.getState().error;
+      setError(storeError?.message ?? 'Login failed. Please try again.');
+      return;
     }
+    // Mirror the user object for getRole() in lib/auth (used by admin/users + admin/settings).
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem('user', JSON.stringify(user));
+    }
+
+    const role = user.role;
+    const dest =
+      role === 'super_admin' || role === 'admin' ? '/admin' :
+      role === 'doctor' ? '/admin/appointments' :
+      role === 'receptionist' ? '/admin/appointments' :
+      '/admin';
+    // Client-side navigation — no browser reload, store stays hydrated.
+    router.replace(dest);
   };
+
+  const loading = storeLoading;
 
   return (
     <div className={styles.card}>

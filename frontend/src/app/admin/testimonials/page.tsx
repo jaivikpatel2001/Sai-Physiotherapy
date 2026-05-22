@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { adminTestimonialsApi } from '@/lib/api';
+import { useTestimonialsStore } from '@/store';
 import { formatDate } from '@sai-physio/utils';
 import {
   PageHeader,
@@ -52,30 +52,21 @@ const defaultForm: TestimonialForm = {
 };
 
 export default function TestimonialsPage() {
-  const [items, setItems] = useState<Testimonial[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const items = useTestimonialsStore((s) => s.items) as unknown as Testimonial[];
+  const loading = useTestimonialsStore((s) => s.status === 'loading');
+  const error = useTestimonialsStore((s) => s.error?.message ?? '');
+  const fetchList = useTestimonialsStore((s) => s.fetchList);
+  const moderateItem = useTestimonialsStore((s) => s.moderate);
+  const removeItem = useTestimonialsStore((s) => s.remove);
+
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [editing, setEditing] = useState<Testimonial | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  const fetchData = async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const res = await adminTestimonialsApi.getAll();
-      setItems(res.data?.data ?? res.data ?? []);
-    } catch (e: unknown) {
-      setError((e as { response?: { data?: { error?: string } } })?.response?.data?.error || 'Failed to load testimonials');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    void fetchData();
-  }, []);
+    void fetchList();
+  }, [fetchList]);
 
   const filtered = useMemo(() => {
     if (statusFilter === 'pending') return items.filter((t) => !t.isApproved);
@@ -84,27 +75,16 @@ export default function TestimonialsPage() {
   }, [items, statusFilter]);
 
   const moderate = async (id: string, isApproved: boolean) => {
-    try {
-      await adminTestimonialsApi.moderate(id, { isApproved });
-      setItems((prev) => prev.map((t) => (t._id === id ? { ...t, isApproved } : t)));
-    } catch {
-      setError('Failed to moderate');
-    }
+    await moderateItem(id, { isApproved });
   };
 
   const toggleFeatured = async (id: string, current: boolean) => {
-    try {
-      await adminTestimonialsApi.moderate(id, { isApproved: true, isFeatured: !current });
-      setItems((prev) => prev.map((t) => (t._id === id ? { ...t, isFeatured: !current, isApproved: true } : t)));
-    } catch {
-      setError('Failed to toggle featured');
-    }
+    await moderateItem(id, { isApproved: true, isFeatured: !current });
   };
 
   const handleDelete = async () => {
     if (!deletingId) return;
-    await adminTestimonialsApi.remove(deletingId);
-    setItems((prev) => prev.filter((t) => t._id !== deletingId));
+    await removeItem(deletingId);
     setDeletingId(null);
   };
 
@@ -222,7 +202,7 @@ export default function TestimonialsPage() {
         open={showModal}
         initial={editing}
         onClose={() => setShowModal(false)}
-        onSaved={() => { setShowModal(false); void fetchData(); }}
+        onSaved={() => { setShowModal(false); void fetchList(undefined, { force: true }); }}
       />
 
       <ConfirmDialog
@@ -253,6 +233,8 @@ function TestimonialFormModal({
     defaultValues: defaultForm,
   });
   const [err, setErr] = useState('');
+  const createTestimonial = useTestimonialsStore((s) => s.create);
+  const updateTestimonial = useTestimonialsStore((s) => s.update);
 
   useEffect(() => {
     if (!open) return;
@@ -280,13 +262,11 @@ function TestimonialFormModal({
       rating: Number(form.rating),
       patientAge: form.patientAge ? Number(form.patientAge) : undefined,
     };
-    try {
-      if (isEdit && initial) await adminTestimonialsApi.update(initial._id, payload);
-      else await adminTestimonialsApi.create(payload);
-      onSaved();
-    } catch (e: unknown) {
-      setErr((e as { response?: { data?: { error?: string } } })?.response?.data?.error || 'Failed to save');
-    }
+    const result = isEdit && initial
+      ? await updateTestimonial(initial._id, payload as never)
+      : await createTestimonial(payload as never);
+    if (result) onSaved();
+    else setErr('Failed to save');
   };
 
   return (

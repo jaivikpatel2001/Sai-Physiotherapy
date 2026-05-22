@@ -3,9 +3,16 @@ import JsonLd from '@/components/seo/JsonLd';
 import MedicalDisclaimer from '@/components/seo/MedicalDisclaimer';
 import { pageMeta } from '@/lib/seo/metadata';
 import { breadcrumbSchema, articleSchema } from '@/lib/seo/schema';
-import { getPost } from '@/lib/seo/content';
+import { getPost, BLOG_SEO } from '@/lib/seo/content';
 
 type Props = { params: { slug: string }; children: React.ReactNode };
+
+// Prerender every blog slug at build time so the first visit to any post is
+// instant in production. Unknown slugs still render dynamically thanks to the
+// (default) `dynamicParams: true`.
+export function generateStaticParams() {
+  return BLOG_SEO.map((post) => ({ slug: post.slug }));
+}
 
 export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
   const post = getPost(params.slug);

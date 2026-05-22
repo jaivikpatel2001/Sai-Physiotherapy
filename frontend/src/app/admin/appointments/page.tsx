@@ -5,7 +5,12 @@ import {
   ColumnDef, flexRender, getCoreRowModel, getFilteredRowModel,
   useReactTable, getPaginationRowModel,
 } from '@tanstack/react-table';
-import { appointmentsApi, patientsApi, servicesApi, usersApi } from '@/lib/api';
+import {
+  useAppointmentsStore,
+  usePatientsStore,
+  useServicesStore,
+  useUsersStore,
+} from '@/store';
 import { formatDate, formatTime } from '@sai-physio/utils';
 import styles from '../admin.module.css';
 
@@ -42,39 +47,26 @@ interface NewApptForm {
 }
 
 export default function AppointmentsPage() {
-  const [data, setData] = useState<Appt[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const data = useAppointmentsStore((s) => s.items) as unknown as Appt[];
+  const loading = useAppointmentsStore((s) => s.status === 'loading');
+  const error = useAppointmentsStore((s) => s.error?.message ?? '');
+  const fetchList = useAppointmentsStore((s) => s.fetchList);
+  const updateApptStatus = useAppointmentsStore((s) => s.updateStatus);
+
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [dateFilter, setDateFilter] = useState('');
   const [showModal, setShowModal] = useState(false);
 
-  const fetchData = async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const params: Record<string, string | number> = {};
-      if (statusFilter) params.status = statusFilter;
-      if (dateFilter) params.date = dateFilter;
-      const res = await appointmentsApi.getAll(params);
-      setData(res.data?.data ?? res.data ?? []);
-    } catch (e: unknown) {
-      setError((e as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to load appointments');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => { fetchData(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [statusFilter, dateFilter]);
+  useEffect(() => {
+    const params: Record<string, string> = {};
+    if (statusFilter) params.status = statusFilter;
+    if (dateFilter) params.date = dateFilter;
+    void fetchList(params, { force: true });
+  }, [statusFilter, dateFilter, fetchList]);
 
   const handleStatusChange = async (id: string, status: string) => {
-    try {
-      await appointmentsApi.updateStatus(id, status);
-      setData((prev) => prev.map((a) => a._id === id ? { ...a, status } : a));
-    } catch {
-      setError('Failed to update status');
-    }
+    await updateApptStatus(id, status);
   };
 
   const columns = useMemo<ColumnDef<Appt>[]>(() => [
@@ -220,7 +212,7 @@ export default function AppointmentsPage() {
         </div>
       </div>
 
-      {showModal && <NewAppointmentModal onClose={() => setShowModal(false)} onSaved={() => { setShowModal(false); fetchData(); }} />}
+      {showModal && <NewAppointmentModal onClose={() => setShowModal(false)} onSaved={() => { setShowModal(false); void fetchList(undefined, { force: true }); }} />}
     </>
   );
 }
@@ -234,40 +226,38 @@ function NewAppointmentModal({ onClose, onSaved }: { onClose: () => void; onSave
     defaultValues: { duration: 30, type: 'new' },
   });
   const [submitErr, setSubmitErr] = useState('');
-  const [patients, setPatients] = useState<PatientLite[]>([]);
-  const [services, setServices] = useState<ServiceLite[]>([]);
-  const [doctors, setDoctors] = useState<UserLite[]>([]);
   const [patientQuery, setPatientQuery] = useState('');
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const [s, u] = await Promise.all([servicesApi.getAll(), usersApi.getAll({ role: 'doctor' })]);
-        setServices(s.data?.data ?? s.data ?? []);
-        setDoctors((u.data?.data ?? u.data ?? []).filter((x: UserLite) => x.role === 'doctor'));
-      } catch {/* ignore */}
-    })();
-  }, []);
+  const services = useServicesStore((s) => s.items) as unknown as ServiceLite[];
+  const fetchServices = useServicesStore((s) => s.fetchList);
+  const doctorsAll = useUsersStore((s) => s.items) as unknown as UserLite[];
+  const fetchUsers = useUsersStore((s) => s.fetchList);
+  const patients = usePatientsStore((s) => s.searchResults) as unknown as PatientLite[];
+  const searchPatients = usePatientsStore((s) => s.search);
+  const bookAppointment = useAppointmentsStore((s) => s.book);
+
+  const doctors = useMemo(
+    () => (doctorsAll ?? []).filter((x) => x.role === 'doctor'),
+    [doctorsAll],
+  );
 
   useEffect(() => {
-    if (!patientQuery || patientQuery.length < 2) { setPatients([]); return; }
-    const t = setTimeout(async () => {
-      try {
-        const r = await patientsApi.search(patientQuery);
-        setPatients(r.data?.data ?? r.data ?? []);
-      } catch {/* ignore */}
-    }, 300);
+    void fetchServices();
+    void fetchUsers({ role: 'doctor' });
+  }, [fetchServices, fetchUsers]);
+
+  useEffect(() => {
+    if (!patientQuery || patientQuery.length < 2) { void searchPatients(''); return; }
+    const t = setTimeout(() => { void searchPatients(patientQuery); }, 300);
     return () => clearTimeout(t);
-  }, [patientQuery]);
+  }, [patientQuery, searchPatients]);
 
   const onSubmit = async (form: NewApptForm) => {
     setSubmitErr('');
-    try {
-      await appointmentsApi.book({ ...form, scheduledAt: new Date(form.scheduledAt).toISOString() });
-      onSaved();
-    } catch (e: unknown) {
-      setSubmitErr((e as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to create');
-    }
+    const payload = { ...form, scheduledAt: new Date(form.scheduledAt).toISOString() };
+    const result = await bookAppointment(payload as never);
+    if (result) onSaved();
+    else setSubmitErr('Failed to save');
   };
 
   return (

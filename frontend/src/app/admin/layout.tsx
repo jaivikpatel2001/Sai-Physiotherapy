@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { UserRole } from '@sai-physio/types';
-import { useAuthStore } from '@/lib/store/authStore';
+import { useAuthStore } from '@/store';
 import { useAuthGuard } from '@/lib/hooks/useAuthGuard';
 import styles from './admin.module.css';
 

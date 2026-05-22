@@ -5,7 +5,7 @@ import {
   LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
   BarChart, Bar, PieChart, Pie, Cell, Legend, Area, AreaChart,
 } from 'recharts';
-import { analyticsApi } from '@/lib/api';
+import { useAnalyticsStore } from '@/store';
 import { formatCurrency } from '@sai-physio/utils';
 import styles from './admin.module.css';
 import { StatusBadge, toneFor } from '@/components/admin';
@@ -116,76 +116,35 @@ function SkeletonBar({ width = '60%', height = 14, mt = 0 }: { width?: string; h
 
 // ─── Component ──────────────────────────────────────────────────────────────
 export default function AdminDashboardPage() {
-  const [kpis, setKpis] = useState<DashboardKPIs | null>(null);
-  const [trend, setTrend] = useState<TrendPoint[]>([]);
-  const [revenue, setRevenue] = useState<RevenuePoint[]>([]);
-  const [services, setServices] = useState<ServiceSlice[]>([]);
-  const [topDoctors, setTopDoctors] = useState<TopDoctor[]>([]);
-  const [upcoming, setUpcoming] = useState<UpcomingAppt[]>([]);
-  const [payments, setPayments] = useState<PaymentRow[]>([]);
-  const [activity, setActivity] = useState<ActivityEvent[]>([]);
-  const [content, setContent] = useState<ContentSummary | null>(null);
-  const [patientGrowth, setPatientGrowth] = useState<PatientGrowthPoint[]>([]);
+  // Narrow subscriptions — components only re-render when *their* slice changes
+  const kpis = useAnalyticsStore((s) => s.kpis) as DashboardKPIs | null;
+  const trend = useAnalyticsStore((s) => s.trend) as TrendPoint[];
+  const revenue = useAnalyticsStore((s) => s.revenue) as RevenuePoint[];
+  const services = useAnalyticsStore((s) => s.serviceBreakdown) as ServiceSlice[];
+  const topDoctors = useAnalyticsStore((s) => s.topDoctors) as TopDoctor[];
+  const upcoming = useAnalyticsStore((s) => s.upcoming) as UpcomingAppt[];
+  const payments = useAnalyticsStore((s) => s.recentPayments) as PaymentRow[];
+  const activity = useAnalyticsStore((s) => s.recentActivity) as ActivityEvent[];
+  const content = useAnalyticsStore((s) => s.content) as ContentSummary | null;
+  const patientGrowth = useAnalyticsStore((s) => s.patientGrowth) as PatientGrowthPoint[];
+  const status = useAnalyticsStore((s) => s.status);
+  const storeError = useAnalyticsStore((s) => s.error);
+  const loadEverything = useAnalyticsStore((s) => s.loadEverything);
+  const loadTrend = useAnalyticsStore((s) => s.loadTrend);
+
   const [trendRange, setTrendRange] = useState(30);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const loading = status === 'loading' || status === 'idle';
+  const error = storeError?.message ?? '';
 
-  // Initial load
+  // Initial load — one dispatch hydrates the whole dashboard.
   useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const results = await Promise.allSettled([
-          analyticsApi.getDashboard(),
-          analyticsApi.getRevenue({ months: 12 }),
-          analyticsApi.getServiceBreakdown(),
-          analyticsApi.getTopDoctors({ days: 30 }),
-          analyticsApi.getUpcomingAppointments({ limit: 8 }),
-          analyticsApi.getRecentPayments({ limit: 8 }),
-          analyticsApi.getRecentActivity({ limit: 10 }),
-          analyticsApi.getContentSummary(),
-          analyticsApi.getPatientGrowth({ months: 12 }),
-        ]);
-        if (cancelled) return;
-        const pick = <T,>(r: PromiseSettledResult<{ data: { data?: T } }>, fallback: T): T => {
-          if (r.status !== 'fulfilled') return fallback;
-          const body = r.value.data;
-          return (body?.data ?? (body as unknown as T)) ?? fallback;
-        };
-        const dashRes = pick(results[0] as PromiseSettledResult<{ data: { data?: { kpis?: DashboardKPIs } } }>, { kpis: undefined } as { kpis?: DashboardKPIs });
-        setKpis(dashRes.kpis ?? null);
-        setRevenue(pick(results[1] as PromiseSettledResult<{ data: { data?: RevenuePoint[] } }>, []));
-        setServices(pick(results[2] as PromiseSettledResult<{ data: { data?: ServiceSlice[] } }>, []));
-        setTopDoctors(pick(results[3] as PromiseSettledResult<{ data: { data?: TopDoctor[] } }>, []));
-        setUpcoming(pick(results[4] as PromiseSettledResult<{ data: { data?: UpcomingAppt[] } }>, []));
-        setPayments(pick(results[5] as PromiseSettledResult<{ data: { data?: PaymentRow[] } }>, []));
-        setActivity(pick(results[6] as PromiseSettledResult<{ data: { data?: ActivityEvent[] } }>, []));
-        setContent(pick(results[7] as PromiseSettledResult<{ data: { data?: ContentSummary } }>, null as unknown as ContentSummary));
-        setPatientGrowth(pick(results[8] as PromiseSettledResult<{ data: { data?: PatientGrowthPoint[] } }>, []));
+    void loadEverything();
+  }, [loadEverything]);
 
-        if (results.every((r) => r.status === 'rejected')) {
-          setError('Could not load analytics. Make sure the backend is running.');
-        }
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => { cancelled = true; };
-  }, []);
-
-  // Trend reloads when range changes
+  // Trend reloads when the user changes the range pill.
   useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const r = await analyticsApi.getAppointmentTrend({ days: trendRange });
-        if (!cancelled) setTrend(r.data?.data ?? []);
-      } catch {
-        if (!cancelled) setTrend([]);
-      }
-    })();
-    return () => { cancelled = true; };
-  }, [trendRange]);
+    void loadTrend(trendRange);
+  }, [trendRange, loadTrend]);
 
   const kpiCards = useMemo(
     () => [

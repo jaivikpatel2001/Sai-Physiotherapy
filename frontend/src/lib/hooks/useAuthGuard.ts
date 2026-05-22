@@ -1,16 +1,22 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuthStore } from '../store/authStore';
+import { useAuthStore, tokenStorage } from '@/store';
 
-export function useAuthGuard() {
+/**
+ * Admin route guard. Reads the auth Zustand store; on first mount it kicks off
+ * `loadCurrentUser` if there's a token but no user object yet. Redirects to
+ * /login whenever the user can't be resolved.
+ */
+export function useAuthGuard(): { user: ReturnType<typeof useAuthStore.getState>['user']; loading: boolean } {
   const router = useRouter();
-  const { user, loadUser } = useAuthStore();
+  const user = useAuthStore((s) => s.user);
+  const loadCurrentUser = useAuthStore((s) => s.loadCurrentUser);
   const [loading, setLoading] = useState(!user);
 
   useEffect(() => {
     let cancelled = false;
-    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+    const token = tokenStorage.getAccessToken();
     if (!token) {
       router.replace('/login');
       return;
@@ -20,18 +26,15 @@ export function useAuthGuard() {
       return;
     }
     (async () => {
-      const u = await loadUser();
+      const u = await loadCurrentUser();
       if (cancelled) return;
-      if (!u) {
-        router.replace('/login');
-      } else {
-        setLoading(false);
-      }
+      if (!u) router.replace('/login');
+      else setLoading(false);
     })();
     return () => {
       cancelled = true;
     };
-  }, [user, loadUser, router]);
+  }, [user, loadCurrentUser, router]);
 
   return { user, loading };
 }

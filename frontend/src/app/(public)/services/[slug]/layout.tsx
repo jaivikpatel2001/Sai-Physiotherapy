@@ -2,9 +2,15 @@ import type { Metadata } from 'next';
 import JsonLd from '@/components/seo/JsonLd';
 import { pageMeta } from '@/lib/seo/metadata';
 import { breadcrumbSchema, serviceSchema } from '@/lib/seo/schema';
-import { getService } from '@/lib/seo/content';
+import { getService, SERVICES_SEO } from '@/lib/seo/content';
 
 type Props = { params: { slug: string }; children: React.ReactNode };
+
+// Prerender every service slug at build time. Unknown slugs still render
+// dynamically (default `dynamicParams: true`).
+export function generateStaticParams() {
+  return SERVICES_SEO.map((svc) => ({ slug: svc.slug }));
+}
 
 export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
   const svc = getService(params.slug);

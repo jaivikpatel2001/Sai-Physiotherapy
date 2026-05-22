@@ -4,7 +4,7 @@ import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
 } from 'recharts';
-import { billingApi, patientsApi, servicesApi } from '@/lib/api';
+import { useBillingsStore, usePatientsStore, useServicesStore } from '@/store';
 import { formatCurrency, formatDate } from '@sai-physio/utils';
 import styles from '../admin.module.css';
 import local from './billing.module.css';
@@ -60,28 +60,21 @@ export default function BillingPage() {
 }
 
 function InvoicesView() {
-  const [bills, setBills] = useState<Bill[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const bills = useBillingsStore((s) => s.items) as unknown as Bill[];
+  const loading = useBillingsStore((s) => s.status === 'loading');
+  const error = useBillingsStore((s) => s.error?.message ?? '');
+  const fetchList = useBillingsStore((s) => s.fetchList);
   const [statusFilter, setStatusFilter] = useState('');
   const [showCreate, setShowCreate] = useState(false);
   const [paymentTarget, setPaymentTarget] = useState<Bill | null>(null);
 
-  const fetch = async () => {
-    setLoading(true);
-    try {
-      const params: Record<string, string | number> = {};
-      if (statusFilter) params.status = statusFilter;
-      const res = await billingApi.getAll(params);
-      setBills(res.data?.data ?? res.data ?? []);
-    } catch (e: unknown) {
-      setError((e as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed');
-    } finally {
-      setLoading(false);
-    }
+  const refetch = () => {
+    const params: Record<string, string> = {};
+    if (statusFilter) params.status = statusFilter;
+    void fetchList(params, { force: true });
   };
 
-  useEffect(() => { fetch(); /* eslint-disable-next-line */ }, [statusFilter]);
+  useEffect(() => { refetch(); /* eslint-disable-next-line */ }, [statusFilter]);
 
   return (
     <>
@@ -132,21 +125,19 @@ function InvoicesView() {
           )}
         </div>
       </div>
-      {showCreate && <CreateInvoiceModal onClose={() => setShowCreate(false)} onSaved={() => { setShowCreate(false); fetch(); }} />}
-      {paymentTarget && <RecordPaymentModal bill={paymentTarget} onClose={() => setPaymentTarget(null)} onSaved={() => { setPaymentTarget(null); fetch(); }} />}
+      {showCreate && <CreateInvoiceModal onClose={() => setShowCreate(false)} onSaved={() => { setShowCreate(false); refetch(); }} />}
+      {paymentTarget && <RecordPaymentModal bill={paymentTarget} onClose={() => setPaymentTarget(null)} onSaved={() => { setPaymentTarget(null); refetch(); }} />}
     </>
   );
 }
 
 function DailyView() {
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-  const [data, setData] = useState<{ totalRevenue?: number; totalInvoices?: number; cash?: number; upi?: number; pending?: number } | null>(null);
-  const [loading, setLoading] = useState(false);
+  const data = useBillingsStore((s) => s.reports.daily) as { totalRevenue?: number; totalInvoices?: number; cash?: number; upi?: number; pending?: number } | undefined;
+  const loading = useBillingsStore((s) => s.status === 'loading');
+  const fetchDaily = useBillingsStore((s) => s.fetchDaily);
 
-  useEffect(() => {
-    setLoading(true);
-    billingApi.daily(date).then((r) => setData(r.data?.data ?? r.data ?? {})).catch(() => setData({})).finally(() => setLoading(false));
-  }, [date]);
+  useEffect(() => { void fetchDaily(date); }, [date, fetchDaily]);
 
   return (
     <div className={styles.adminCard}>
@@ -186,19 +177,12 @@ function DailyView() {
 
 function MonthlyView() {
   const [month, setMonth] = useState(new Date().toISOString().slice(0, 7));
-  const [data, setData] = useState<Array<{ day: string; revenue: number }>>([]);
-  const [loading, setLoading] = useState(false);
+  const raw = useBillingsStore((s) => s.reports.monthly) as Array<{ day: string; revenue: number }> | undefined;
+  const data: Array<{ day: string; revenue: number }> = Array.isArray(raw) ? raw : [];
+  const loading = useBillingsStore((s) => s.status === 'loading');
+  const fetchMonthly = useBillingsStore((s) => s.fetchMonthly);
 
-  useEffect(() => {
-    setLoading(true);
-    billingApi.monthly(month)
-      .then((r) => {
-        const raw = r.data?.data ?? r.data ?? [];
-        setData(Array.isArray(raw) ? raw : []);
-      })
-      .catch(() => setData([]))
-      .finally(() => setLoading(false));
-  }, [month]);
+  useEffect(() => { void fetchMonthly(month); }, [month, fetchMonthly]);
 
   return (
     <div className={styles.adminCard}>
@@ -226,15 +210,12 @@ function MonthlyView() {
 }
 
 function OutstandingView() {
-  const [bills, setBills] = useState<Bill[]>([]);
-  const [loading, setLoading] = useState(true);
+  const raw = useBillingsStore((s) => s.reports.outstanding) as Bill[] | undefined;
+  const bills: Bill[] = Array.isArray(raw) ? raw : [];
+  const loading = useBillingsStore((s) => s.status === 'loading');
+  const fetchOutstanding = useBillingsStore((s) => s.fetchOutstanding);
 
-  useEffect(() => {
-    billingApi.outstanding()
-      .then((r) => setBills(r.data?.data ?? r.data ?? []))
-      .catch(() => setBills([]))
-      .finally(() => setLoading(false));
-  }, []);
+  useEffect(() => { void fetchOutstanding(); }, [fetchOutstanding]);
 
   const total = useMemo(() => bills.reduce((s, b) => s + (b.balanceDue || 0), 0), [bills]);
 
@@ -299,36 +280,37 @@ function CreateInvoiceModal({ onClose, onSaved }: { onClose: () => void; onSaved
   const taxAmt = ((subtotal - discountAmt) * (Number(tax) || 0)) / 100;
   const grand = subtotal - discountAmt + taxAmt;
 
-  const [patients, setPatients] = useState<PatientLite[]>([]);
   const [pq, setPq] = useState('');
-  const [services, setServices] = useState<ServiceLite[]>([]);
   const [err, setErr] = useState('');
+  const patients = usePatientsStore((s) => s.searchResults) as unknown as PatientLite[];
+  const searchPatients = usePatientsStore((s) => s.search);
+  const services = useServicesStore((s) => s.items) as unknown as ServiceLite[];
+  const fetchServices = useServicesStore((s) => s.fetchList);
+  const createBill = useBillingsStore((s) => s.create);
 
-  useEffect(() => { servicesApi.getAll().then((r) => setServices(r.data?.data ?? r.data ?? [])).catch(() => {}); }, []);
+  useEffect(() => { void fetchServices(); }, [fetchServices]);
   useEffect(() => {
-    if (!pq || pq.length < 2) return;
-    const t = setTimeout(() => patientsApi.search(pq).then((r) => setPatients(r.data?.data ?? r.data ?? [])).catch(() => {}), 300);
+    if (!pq || pq.length < 2) { void searchPatients(''); return; }
+    const t = setTimeout(() => { void searchPatients(pq); }, 300);
     return () => clearTimeout(t);
-  }, [pq]);
+  }, [pq, searchPatients]);
 
   const onSubmit = async (form: InvoiceForm) => {
     setErr('');
-    try {
-      await billingApi.create({
-        patient: form.patient,
-        items: form.items.map((i) => ({ ...i, total: Number(i.quantity) * Number(i.unitPrice) })),
-        subtotal,
-        discount: Number(form.discount) || 0,
-        discountType: form.discountType,
-        tax: Number(form.tax) || 0,
-        totalAmount: grand,
-        paymentMethod: form.paymentMethod,
-        notes: form.notes,
-      });
-      onSaved();
-    } catch (e: unknown) {
-      setErr((e as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed');
-    }
+    const payload = {
+      patient: form.patient,
+      items: form.items.map((i) => ({ ...i, total: Number(i.quantity) * Number(i.unitPrice) })),
+      subtotal,
+      discount: Number(form.discount) || 0,
+      discountType: form.discountType,
+      tax: Number(form.tax) || 0,
+      totalAmount: grand,
+      paymentMethod: form.paymentMethod,
+      notes: form.notes,
+    };
+    const result = await createBill(payload as never);
+    if (result) onSaved();
+    else setErr('Failed to save');
   };
 
   return (
@@ -450,15 +432,17 @@ function RecordPaymentModal({ bill, onClose, onSaved }: { bill: Bill; onClose: (
     defaultValues: { amount: bill.balanceDue, paymentMethod: 'cash' },
   });
   const [err, setErr] = useState('');
+  const recordPayment = useBillingsStore((s) => s.recordPayment);
 
   const onSubmit = async (form: { amount: number; paymentMethod: string; reference?: string }) => {
     setErr('');
-    try {
-      await billingApi.recordPayment(bill._id, { amount: Number(form.amount), paymentMethod: form.paymentMethod, reference: form.reference });
-      onSaved();
-    } catch (e: unknown) {
-      setErr((e as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed');
-    }
+    const result = await recordPayment(bill._id, {
+      amount: Number(form.amount),
+      paymentMethod: form.paymentMethod,
+      reference: form.reference,
+    });
+    if (result) onSaved();
+    else setErr('Failed to save');
   };
 
   return (

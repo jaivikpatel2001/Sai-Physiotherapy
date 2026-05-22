@@ -2,7 +2,7 @@
 import { useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { authApi } from '@/lib/api';
+import { useAuthStore } from '@/store';
 import styles from '../login.module.css';
 
 function ResetPasswordInner() {
@@ -16,6 +16,7 @@ function ResetPasswordInner() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [done, setDone] = useState(false);
+  const resetPassword = useAuthStore((s) => s.resetPassword);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,18 +34,13 @@ function ResetPasswordInner() {
       return;
     }
     setLoading(true);
-    try {
-      await authApi.resetPassword({ token, password });
+    const ok = await resetPassword({ token, password });
+    setLoading(false);
+    if (ok) {
       setDone(true);
       setTimeout(() => router.push('/login'), 2000);
-    } catch (err: unknown) {
-      const msg =
-        (err as { response?: { data?: { message?: string } }; message?: string })?.response?.data?.message ||
-        (err as Error)?.message ||
-        'Reset failed';
-      setError(msg);
-    } finally {
-      setLoading(false);
+    } else {
+      setError('Failed to save');
     }
   };
 

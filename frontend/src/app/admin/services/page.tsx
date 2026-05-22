@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import Image from 'next/image';
-import { servicesApi, adminServicesApi, type UploadedFile } from '@/lib/api';
+import { useServicesStore, type UploadedFile } from '@/store';
 import { formatCurrency } from '@sai-physio/utils';
 import {
   PageHeader,
@@ -75,34 +75,24 @@ const defaultForm: ServiceForm = {
 };
 
 export default function ServicesAdminPage() {
-  const [data, setData] = useState<Service[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const data = useServicesStore((s) => s.items) as unknown as Service[];
+  const loading = useServicesStore((s) => s.status === 'loading');
+  const error = useServicesStore((s) => s.error?.message ?? '');
+  const fetchList = useServicesStore((s) => s.fetchList);
+  const removeService = useServicesStore((s) => s.remove);
+
   const [editing, setEditing] = useState<Service | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  const fetchData = async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const r = await servicesApi.getAll();
-      setData(r.data?.data ?? r.data ?? []);
-    } catch (e: unknown) {
-      setError((e as { response?: { data?: { error?: string } } })?.response?.data?.error || 'Failed to load services');
-    } finally {
-      setLoading(false);
-    }
-  };
   useEffect(() => {
-    void fetchData();
-  }, []);
+    void fetchList();
+  }, [fetchList]);
 
   const handleDelete = async () => {
     if (!deletingId) return;
-    await adminServicesApi.remove(deletingId);
+    await removeService(deletingId);
     setDeletingId(null);
-    await fetchData();
   };
 
   return (
@@ -168,7 +158,7 @@ export default function ServicesAdminPage() {
         open={showForm}
         initial={editing}
         onClose={() => setShowForm(false)}
-        onSaved={() => { setShowForm(false); void fetchData(); }}
+        onSaved={() => { setShowForm(false); void fetchList(undefined, { force: true }); }}
       />
 
       <ConfirmDialog
@@ -200,6 +190,8 @@ function ServiceFormModal({
   const name = watch('name');
   const slug = watch('slug');
   const [err, setErr] = useState('');
+  const createService = useServicesStore((s) => s.create);
+  const updateService = useServicesStore((s) => s.update);
 
   useEffect(() => {
     if (!open) return;
@@ -259,13 +251,11 @@ function ServiceFormModal({
       isActive: f.isActive,
       order: Number(f.order),
     };
-    try {
-      if (initial) await adminServicesApi.update(initial._id, payload);
-      else await adminServicesApi.create(payload);
-      onSaved();
-    } catch (e: unknown) {
-      setErr((e as { response?: { data?: { error?: string } } })?.response?.data?.error || 'Failed to save');
-    }
+    const result = initial
+      ? await updateService(initial._id, payload as never)
+      : await createService(payload as never);
+    if (result) onSaved();
+    else setErr('Failed to save');
   };
 
   return (

@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
-import { patientsApi } from '@/lib/api';
+import { usePatientsStore } from '@/store';
 import { calculateAge, formatDate } from '@sai-physio/utils';
 import styles from '../admin.module.css';
 
@@ -38,32 +38,26 @@ interface NewPatientForm {
 
 export default function PatientsPage() {
   const router = useRouter();
-  const [data, setData] = useState<Patient[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const items = usePatientsStore((s) => s.items) as unknown as Patient[];
+  const searchResults = usePatientsStore((s) => s.searchResults) as unknown as Patient[];
+  const loading = usePatientsStore((s) => s.status === 'loading');
+  const error = usePatientsStore((s) => s.error?.message ?? '');
+  const fetchList = usePatientsStore((s) => s.fetchList);
+  const searchPatients = usePatientsStore((s) => s.search);
+
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const data: Patient[] = search ? searchResults : items;
 
-  const fetchData = async (q?: string) => {
-    setLoading(true);
-    setError('');
-    try {
-      const res = q ? await patientsApi.search(q) : await patientsApi.getAll();
-      setData(res.data?.data ?? res.data ?? []);
-    } catch (e: unknown) {
-      setError((e as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to load patients');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => { void fetchList(); }, [fetchList]);
 
   useEffect(() => {
-    const t = setTimeout(() => fetchData(search || undefined), 350);
+    const t = setTimeout(() => {
+      if (search) void searchPatients(search);
+      else void fetchList(undefined, { force: true });
+    }, 350);
     return () => clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search]);
+  }, [search, searchPatients, fetchList]);
 
   const columns = useMemo<ColumnDef<Patient>[]>(() => [
     { accessorKey: 'patientId', header: 'Patient ID' },
@@ -132,7 +126,7 @@ export default function PatientsPage() {
         </div>
       </div>
 
-      {showModal && <AddPatientModal onClose={() => setShowModal(false)} onSaved={() => { setShowModal(false); fetchData(); }} />}
+      {showModal && <AddPatientModal onClose={() => setShowModal(false)} onSaved={() => { setShowModal(false); void fetchList(undefined, { force: true }); }} />}
     </>
   );
 }
@@ -140,35 +134,34 @@ export default function PatientsPage() {
 function AddPatientModal({ onClose, onSaved }: { onClose: () => void; onSaved: () => void }) {
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<NewPatientForm>();
   const [err, setErr] = useState('');
+  const createPatient = usePatientsStore((s) => s.create);
 
   const onSubmit = async (form: NewPatientForm) => {
     setErr('');
-    try {
-      await patientsApi.create({
-        personalInfo: {
-          name: form.name,
-          phone: form.phone,
-          email: form.email,
-          dob: form.dob,
-          gender: form.gender,
-          address: form.address,
-          city: form.city,
-          emergencyContact: {
-            name: form.emergencyName,
-            phone: form.emergencyPhone,
-            relation: form.emergencyRelation,
-          },
+    const payload = {
+      personalInfo: {
+        name: form.name,
+        phone: form.phone,
+        email: form.email,
+        dob: form.dob,
+        gender: form.gender,
+        address: form.address,
+        city: form.city,
+        emergencyContact: {
+          name: form.emergencyName,
+          phone: form.emergencyPhone,
+          relation: form.emergencyRelation,
         },
-        medicalHistory: {
-          chiefComplaint: form.chiefComplaint,
-          allergies: form.allergies ? form.allergies.split(',').map((s) => s.trim()) : [],
-          medications: form.medications ? form.medications.split(',').map((s) => s.trim()) : [],
-        },
-      });
-      onSaved();
-    } catch (e: unknown) {
-      setErr((e as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to create patient');
-    }
+      },
+      medicalHistory: {
+        chiefComplaint: form.chiefComplaint,
+        allergies: form.allergies ? form.allergies.split(',').map((s) => s.trim()) : [],
+        medications: form.medications ? form.medications.split(',').map((s) => s.trim()) : [],
+      },
+    };
+    const result = await createPatient(payload as never);
+    if (result) onSaved();
+    else setErr('Failed to save');
   };
 
   return (

@@ -1,6 +1,6 @@
 'use client';
 import React, { useCallback, useId, useRef, useState } from 'react';
-import { uploadApi, type StorageModule, type UploadedFile } from '@/lib/api';
+import { useUploadStore, type StorageModule, type UploadedFile } from '@/store';
 import styles from './admin-shared.module.css';
 
 interface FileUploadProps {
@@ -38,23 +38,23 @@ export function FileUpload({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [dragging, setDragging] = useState(false);
+  const uploadImage = useUploadStore((s) => s.uploadImage);
+  const removeUpload = useUploadStore((s) => s.remove);
 
   const handleFile = useCallback(
     async (file: File) => {
       setError('');
       setBusy(true);
       try {
-        const res = await uploadApi.uploadImage(module, file);
-        const data: UploadedFile = res.data?.data ?? res.data;
-        onChange(data);
-      } catch (e) {
-        setError(pickError(e));
+        const data = await uploadImage(module, file);
+        if (data) onChange(data);
+        else setError('Upload failed');
       } finally {
         setBusy(false);
         if (inputRef.current) inputRef.current.value = '';
       }
     },
-    [module, onChange],
+    [module, onChange, uploadImage],
   );
 
   const onSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -71,12 +71,8 @@ export function FileUpload({
 
   const removeFile = async () => {
     if (!value) return;
-    try {
-      if (value.key && value.storage) {
-        await uploadApi.remove(value.key, value.storage);
-      }
-    } catch {
-      // best-effort
+    if (value.key && value.storage) {
+      await removeUpload(value.key, value.storage);
     }
     onChange(null);
   };
@@ -175,32 +171,25 @@ export function MultiFileUpload({
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const uploadImages = useUploadStore((s) => s.uploadImages);
+  const removeUpload = useUploadStore((s) => s.remove);
 
   const onSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
     if (files.length === 0) return;
     setError('');
     setBusy(true);
-    try {
-      const res = await uploadApi.uploadImages(module, files);
-      const next: UploadedFile[] = res.data?.data ?? res.data ?? [];
-      onChange([...value, ...next].slice(0, max));
-    } catch (err) {
-      setError(pickError(err));
-    } finally {
-      setBusy(false);
-      if (inputRef.current) inputRef.current.value = '';
-    }
+    const next = await uploadImages(module, files);
+    if (next) onChange([...value, ...next].slice(0, max));
+    else setError('Upload failed');
+    setBusy(false);
+    if (inputRef.current) inputRef.current.value = '';
   };
 
   const removeAt = async (idx: number) => {
     const file = value[idx];
     if (!file) return;
-    try {
-      if (file.key && file.storage) await uploadApi.remove(file.key, file.storage);
-    } catch {
-      // best-effort
-    }
+    if (file.key && file.storage) await removeUpload(file.key, file.storage);
     onChange(value.filter((_, i) => i !== idx));
   };
 

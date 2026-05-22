@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
-import { authApi } from '@/lib/api';
+import { useAuthStore } from '@/store';
 import styles from '../login.module.css';
 
 export default function ForgotPasswordPage() {
@@ -9,23 +9,16 @@ export default function ForgotPasswordPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [sent, setSent] = useState(false);
+  const forgotPassword = useAuthStore((s) => s.forgotPassword);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
-    try {
-      await authApi.forgotPassword(email);
-      setSent(true);
-    } catch (err: unknown) {
-      const msg =
-        (err as { response?: { data?: { message?: string } }; message?: string })?.response?.data?.message ||
-        (err as Error)?.message ||
-        'Something went wrong';
-      setError(msg);
-    } finally {
-      setLoading(false);
-    }
+    const ok = await forgotPassword(email);
+    setLoading(false);
+    if (ok) setSent(true);
+    else setError('Failed to save');
   };
 
   if (sent) {

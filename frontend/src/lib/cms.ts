@@ -153,6 +153,11 @@ export const getFooterPages = cache(async (): Promise<CmsPage[] | null> =>
   safeGet<CmsPage[]>('/pages?footer=true'),
 );
 
+/** All published pages — used by `generateStaticParams` at build time. */
+export const getAllPublishedPages = cache(async (): Promise<CmsPage[] | null> =>
+  safeGet<CmsPage[]>('/pages'),
+);
+
 export const getPageBySlug = cache(async (slug: string): Promise<CmsPage | null> =>
   safeGet<CmsPage>(`/pages/slug/${encodeURIComponent(slug)}`),
 );

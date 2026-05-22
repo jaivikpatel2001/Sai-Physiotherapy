@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import Image from 'next/image';
-import { adminDoctorsApi, type UploadedFile } from '@/lib/api';
+import { useDoctorsStore, type UploadedFile } from '@/store';
 import {
   PageHeader,
   AddButton,
@@ -125,34 +125,23 @@ const defaultForm: DoctorForm = {
 };
 
 export default function DoctorsAdminPage() {
-  const [doctors, setDoctors] = useState<Doctor[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const doctors = useDoctorsStore((s) => s.items) as unknown as Doctor[];
+  const loading = useDoctorsStore((s) => s.status === 'loading');
+  const error = useDoctorsStore((s) => s.error?.message ?? '');
+  const fetchList = useDoctorsStore((s) => s.fetchList);
+  const removeDoctor = useDoctorsStore((s) => s.remove);
+
   const [editing, setEditing] = useState<Doctor | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  const fetchData = async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const res = await adminDoctorsApi.getAll();
-      setDoctors(res.data?.data ?? []);
-    } catch (e: unknown) {
-      setError((e as { response?: { data?: { error?: string } } })?.response?.data?.error || 'Failed to load doctors');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    void fetchData();
-  }, []);
+    void fetchList();
+  }, [fetchList]);
 
   const handleDelete = async () => {
     if (!deletingId) return;
-    await adminDoctorsApi.remove(deletingId);
-    setDoctors((arr) => arr.filter((d) => d._id !== deletingId));
+    await removeDoctor(deletingId);
     setDeletingId(null);
   };
 
@@ -234,7 +223,7 @@ export default function DoctorsAdminPage() {
         open={showModal}
         doctor={editing}
         onClose={() => setShowModal(false)}
-        onSaved={() => { setShowModal(false); void fetchData(); }}
+        onSaved={() => { setShowModal(false); void fetchList(undefined, { force: true }); }}
       />
 
       <ConfirmDialog
@@ -273,6 +262,8 @@ function DoctorFormModal({
   const [err, setErr] = useState('');
   const nameVal = watch('name');
   const slugVal = watch('slug');
+  const createDoctor = useDoctorsStore((s) => s.create);
+  const updateDoctor = useDoctorsStore((s) => s.update);
 
   useEffect(() => {
     if (!open) return;
@@ -370,13 +361,11 @@ function DoctorFormModal({
         mimetype: form.photo.mimetype,
       },
     };
-    try {
-      if (isEdit && doctor) await adminDoctorsApi.update(doctor._id, payload);
-      else await adminDoctorsApi.create(payload);
-      onSaved();
-    } catch (e: unknown) {
-      setErr((e as { response?: { data?: { error?: string } } })?.response?.data?.error || 'Failed to save');
-    }
+    const result = isEdit && doctor
+      ? await updateDoctor(doctor._id, payload as never)
+      : await createDoctor(payload as never);
+    if (result) onSaved();
+    else setErr('Failed to save');
   };
 
   return (

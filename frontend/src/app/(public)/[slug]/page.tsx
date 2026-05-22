@@ -1,13 +1,22 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { pageMeta } from '@/lib/seo/metadata';
-import { getPageBySlug } from '@/lib/cms';
+import { getPageBySlug, getAllPublishedPages } from '@/lib/cms';
 import JsonLd from '@/components/seo/JsonLd';
 import { breadcrumbSchema } from '@/lib/seo/schema';
 import styles from './cms-page.module.css';
 
 interface Params {
   slug: string;
+}
+
+// Prerender every published CMS page at build time. If the backend is offline
+// at build (or there are no pages yet), we fall through to `dynamicParams:true`
+// (the default) and pages are rendered on demand with ISR.
+export async function generateStaticParams(): Promise<Array<{ slug: string }>> {
+  const pages = await getAllPublishedPages();
+  if (!pages?.length) return [];
+  return pages.map((p) => ({ slug: p.slug }));
 }
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {

@@ -4,7 +4,7 @@ import { useParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import Link from 'next/link';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
-import { patientsApi, sessionsApi } from '@/lib/api';
+import { usePatientsStore, useSessionsStore } from '@/store';
 import { calculateAge, formatCurrency, formatDate } from '@sai-physio/utils';
 import styles from '../../admin.module.css';
 import local from '../patients.module.css';
@@ -56,42 +56,36 @@ export default function PatientDetailPage() {
   const params = useParams();
   const id = params?.id as string;
   const [tab, setTab] = useState<Tab>('overview');
-  const [patient, setPatient] = useState<Patient | null>(null);
-  const [sessions, setSessions] = useState<Session[]>([]);
-  const [bills, setBills] = useState<Bill[]>([]);
-  const [recovery, setRecovery] = useState<Array<{ date: string; pain: number; recovery?: number }>>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const patient = usePatientsStore((s) => s.current) as unknown as Patient | null;
+  const sessions = useSessionsStore((s) => (id ? s.byPatient[id] : undefined) ?? []) as unknown as Session[];
+  const bills = usePatientsStore((s) => (id ? s.billsByPatient[id] : undefined) ?? []) as unknown as Bill[];
+  const recoveryRaw = useSessionsStore((s) => (id ? s.recoveryByPatient[id] : undefined)) as unknown as
+    | Array<{ date: string; painScale?: number; recoveryPercentage?: number }>
+    | undefined;
+  const recovery: Array<{ date: string; pain: number; recovery?: number }> = (recoveryRaw ?? []).map((x) => ({
+    date: formatDate(x.date),
+    pain: x.painScale ?? 0,
+    recovery: x.recoveryPercentage ?? 0,
+  }));
+  const loading = usePatientsStore((s) => s.status === 'loading');
+  const error = usePatientsStore((s) => s.error?.message ?? '');
+  const fetchOne = usePatientsStore((s) => s.fetchOne);
+  const fetchSessions = usePatientsStore((s) => s.fetchSessions);
+  const fetchBills = usePatientsStore((s) => s.fetchBills);
+  const fetchSessionsBySource = useSessionsStore((s) => s.fetchByPatient);
+  const fetchRecovery = useSessionsStore((s) => s.fetchRecovery);
   const [showSession, setShowSession] = useState(false);
 
-  const fetchAll = async () => {
-    setLoading(true);
-    try {
-      const [p, s, b, r] = await Promise.allSettled([
-        patientsApi.getById(id),
-        patientsApi.getSessions(id),
-        patientsApi.getBills(id),
-        sessionsApi.getRecovery(id),
-      ]);
-      if (p.status === 'fulfilled') setPatient(p.value.data?.data ?? p.value.data);
-      if (s.status === 'fulfilled') setSessions(s.value.data?.data ?? s.value.data ?? []);
-      if (b.status === 'fulfilled') setBills(b.value.data?.data ?? b.value.data ?? []);
-      if (r.status === 'fulfilled') {
-        const raw = r.value.data?.data ?? r.value.data ?? [];
-        setRecovery(raw.map((x: { date: string; painScale?: number; recoveryPercentage?: number }) => ({
-          date: formatDate(x.date),
-          pain: x.painScale ?? 0,
-          recovery: x.recoveryPercentage ?? 0,
-        })));
-      }
-    } catch (e: unknown) {
-      setError((e as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to load');
-    } finally {
-      setLoading(false);
-    }
+  const fetchAll = () => {
+    if (!id) return;
+    void fetchOne(id);
+    void fetchSessions(id);
+    void fetchSessionsBySource(id);
+    void fetchBills(id);
+    void fetchRecovery(id);
   };
 
-  useEffect(() => { if (id) fetchAll(); /* eslint-disable-next-line */ }, [id]);
+  useEffect(() => { fetchAll(); /* eslint-disable-next-line */ }, [id]);
 
   if (loading) return <div className={styles.spinner} />;
   if (!patient) return <div className={styles.errorBox}><i className="ri-error-warning-line" style={{ fontSize: 16 }} />Patient not found</div>;
@@ -245,29 +239,28 @@ function AddSessionModal({ patientId, onClose, onSaved }: { patientId: string; o
     defaultValues: { painScale: 5, recoveryPercentage: 0, date: new Date().toISOString().split('T')[0] },
   });
   const [err, setErr] = useState('');
+  const createSession = useSessionsStore((s) => s.create);
 
   const onSubmit = async (form: SessionForm) => {
     setErr('');
-    try {
-      await sessionsApi.create({
-        patient: patientId,
-        date: form.date,
-        chiefComplaint: form.chiefComplaint,
-        soapNotes: {
-          subjective: form.subjective,
-          objective: form.objective,
-          assessment: form.assessment,
-          plan: form.plan,
-        },
-        vitalSigns: { painScale: Number(form.painScale) },
-        treatmentsGiven: form.treatments ? form.treatments.split(',').map((s) => s.trim()) : [],
-        exercisesPrescribed: form.exercises ? form.exercises.split(',').map((s) => s.trim()) : [],
-        recoveryPercentage: Number(form.recoveryPercentage),
-      });
-      onSaved();
-    } catch (e: unknown) {
-      setErr((e as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to save');
-    }
+    const payload = {
+      patient: patientId,
+      date: form.date,
+      chiefComplaint: form.chiefComplaint,
+      soapNotes: {
+        subjective: form.subjective,
+        objective: form.objective,
+        assessment: form.assessment,
+        plan: form.plan,
+      },
+      vitalSigns: { painScale: Number(form.painScale) },
+      treatmentsGiven: form.treatments ? form.treatments.split(',').map((s) => s.trim()) : [],
+      exercisesPrescribed: form.exercises ? form.exercises.split(',').map((s) => s.trim()) : [],
+      recoveryPercentage: Number(form.recoveryPercentage),
+    };
+    const result = await createSession(payload as never);
+    if (result) onSaved();
+    else setErr('Failed to save');
   };
 
   return (
