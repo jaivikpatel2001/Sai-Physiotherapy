@@ -7,3 +7,6 @@ export { EmptyState, AsyncBoundary } from './EmptyState';
 export { StatusBadge, toneFor, type StatusTone } from './StatusBadge';
 export { DataTable, type Column } from './DataTable';
 export { TagInput } from './TagInput';
+export { ResourceDetailModal } from './ResourceDetailModal';
+export { FilterToolbar, SortableHeader, type FilterDef, type FilterOption } from './FilterToolbar';
+export { useTableQuery, applyTableQuery, type SortOrder } from './useTableQuery';

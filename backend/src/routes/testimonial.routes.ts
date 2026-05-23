@@ -1,7 +1,8 @@
 import { Router } from 'express';
 import {
   getApprovedTestimonials, submitTestimonial,
-  getAllTestimonialsAdmin, approveTestimonial, deleteTestimonial,
+  getAllTestimonialsAdmin, getTestimonialByIdAdmin,
+  approveTestimonial, deleteTestimonial,
   createTestimonialAdmin, updateTestimonialAdmin,
 } from '../controllers/testimonial.controller';
 import { authenticate, authorize } from '../middleware/auth.middleware';
@@ -103,6 +104,34 @@ router.post('/submit', submitTestimonial);
  *       403: { $ref: '#/components/responses/Forbidden' }
  */
 router.get('/admin', authenticate, authorize(UserRole.SUPER_ADMIN, UserRole.ADMIN), getAllTestimonialsAdmin);
+
+/**
+ * @openapi
+ * /testimonials/admin/{id}:
+ *   get:
+ *     tags: [Testimonials]
+ *     summary: Admin — fetch a single testimonial by ID
+ *     security: [{ BearerAuth: [] }]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: Testimonial record
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiSuccess'
+ *                 - properties:
+ *                     data: { $ref: '#/components/schemas/Testimonial' }
+ *       401: { $ref: '#/components/responses/Unauthorized' }
+ *       403: { $ref: '#/components/responses/Forbidden' }
+ *       404: { $ref: '#/components/responses/NotFound' }
+ */
+router.get('/admin/:id', authenticate, authorize(UserRole.SUPER_ADMIN, UserRole.ADMIN), getTestimonialByIdAdmin);
 
 /**
  * @openapi

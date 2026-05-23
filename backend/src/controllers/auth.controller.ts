@@ -232,6 +232,16 @@ export const getAllUsers = asyncHandler(async (req: AuthRequest, res: Response) 
 });
 
 /**
+ * @route  GET /api/v1/auth/users/:id (admin)
+ * @access Admin+
+ */
+export const getUserById = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const user = await User.findById(req.params.id);
+  if (!user) throw new AppError('User not found', 404);
+  sendSuccess({ res, data: user });
+});
+
+/**
  * @route  PATCH /api/v1/auth/users/:id/toggle-status
  * @access Super Admin only
  */

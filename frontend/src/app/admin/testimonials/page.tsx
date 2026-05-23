@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useTestimonialsStore } from '@/store';
+import { useTestimonialsStore, testimonialsApi } from '@/store';
 import { formatDate } from '@sai-physio/utils';
 import {
   PageHeader,
@@ -11,6 +11,10 @@ import {
   ConfirmDialog,
   AsyncBoundary,
   StatusBadge,
+  ResourceDetailModal,
+  FilterToolbar,
+  useTableQuery,
+  applyTableQuery,
 } from '@/components/admin';
 import styles from '../admin.module.css';
 
@@ -39,8 +43,6 @@ interface TestimonialForm {
   isFeatured: boolean;
 }
 
-type StatusFilter = 'all' | 'pending' | 'approved';
-
 const defaultForm: TestimonialForm = {
   patientName: '',
   condition: '',
@@ -59,20 +61,40 @@ export default function TestimonialsPage() {
   const moderateItem = useTestimonialsStore((s) => s.moderate);
   const removeItem = useTestimonialsStore((s) => s.remove);
 
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [editing, setEditing] = useState<Testimonial | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [viewingId, setViewingId] = useState<string | null>(null);
+
+  const q = useTableQuery({
+    initialSortBy: 'createdAt',
+    initialSortOrder: 'desc',
+    initialFilters: { isApproved: '', isFeatured: '', source: '', rating: '' },
+  });
 
   useEffect(() => {
     void fetchList();
   }, [fetchList]);
 
-  const filtered = useMemo(() => {
-    if (statusFilter === 'pending') return items.filter((t) => !t.isApproved);
-    if (statusFilter === 'approved') return items.filter((t) => t.isApproved);
-    return items;
-  }, [items, statusFilter]);
+  const filtered = useMemo(() => applyTableQuery({
+    rows: items,
+    search: q.debouncedSearch,
+    searchFields: (t) => `${t.patientName} ${t.condition} ${t.review}`,
+    filters: q.filters,
+    filterAccessors: {
+      isApproved: (t) => String(t.isApproved),
+      isFeatured: (t) => String(t.isFeatured),
+      source: (t) => t.source,
+      rating: (t) => String(t.rating),
+    },
+    sortBy: q.sortBy,
+    sortOrder: q.sortOrder,
+    sortAccessors: {
+      createdAt: (t) => new Date(t.createdAt),
+      rating: (t) => t.rating,
+      patientName: (t) => t.patientName,
+    },
+  }), [items, q.debouncedSearch, q.filters, q.sortBy, q.sortOrder]);
 
   const moderate = async (id: string, isApproved: boolean) => {
     await moderateItem(id, { isApproved });
@@ -93,33 +115,71 @@ export default function TestimonialsPage() {
       <PageHeader
         title="Testimonials"
         subtitle="Approve, feature, or add patient testimonials."
-        actions={
-          <>
-            <select
-              className="form-input"
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
-              style={{ minWidth: 140 }}
-            >
-              <option value="all">All</option>
-              <option value="pending">Pending</option>
-              <option value="approved">Approved</option>
-            </select>
-            <AddButton label="Add Testimonial" onClick={() => { setEditing(null); setShowModal(true); }} />
-          </>
-        }
+        actions={<AddButton label="Add Testimonial" onClick={() => { setEditing(null); setShowModal(true); }} />}
       />
 
       <div className={styles.adminCard}>
+        <FilterToolbar
+          search={q.search}
+          onSearchChange={q.setSearch}
+          searchPlaceholder="Search patient name, condition, or review…"
+          filters={[
+            {
+              type: 'select', key: 'isApproved', label: 'Status', icon: 'ri-shield-check-line',
+              options: [
+                { value: 'true', label: 'Approved' },
+                { value: 'false', label: 'Pending' },
+              ],
+            },
+            {
+              type: 'select', key: 'isFeatured', label: 'Featured', icon: 'ri-star-line',
+              options: [
+                { value: 'true', label: 'Featured' },
+                { value: 'false', label: 'Not featured' },
+              ],
+            },
+            {
+              type: 'select', key: 'source', label: 'Source', icon: 'ri-share-line',
+              options: [
+                { value: 'manual', label: 'Manual' },
+                { value: 'website_form', label: 'Website form' },
+                { value: 'google', label: 'Google' },
+              ],
+            },
+            {
+              type: 'select', key: 'rating', label: 'Rating', icon: 'ri-star-line',
+              options: [5, 4, 3, 2, 1].map((n) => ({ value: String(n), label: `${n} stars` })),
+            },
+          ]}
+          filterValues={q.filters}
+          onFilterChange={q.setFilter}
+          sort={{
+            options: [
+              { value: 'createdAt', label: 'Date submitted' },
+              { value: 'rating', label: 'Rating' },
+              { value: 'patientName', label: 'Patient name' },
+            ],
+          }}
+          sortBy={q.sortBy}
+          sortOrder={q.sortOrder}
+          onSortChange={(by, order) => q.setSort(by, order)}
+          onReset={q.resetAll}
+          hasActive={q.hasActive}
+          totalCount={items.length}
+          filteredCount={filtered.length}
+        />
+
         <div style={{ padding: 'var(--space-6)' }}>
           <AsyncBoundary
             loading={loading}
             error={error || null}
             empty={filtered.length === 0}
-            emptyTitle="No testimonials"
-            emptyDescription="Add a testimonial manually or wait for visitors to submit one."
+            emptyTitle={q.hasActive ? 'No testimonials match your filters' : 'No testimonials'}
+            emptyDescription={q.hasActive ? 'Try clearing one or more filters.' : 'Add a testimonial manually or wait for visitors to submit one.'}
             emptyIcon="ri-message-3-line"
-            emptyAction={<AddButton label="Add Testimonial" onClick={() => { setEditing(null); setShowModal(true); }} />}
+            emptyAction={q.hasActive
+              ? <button type="button" onClick={q.resetAll} className={`${styles.btn} ${styles.btnSecondary}`}><i className="ri-refresh-line" /> Reset filters</button>
+              : <AddButton label="Add Testimonial" onClick={() => { setEditing(null); setShowModal(true); }} />}
           >
             <div className={styles.cardGrid}>
               {filtered.map((t) => (
@@ -187,6 +247,7 @@ export default function TestimonialsPage() {
                       )}
                     </div>
                     <ActionMenu
+                      onView={() => setViewingId(t._id)}
                       onEdit={() => { setEditing(t); setShowModal(true); }}
                       onDelete={() => setDeletingId(t._id)}
                     />
@@ -212,6 +273,13 @@ export default function TestimonialsPage() {
         confirmLabel="Delete"
         onConfirm={handleDelete}
         onCancel={() => setDeletingId(null)}
+      />
+
+      <ResourceDetailModal
+        open={!!viewingId}
+        id={viewingId}
+        onClose={() => setViewingId(null)}
+        fetcher={testimonialsApi.getOne}
       />
     </>
   );

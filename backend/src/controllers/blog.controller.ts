@@ -35,6 +35,14 @@ export const getBlogBySlug = asyncHandler(async (req: Request, res: Response) =>
   sendSuccess({ res, data: blog });
 });
 
+export const getBlogByIdAdmin = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const blog = await Blog.findById(req.params.id)
+    .populate('author', 'name avatar specialization')
+    .lean();
+  if (!blog) throw new AppError('Blog post not found', 404);
+  sendSuccess({ res, data: blog });
+});
+
 export const getAllBlogsAdmin = asyncHandler(async (req: AuthRequest, res: Response) => {
   const { page, limit, skip } = getPaginationParams(req.query);
   const [blogs, total] = await Promise.all([

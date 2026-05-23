@@ -4,32 +4,36 @@ import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
 } from 'recharts';
-import { useBillingsStore, usePatientsStore, useServicesStore } from '@/store';
+import { useBillingsStore, usePatientsStore, useServicesStore, billingsApi } from '@/store';
 import { formatCurrency, formatDate } from '@sai-physio/utils';
+import {
+  ActionMenu, StatusBadge, toneFor, ResourceDetailModal,
+  DataTable, type Column, FilterToolbar, useTableQuery, applyTableQuery,
+  AddButton,
+} from '@/components/admin';
 import styles from '../admin.module.css';
 import local from './billing.module.css';
 
 interface Bill {
   _id: string;
   invoiceNumber: string;
-  patient: { _id: string; personalInfo?: { name?: string } } | string;
+  patient: { _id: string; personalInfo?: { name?: string; phone?: string } } | string;
   totalAmount: number;
   amountPaid: number;
   balanceDue: number;
+  subtotal?: number;
+  discount?: number;
+  discountType?: 'flat' | 'percentage';
+  tax?: number;
   paymentStatus: string;
   paymentMethod: string;
+  items?: Array<{ description: string; quantity: number; unitPrice: number; total?: number }>;
+  notes?: string;
   createdAt: string;
 }
 
 const TABS = ['invoices', 'daily', 'monthly', 'outstanding'] as const;
 type Tab = typeof TABS[number];
-
-const STATUS_BADGE: Record<string, string> = {
-  paid: styles.badgeSuccess,
-  partial: styles.badgeWarning,
-  pending: styles.badgeError,
-  waived: styles.badgeNeutral,
-};
 
 export default function BillingPage() {
   const [tab, setTab] = useState<Tab>('invoices');
@@ -64,17 +68,43 @@ function InvoicesView() {
   const loading = useBillingsStore((s) => s.status === 'loading');
   const error = useBillingsStore((s) => s.error?.message ?? '');
   const fetchList = useBillingsStore((s) => s.fetchList);
-  const [statusFilter, setStatusFilter] = useState('');
   const [showCreate, setShowCreate] = useState(false);
   const [paymentTarget, setPaymentTarget] = useState<Bill | null>(null);
+  const [viewingId, setViewingId] = useState<string | null>(null);
+
+  const q = useTableQuery({
+    initialSortBy: 'createdAt',
+    initialSortOrder: 'desc',
+    initialFilters: { paymentStatus: '', paymentMethod: '', date: '' },
+  });
 
   const refetch = () => {
     const params: Record<string, string> = {};
-    if (statusFilter) params.status = statusFilter;
+    if (q.filters.paymentStatus) params.status = q.filters.paymentStatus;
     void fetchList(params, { force: true });
   };
 
-  useEffect(() => { refetch(); /* eslint-disable-next-line */ }, [statusFilter]);
+  useEffect(() => { refetch(); /* eslint-disable-next-line */ }, [q.filters.paymentStatus]);
+
+  const filtered = useMemo(() => applyTableQuery({
+    rows: bills,
+    search: q.debouncedSearch,
+    searchFields: (b) => `${b.invoiceNumber} ${typeof b.patient === 'object' ? b.patient.personalInfo?.name ?? '' : ''}`,
+    filters: { paymentMethod: q.filters.paymentMethod ?? '', date: q.filters.date ?? '' },
+    filterAccessors: {
+      paymentMethod: (b) => b.paymentMethod,
+      date: (b) => b.createdAt ? new Date(b.createdAt).toISOString().slice(0, 10) : '',
+    },
+    sortBy: q.sortBy,
+    sortOrder: q.sortOrder,
+    sortAccessors: {
+      createdAt: (b) => new Date(b.createdAt),
+      invoiceNumber: (b) => b.invoiceNumber,
+      totalAmount: (b) => b.totalAmount,
+      balanceDue: (b) => b.balanceDue,
+      patient: (b) => typeof b.patient === 'object' ? b.patient.personalInfo?.name ?? '' : '',
+    },
+  }), [bills, q.debouncedSearch, q.filters.paymentMethod, q.filters.date, q.sortBy, q.sortOrder]);
 
   return (
     <>
@@ -83,50 +113,114 @@ function InvoicesView() {
         <div className={styles.cardHeader}>
           <div className={styles.cardTitle}>Invoices</div>
           <div className={styles.actions}>
-            <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="form-input" style={{ padding: '6px 10px' }}>
-              <option value="">All statuses</option>
-              <option value="paid">Paid</option>
-              <option value="partial">Partial</option>
-              <option value="pending">Pending</option>
-              <option value="waived">Waived</option>
-            </select>
-            <button className={`${styles.btn} ${styles.btnPrimary}`} onClick={() => setShowCreate(true)}>
-              <i className="ri-add-line" style={{ fontSize: 16 }} /> Create Invoice
-            </button>
+            <AddButton label="Create Invoice" onClick={() => setShowCreate(true)} />
           </div>
         </div>
-        <div className={styles.tableWrap}>
-          {loading ? <div className={styles.spinner} /> : bills.length === 0 ? (
-            <div className={styles.empty}><i className={`ri-receipt-line ${styles.emptyIcon}`} style={{ fontSize: 40 }} /><span>No invoices yet</span></div>
-          ) : (
-            <table className={styles.table}>
-              <thead><tr><th>Invoice #</th><th>Patient</th><th>Date</th><th>Total</th><th>Paid</th><th>Due</th><th>Status</th><th>Actions</th></tr></thead>
-              <tbody>
-                {bills.map((b) => (
-                  <tr key={b._id}>
-                    <td>{b.invoiceNumber}</td>
-                    <td>{typeof b.patient === 'object' ? b.patient.personalInfo?.name ?? '—' : '—'}</td>
-                    <td>{formatDate(b.createdAt)}</td>
-                    <td>{formatCurrency(b.totalAmount)}</td>
-                    <td>{formatCurrency(b.amountPaid)}</td>
-                    <td>{formatCurrency(b.balanceDue)}</td>
-                    <td><span className={`${styles.badge} ${STATUS_BADGE[b.paymentStatus] || styles.badgeNeutral}`}>{b.paymentStatus}</span></td>
-                    <td>
-                      {b.balanceDue > 0 && (
-                        <button className={`${styles.btn} ${styles.btnSecondary} ${styles.btnSm}`} onClick={() => setPaymentTarget(b)}>
-                          <i className="ri-bank-card-line" style={{ fontSize: 14 }} /> Record Payment
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+
+        <FilterToolbar
+          search={q.search}
+          onSearchChange={q.setSearch}
+          searchPlaceholder="Search invoice # or patient name…"
+          filters={[
+            {
+              type: 'select', key: 'paymentStatus', label: 'Status', icon: 'ri-flag-line',
+              options: [
+                { value: 'paid', label: 'Paid' },
+                { value: 'partial', label: 'Partial' },
+                { value: 'pending', label: 'Pending' },
+                { value: 'waived', label: 'Waived' },
+              ],
+            },
+            {
+              type: 'select', key: 'paymentMethod', label: 'Method', icon: 'ri-bank-card-line',
+              options: [
+                { value: 'cash', label: 'Cash' },
+                { value: 'upi_manual', label: 'UPI' },
+                { value: 'bank_transfer', label: 'Bank Transfer' },
+                { value: 'cheque', label: 'Cheque' },
+                { value: 'pending', label: 'Pending' },
+              ],
+            },
+            { type: 'date', key: 'date', label: 'Date', icon: 'ri-calendar-line' },
+          ]}
+          filterValues={q.filters}
+          onFilterChange={q.setFilter}
+          sort={{
+            options: [
+              { value: 'createdAt', label: 'Date' },
+              { value: 'invoiceNumber', label: 'Invoice #' },
+              { value: 'totalAmount', label: 'Total amount' },
+              { value: 'balanceDue', label: 'Balance due' },
+              { value: 'patient', label: 'Patient' },
+            ],
+          }}
+          sortBy={q.sortBy}
+          sortOrder={q.sortOrder}
+          onSortChange={(by, order) => q.setSort(by, order)}
+          onReset={q.resetAll}
+          hasActive={q.hasActive}
+          totalCount={bills.length}
+          filteredCount={filtered.length}
+        />
+
+        <DataTable
+          rows={filtered}
+          columns={[
+            { key: 'invoiceNumber', header: 'Invoice #', sortKey: 'invoiceNumber', render: (b) => <code style={{ fontSize: 'var(--text-xs)' }}>{b.invoiceNumber}</code> },
+            { key: 'patient', header: 'Patient', sortKey: 'patient', render: (b) => typeof b.patient === 'object' ? b.patient.personalInfo?.name ?? '—' : '—' },
+            { key: 'createdAt', header: 'Date', sortKey: 'createdAt', render: (b) => formatDate(b.createdAt) },
+            { key: 'totalAmount', header: 'Total', sortKey: 'totalAmount', render: (b) => formatCurrency(b.totalAmount) },
+            { key: 'amountPaid', header: 'Paid', render: (b) => formatCurrency(b.amountPaid) },
+            { key: 'balanceDue', header: 'Due', sortKey: 'balanceDue', render: (b) => <strong>{formatCurrency(b.balanceDue)}</strong> },
+            { key: 'status', header: 'Status', render: (b) => <StatusBadge label={b.paymentStatus} tone={toneFor(b.paymentStatus)} /> },
+          ] as Column<Bill>[]}
+          rowKey={(b) => b._id}
+          loading={loading}
+          sortBy={q.sortBy}
+          sortOrder={q.sortOrder}
+          onSort={q.toggleSort}
+          renderActions={(b) => (
+            <ActionMenu
+              onView={() => setViewingId(b._id)}
+              onEdit={b.balanceDue > 0 ? () => setPaymentTarget(b) : undefined}
+              editLabel="Record Payment"
+            />
           )}
-        </div>
+        />
+
+        {!loading && filtered.length === 0 && (
+          <div className={styles.empty}>
+            <i className={`ri-receipt-line ${styles.emptyIcon}`} style={{ fontSize: 40 }} />
+            <span>{q.hasActive ? 'No invoices match your filters' : 'No invoices yet'}</span>
+            {q.hasActive && (
+              <button type="button" onClick={q.resetAll} className={`${styles.btn} ${styles.btnSecondary} ${styles.btnSm}`}>
+                <i className="ri-refresh-line" /> Reset filters
+              </button>
+            )}
+          </div>
+        )}
       </div>
       {showCreate && <CreateInvoiceModal onClose={() => setShowCreate(false)} onSaved={() => { setShowCreate(false); refetch(); }} />}
       {paymentTarget && <RecordPaymentModal bill={paymentTarget} onClose={() => setPaymentTarget(null)} onSaved={() => { setPaymentTarget(null); refetch(); }} />}
+      <ResourceDetailModal
+        open={!!viewingId}
+        id={viewingId}
+        onClose={() => setViewingId(null)}
+        fetcher={billingsApi.getOne}
+        extraActions={(bill) => {
+          const b = bill as unknown as Bill;
+          if (!b.balanceDue || b.balanceDue <= 0) return null;
+          return (
+            <button
+              type="button"
+              onClick={() => { setViewingId(null); setPaymentTarget(b); }}
+              className={`${styles.btn} ${styles.btnPrimary}`}
+            >
+              <i className="ri-bank-card-line" style={{ fontSize: 16 }} /> Record Payment
+            </button>
+          );
+        }}
+      />
     </>
   );
 }

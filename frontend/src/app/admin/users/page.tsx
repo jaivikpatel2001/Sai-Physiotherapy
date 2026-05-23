@@ -1,10 +1,23 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useUsersStore, authApi } from '@/store';
+import { useUsersStore, authApi, usersApi } from '@/store';
 import { getRole } from '@/lib/auth';
 import { UserRole } from '@sai-physio/types';
 import { formatDate } from '@sai-physio/utils';
+import {
+  PageHeader,
+  AddButton,
+  ActionMenu,
+  StatusBadge,
+  toneFor,
+  ResourceDetailModal,
+  DataTable,
+  type Column,
+  FilterToolbar,
+  useTableQuery,
+  applyTableQuery,
+} from '@/components/admin';
 import styles from '../admin.module.css';
 
 interface StaffUser {
@@ -15,6 +28,7 @@ interface StaffUser {
   role: UserRole;
   isActive: boolean;
   specialization?: string;
+  qualification?: string;
   lastLogin?: string;
   createdAt?: string;
 }
@@ -29,14 +43,6 @@ interface NewUserForm {
   qualification?: string;
 }
 
-const ROLE_BADGE: Record<string, string> = {
-  super_admin: styles.badgePrimary,
-  admin: styles.badgeInfo,
-  doctor: styles.badgeSuccess,
-  receptionist: styles.badgeWarning,
-  patient: styles.badgeNeutral,
-};
-
 export default function UsersPage() {
   const role = getRole();
   const allowed = role === UserRole.SUPER_ADMIN || role === UserRole.ADMIN;
@@ -47,13 +53,40 @@ export default function UsersPage() {
   const toggleUserStatus = useUsersStore((s) => s.toggleStatus);
 
   const [showModal, setShowModal] = useState(false);
+  const [viewingId, setViewingId] = useState<string | null>(null);
   const loading = allowed ? storeLoading : false;
+
+  const q = useTableQuery({
+    initialSortBy: 'createdAt',
+    initialSortOrder: 'desc',
+    initialFilters: { role: '', isActive: '' },
+  });
 
   useEffect(() => { if (allowed) void fetchList(); }, [allowed, fetchList]);
 
   const toggleStatus = async (id: string) => {
     await toggleUserStatus(id);
   };
+
+  const filtered = useMemo(() => applyTableQuery({
+    rows: users,
+    search: q.debouncedSearch,
+    searchFields: (u) => `${u.name} ${u.email} ${u.phone} ${u.specialization ?? ''}`,
+    filters: q.filters,
+    filterAccessors: {
+      role: (u) => u.role,
+      isActive: (u) => String(u.isActive),
+    },
+    sortBy: q.sortBy,
+    sortOrder: q.sortOrder,
+    sortAccessors: {
+      name: (u) => u.name,
+      email: (u) => u.email,
+      role: (u) => u.role,
+      createdAt: (u) => u.createdAt ? new Date(u.createdAt) : undefined,
+      lastLogin: (u) => u.lastLogin ? new Date(u.lastLogin) : undefined,
+    },
+  }), [users, q.debouncedSearch, q.filters, q.sortBy, q.sortOrder]);
 
   if (!allowed) {
     return (
@@ -68,65 +101,122 @@ export default function UsersPage() {
 
   return (
     <>
-      <div className={styles.pageHeader}>
-        <div>
-          <h1 className={styles.pageTitle}>Staff & Users</h1>
-          <p className={styles.pageSub}>Manage admin, doctor, and receptionist accounts</p>
-        </div>
-        <button className={`${styles.btn} ${styles.btnPrimary}`} onClick={() => setShowModal(true)}>
-          <i className="ri-add-line" style={{ fontSize: 16 }} /> Add User
-        </button>
-      </div>
+      <PageHeader
+        title="Staff & Users"
+        subtitle="Manage admin, doctor, and receptionist accounts"
+        actions={<AddButton label="Add User" onClick={() => setShowModal(true)} />}
+      />
 
       {error && <div className={styles.errorBox}><i className="ri-error-warning-line" style={{ fontSize: 16 }} />{error}</div>}
 
       <div className={styles.adminCard}>
-        <div className={styles.tableWrap}>
-          {loading ? <div className={styles.spinner} /> : users.length === 0 ? (
-            <div className={styles.empty}><i className={`ri-shield-user-line ${styles.emptyIcon}`} style={{ fontSize: 40 }} /><span>No users found</span></div>
-          ) : (
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th>Phone</th>
-                  <th>Role</th>
-                  <th>Status</th>
-                  <th>Last Login</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.map((u) => (
-                  <tr key={u._id}>
-                    <td>
-                      <div style={{ fontWeight: 600 }}>{u.name}</div>
-                      {u.specialization && <div className={styles.muted} style={{ fontSize: 'var(--text-xs)' }}>{u.specialization}</div>}
-                    </td>
-                    <td>{u.email}</td>
-                    <td>{u.phone}</td>
-                    <td><span className={`${styles.badge} ${ROLE_BADGE[u.role] || styles.badgeNeutral}`}>{u.role.replace('_', ' ')}</span></td>
-                    <td><span className={`${styles.badge} ${u.isActive ? styles.badgeSuccess : styles.badgeError}`}>{u.isActive ? 'Active' : 'Disabled'}</span></td>
-                    <td>{u.lastLogin ? formatDate(u.lastLogin) : '—'}</td>
-                    <td>
-                      <button
-                        className={`${styles.btn} ${styles.btnGhost} ${styles.btnSm}`}
-                        onClick={() => toggleStatus(u._id)}
-                        title={u.isActive ? 'Disable' : 'Enable'}
-                      >
-                        <i className="ri-shut-down-line" style={{ fontSize: 14 }} /> {u.isActive ? 'Disable' : 'Enable'}
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        <FilterToolbar
+          search={q.search}
+          onSearchChange={q.setSearch}
+          searchPlaceholder="Search name, email, phone, or specialization…"
+          filters={[
+            {
+              type: 'select', key: 'role', label: 'Role', icon: 'ri-shield-user-line',
+              options: [
+                { value: UserRole.SUPER_ADMIN, label: 'Super Admin' },
+                { value: UserRole.ADMIN, label: 'Admin' },
+                { value: UserRole.DOCTOR, label: 'Doctor' },
+                { value: UserRole.RECEPTIONIST, label: 'Receptionist' },
+              ],
+            },
+            {
+              type: 'select', key: 'isActive', label: 'Status', icon: 'ri-flag-line',
+              options: [
+                { value: 'true', label: 'Active' },
+                { value: 'false', label: 'Disabled' },
+              ],
+            },
+          ]}
+          filterValues={q.filters}
+          onFilterChange={q.setFilter}
+          sort={{
+            options: [
+              { value: 'createdAt', label: 'Date created' },
+              { value: 'name', label: 'Name' },
+              { value: 'email', label: 'Email' },
+              { value: 'role', label: 'Role' },
+              { value: 'lastLogin', label: 'Last login' },
+            ],
+          }}
+          sortBy={q.sortBy}
+          sortOrder={q.sortOrder}
+          onSortChange={(by, order) => q.setSort(by, order)}
+          onReset={q.resetAll}
+          hasActive={q.hasActive}
+          totalCount={users.length}
+          filteredCount={filtered.length}
+        />
+
+        <DataTable
+          rows={filtered}
+          columns={[
+            {
+              key: 'name', header: 'Name', sortKey: 'name',
+              render: (u) => (
+                <div>
+                  <div style={{ fontWeight: 600 }}>{u.name}</div>
+                  {u.specialization && <div className={styles.muted} style={{ fontSize: 'var(--text-xs)' }}>{u.specialization}</div>}
+                </div>
+              ),
+            },
+            { key: 'email', header: 'Email', sortKey: 'email', render: (u) => u.email },
+            { key: 'phone', header: 'Phone', render: (u) => u.phone },
+            { key: 'role', header: 'Role', sortKey: 'role', render: (u) => <StatusBadge label={u.role.replace('_', ' ')} tone={toneFor(u.role)} /> },
+            { key: 'status', header: 'Status', render: (u) => <StatusBadge label={u.isActive ? 'Active' : 'Disabled'} tone={u.isActive ? 'success' : 'error'} /> },
+            { key: 'lastLogin', header: 'Last Login', sortKey: 'lastLogin', render: (u) => u.lastLogin ? formatDate(u.lastLogin) : '—' },
+          ] as Column<StaffUser>[]}
+          rowKey={(u) => u._id}
+          loading={loading}
+          sortBy={q.sortBy}
+          sortOrder={q.sortOrder}
+          onSort={q.toggleSort}
+          renderActions={(u) => (
+            <ActionMenu
+              onView={() => setViewingId(u._id)}
+              onDelete={() => toggleStatus(u._id)}
+              deleteLabel={u.isActive ? 'Disable account' : 'Enable account'}
+            />
           )}
-        </div>
+        />
+
+        {!loading && filtered.length === 0 && (
+          <div className={styles.empty}>
+            <i className={`ri-shield-user-line ${styles.emptyIcon}`} style={{ fontSize: 40 }} />
+            <span>{q.hasActive ? 'No users match your filters' : 'No users found'}</span>
+            {q.hasActive && (
+              <button type="button" onClick={q.resetAll} className={`${styles.btn} ${styles.btnSecondary} ${styles.btnSm}`}>
+                <i className="ri-refresh-line" /> Reset filters
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       {showModal && <NewUserModal onClose={() => setShowModal(false)} onSaved={() => { setShowModal(false); void fetchList(undefined, { force: true }); }} />}
+
+      <ResourceDetailModal
+        open={!!viewingId}
+        id={viewingId}
+        onClose={() => setViewingId(null)}
+        fetcher={usersApi.getOne}
+        extraActions={(u) => {
+          const user = u as unknown as StaffUser;
+          return (
+            <button
+              type="button"
+              onClick={() => { void toggleStatus(user._id); setViewingId(null); }}
+              className={`${styles.btn} ${user.isActive ? styles.btnDanger : styles.btnPrimary}`}
+            >
+              <i className="ri-shut-down-line" style={{ fontSize: 16 }} /> {user.isActive ? 'Disable account' : 'Enable account'}
+            </button>
+          );
+        }}
+      />
     </>
   );
 }

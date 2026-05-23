@@ -1,8 +1,8 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import Image from 'next/image';
-import { useGalleryStore, type UploadedFile } from '@/store';
+import { useGalleryStore, type UploadedFile, galleryApi } from '@/store';
 import {
   PageHeader,
   AddButton,
@@ -12,6 +12,10 @@ import {
   FileUpload,
   AsyncBoundary,
   StatusBadge,
+  ResourceDetailModal,
+  FilterToolbar,
+  useTableQuery,
+  applyTableQuery,
 } from '@/components/admin';
 import adminStyles from '../admin.module.css';
 
@@ -52,14 +56,20 @@ export default function GalleryAdminPage() {
   const fetchList = useGalleryStore((s) => s.fetchList);
   const removeItem = useGalleryStore((s) => s.remove);
 
-  const [filter, setFilter] = useState<string>('');
   const [editing, setEditing] = useState<GalleryItem | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [viewingId, setViewingId] = useState<string | null>(null);
+
+  const q = useTableQuery({
+    initialSortBy: 'order',
+    initialSortOrder: 'asc',
+    initialFilters: { category: '', isPublished: '' },
+  });
 
   useEffect(() => {
-    void fetchList(filter ? { category: filter } : {}, { force: true });
-  }, [filter, fetchList]);
+    void fetchList(q.filters.category ? { category: q.filters.category } : {}, { force: true });
+  }, [q.filters.category, fetchList]);
 
   const handleDelete = async () => {
     if (!deletingId) return;
@@ -77,6 +87,22 @@ export default function GalleryAdminPage() {
     setShowModal(true);
   };
 
+  const filtered = useMemo(() => applyTableQuery({
+    rows: items,
+    search: q.debouncedSearch,
+    searchFields: (i) => `${i.title} ${i.caption ?? ''} ${i.alt} ${i.category}`,
+    filters: { isPublished: q.filters.isPublished ?? '' },
+    filterAccessors: { isPublished: (i) => String(i.isPublished) },
+    sortBy: q.sortBy,
+    sortOrder: q.sortOrder,
+    sortAccessors: {
+      order: (i) => i.order ?? 0,
+      title: (i) => i.title,
+      createdAt: (i) => i.createdAt ? new Date(i.createdAt) : undefined,
+      category: (i) => i.category,
+    },
+  }), [items, q.debouncedSearch, q.filters.isPublished, q.sortBy, q.sortOrder]);
+
   return (
     <>
       <PageHeader
@@ -86,27 +112,50 @@ export default function GalleryAdminPage() {
       />
 
       <div className={adminStyles.adminCard}>
-        <div className={adminStyles.filterBar}>
-          <div className={adminStyles.filterField}>
-            <span className={adminStyles.filterLabel}>Category</span>
-            <select className="form-input" value={filter} onChange={(e) => setFilter(e.target.value)}>
-              <option value="">All categories</option>
-              {CATEGORIES.map((c) => (
-                <option key={c.value} value={c.value}>{c.label}</option>
-              ))}
-            </select>
-          </div>
-        </div>
+        <FilterToolbar
+          search={q.search}
+          onSearchChange={q.setSearch}
+          searchPlaceholder="Search title, caption, or alt text…"
+          filters={[
+            { type: 'select', key: 'category', label: 'Category', icon: 'ri-price-tag-3-line', options: CATEGORIES },
+            {
+              type: 'select', key: 'isPublished', label: 'Visibility', icon: 'ri-eye-line',
+              options: [
+                { value: 'true', label: 'Published' },
+                { value: 'false', label: 'Draft' },
+              ],
+            },
+          ]}
+          filterValues={q.filters}
+          onFilterChange={q.setFilter}
+          sort={{
+            options: [
+              { value: 'order', label: 'Display order' },
+              { value: 'title', label: 'Title' },
+              { value: 'createdAt', label: 'Date added' },
+              { value: 'category', label: 'Category' },
+            ],
+          }}
+          sortBy={q.sortBy}
+          sortOrder={q.sortOrder}
+          onSortChange={(by, order) => q.setSort(by, order)}
+          onReset={q.resetAll}
+          hasActive={q.hasActive}
+          totalCount={items.length}
+          filteredCount={filtered.length}
+        />
 
         <div style={{ padding: 'var(--space-6)' }}>
           <AsyncBoundary
             loading={loading}
             error={error || null}
-            empty={items.length === 0}
-            emptyTitle="No images yet"
-            emptyDescription="Add your first gallery image to start curating what visitors see."
+            empty={filtered.length === 0}
+            emptyTitle={q.hasActive ? 'No images match your filters' : 'No images yet'}
+            emptyDescription={q.hasActive ? 'Try clearing one or more filters.' : 'Add your first gallery image to start curating what visitors see.'}
             emptyIcon="ri-image-2-line"
-            emptyAction={<AddButton label="Add Image" onClick={openNew} />}
+            emptyAction={q.hasActive
+              ? <button type="button" onClick={q.resetAll} className={`${adminStyles.btn} ${adminStyles.btnSecondary}`}><i className="ri-refresh-line" /> Reset filters</button>
+              : <AddButton label="Add Image" onClick={openNew} />}
           >
             <div
               style={{
@@ -115,7 +164,7 @@ export default function GalleryAdminPage() {
                 gap: 'var(--space-4)',
               }}
             >
-              {items.map((item) => (
+              {filtered.map((item) => (
                 <article
                   key={item._id}
                   style={{
@@ -160,7 +209,7 @@ export default function GalleryAdminPage() {
                     }}
                   >
                     <ActionMenu
-                      onView={() => window.open(item.image.url, '_blank')}
+                      onView={() => setViewingId(item._id)}
                       onEdit={() => openEdit(item)}
                       onDelete={() => setDeletingId(item._id)}
                     />
@@ -189,6 +238,13 @@ export default function GalleryAdminPage() {
         confirmLabel="Delete image"
         onConfirm={handleDelete}
         onCancel={() => setDeletingId(null)}
+      />
+
+      <ResourceDetailModal
+        open={!!viewingId}
+        id={viewingId}
+        onClose={() => setViewingId(null)}
+        fetcher={galleryApi.getOne}
       />
     </>
   );

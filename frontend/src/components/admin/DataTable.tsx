@@ -2,12 +2,16 @@
 import React from 'react';
 import adminStyles from '../../app/admin/admin.module.css';
 import shared from './admin-shared.module.css';
+import { SortableHeader } from './FilterToolbar';
+import type { SortOrder } from './useTableQuery';
 
 export interface Column<T> {
   key: string;
   header: string;
   width?: number | string;
   align?: 'left' | 'right' | 'center';
+  /** When set, the header renders a click-to-sort control bound to this key. */
+  sortKey?: string;
   render: (row: T, index: number) => React.ReactNode;
 }
 
@@ -19,6 +23,11 @@ interface DataTableProps<T> {
   loading?: boolean;
   renderActions?: (row: T) => React.ReactNode;
   skeletonRows?: number;
+  /** Active sort field — must match a column's `sortKey` for the indicator to highlight. */
+  sortBy?: string;
+  sortOrder?: SortOrder;
+  /** Called when the user clicks a sortable header. Implementations typically call `toggleSort(key)`. */
+  onSort?: (key: string) => void;
 }
 
 export function DataTable<T>({
@@ -29,8 +38,26 @@ export function DataTable<T>({
   loading,
   renderActions,
   skeletonRows = 5,
+  sortBy = '',
+  sortOrder = 'desc',
+  onSort,
 }: DataTableProps<T>) {
   const totalCols = columns.length + (renderActions ? 1 : 0);
+
+  const renderHeader = (c: Column<T>) => {
+    if (c.sortKey && onSort) {
+      return (
+        <SortableHeader
+          label={c.header}
+          sortKey={c.sortKey}
+          current={sortBy}
+          order={sortOrder}
+          onSort={onSort}
+        />
+      );
+    }
+    return c.header;
+  };
 
   if (loading) {
     return (
@@ -40,7 +67,7 @@ export function DataTable<T>({
             <tr>
               {columns.map((c) => (
                 <th key={c.key} style={{ width: c.width, textAlign: c.align }}>
-                  {c.header}
+                  {renderHeader(c)}
                 </th>
               ))}
               {renderActions && <th style={{ width: 140, textAlign: 'right' }}>Actions</th>}

@@ -1,8 +1,8 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import Image from 'next/image';
-import { useDoctorsStore, type UploadedFile } from '@/store';
+import { useDoctorsStore, type UploadedFile, doctorsApi } from '@/store';
 import {
   PageHeader,
   AddButton,
@@ -15,6 +15,10 @@ import {
   DataTable,
   type Column,
   TagInput,
+  ResourceDetailModal,
+  FilterToolbar,
+  useTableQuery,
+  applyTableQuery,
 } from '@/components/admin';
 import adminStyles from '../admin.module.css';
 
@@ -134,6 +138,13 @@ export default function DoctorsAdminPage() {
   const [editing, setEditing] = useState<Doctor | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [viewingId, setViewingId] = useState<string | null>(null);
+
+  const q = useTableQuery({
+    initialSortBy: 'order',
+    initialSortOrder: 'asc',
+    initialFilters: { isActive: '', specialty: '' },
+  });
 
   useEffect(() => {
     void fetchList();
@@ -145,10 +156,35 @@ export default function DoctorsAdminPage() {
     setDeletingId(null);
   };
 
+  const specialtyOptions = useMemo(() => {
+    const set = new Set<string>();
+    doctors.forEach((d) => (d.specialties ?? []).forEach((s) => set.add(s)));
+    return Array.from(set).sort().map((s) => ({ value: s, label: s }));
+  }, [doctors]);
+
+  const filtered = useMemo(() => applyTableQuery({
+    rows: doctors,
+    search: q.debouncedSearch,
+    searchFields: (d) => `${d.name} ${d.designation} ${(d.specialties ?? []).join(' ')} ${(d.qualifications ?? []).join(' ')}`,
+    filters: q.filters,
+    filterAccessors: {
+      isActive: (d) => String(d.isActive),
+      specialty: (d) => d.specialties ?? [],
+    },
+    sortBy: q.sortBy,
+    sortOrder: q.sortOrder,
+    sortAccessors: {
+      order: (d) => d.order ?? 0,
+      name: (d) => d.name,
+      experience: (d) => d.experienceYears ?? 0,
+    },
+  }), [doctors, q.debouncedSearch, q.filters, q.sortBy, q.sortOrder]);
+
   const columns: Column<Doctor>[] = [
     {
       key: 'name',
       header: 'Doctor',
+      sortKey: 'name',
       render: (d) => (
         <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
           <div style={{ position: 'relative', width: 44, height: 44, borderRadius: '50%', overflow: 'hidden', background: 'var(--color-surface)' }}>
@@ -175,7 +211,14 @@ export default function DoctorsAdminPage() {
     {
       key: 'exp',
       header: 'Experience',
+      sortKey: 'experience',
       render: (d) => <span>{d.experienceYears} yrs</span>,
+    },
+    {
+      key: 'order',
+      header: 'Order',
+      sortKey: 'order',
+      render: (d) => <span>{d.order ?? 0}</span>,
     },
     {
       key: 'status',
@@ -195,22 +238,59 @@ export default function DoctorsAdminPage() {
       />
 
       <div className={adminStyles.adminCard}>
+        <FilterToolbar
+          search={q.search}
+          onSearchChange={q.setSearch}
+          searchPlaceholder="Search name, designation, or specialty…"
+          filters={[
+            {
+              type: 'select', key: 'isActive', label: 'Visibility', icon: 'ri-eye-line',
+              options: [
+                { value: 'true', label: 'Active' },
+                { value: 'false', label: 'Hidden' },
+              ],
+            },
+            { type: 'select', key: 'specialty', label: 'Specialty', icon: 'ri-award-line', options: specialtyOptions },
+          ]}
+          filterValues={q.filters}
+          onFilterChange={q.setFilter}
+          sort={{
+            options: [
+              { value: 'order', label: 'Display order' },
+              { value: 'name', label: 'Name' },
+              { value: 'experience', label: 'Experience' },
+            ],
+          }}
+          sortBy={q.sortBy}
+          sortOrder={q.sortOrder}
+          onSortChange={(by, order) => q.setSort(by, order)}
+          onReset={q.resetAll}
+          hasActive={q.hasActive}
+          totalCount={doctors.length}
+          filteredCount={filtered.length}
+        />
+
         <AsyncBoundary
           loading={loading}
           error={error || null}
-          empty={doctors.length === 0}
-          emptyTitle="No doctors yet"
-          emptyDescription="Add your first doctor profile to display on the website."
+          empty={filtered.length === 0}
+          emptyTitle={q.hasActive ? 'No doctors match your filters' : 'No doctors yet'}
+          emptyDescription={q.hasActive ? 'Try clearing one or more filters.' : 'Add your first doctor profile to display on the website.'}
           emptyIcon="ri-user-heart-line"
-          emptyAction={<AddButton label="Add Doctor" onClick={() => { setEditing(null); setShowModal(true); }} />}
+          emptyAction={q.hasActive
+            ? <button type="button" onClick={q.resetAll} className={`${adminStyles.btn} ${adminStyles.btnSecondary}`}><i className="ri-refresh-line" /> Reset filters</button>
+            : <AddButton label="Add Doctor" onClick={() => { setEditing(null); setShowModal(true); }} />}
         >
           <DataTable
-            rows={doctors}
+            rows={filtered}
             columns={columns}
             rowKey={(d) => d._id}
+            sortBy={q.sortBy}
+            sortOrder={q.sortOrder}
+            onSort={q.toggleSort}
             renderActions={(d) => (
               <ActionMenu
-                onView={() => window.open(`/doctors`, '_blank')}
+                onView={() => setViewingId(d._id)}
                 onEdit={() => { setEditing(d); setShowModal(true); }}
                 onDelete={() => setDeletingId(d._id)}
               />
@@ -233,6 +313,13 @@ export default function DoctorsAdminPage() {
         confirmLabel="Delete doctor"
         onConfirm={handleDelete}
         onCancel={() => setDeletingId(null)}
+      />
+
+      <ResourceDetailModal
+        open={!!viewingId}
+        id={viewingId}
+        onClose={() => setViewingId(null)}
+        fetcher={doctorsApi.getOne}
       />
     </>
   );

@@ -188,6 +188,8 @@ export const testimonialsApi = {
     apiClient.get<ApiEnvelope<ITestimonial[]>>('/testimonials/admin', { params }).then((r) => r.data),
   publicList: (params?: Params) =>
     apiClient.get<ApiEnvelope<ITestimonial[]>>('/testimonials', { params }).then((r) => r.data),
+  getOne: (id: string) =>
+    apiClient.get<ApiEnvelope<ITestimonial>>(`/testimonials/admin/${id}`).then((r) => r.data),
   submit: (payload: Partial<ITestimonial>) =>
     apiClient.post<ApiEnvelope<ITestimonial>>('/testimonials/submit', payload).then((r) => r.data),
   create: (payload: Partial<ITestimonial>) =>
@@ -206,6 +208,8 @@ import type { AuthUser } from '@sai-physio/types';
 export const usersApi = {
   list: (params?: Params) =>
     apiClient.get<ApiEnvelope<AuthUser[]>>('/auth/users', { params }).then((r) => r.data),
+  getOne: (id: string) =>
+    apiClient.get<ApiEnvelope<AuthUser>>(`/auth/users/${id}`).then((r) => r.data),
   toggleStatus: (id: string) =>
     apiClient.patch<ApiEnvelope<AuthUser>>(`/auth/users/${id}/toggle-status`).then((r) => r.data),
 };

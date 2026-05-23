@@ -2,7 +2,7 @@ import { Router } from 'express';
 import {
   login, register, logout, refreshToken, getMe,
   forgotPassword, resetPassword, changePassword,
-  getAllUsers, toggleUserStatus,
+  getAllUsers, getUserById, toggleUserStatus,
   loginSchema, registerSchema,
 } from '../controllers/auth.controller';
 import { authenticate, authorize } from '../middleware/auth.middleware';
@@ -269,6 +269,34 @@ router.put('/change-password', authenticate, changePassword);
  *       403: { $ref: '#/components/responses/Forbidden' }
  */
 router.get('/users', authenticate, authorize(UserRole.SUPER_ADMIN, UserRole.ADMIN), getAllUsers);
+
+/**
+ * @openapi
+ * /auth/users/{id}:
+ *   get:
+ *     tags: [Auth]
+ *     summary: Fetch a single user by ID (admin only)
+ *     security: [{ BearerAuth: [] }]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: User record
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiSuccess'
+ *                 - properties:
+ *                     data: { $ref: '#/components/schemas/AuthUser' }
+ *       401: { $ref: '#/components/responses/Unauthorized' }
+ *       403: { $ref: '#/components/responses/Forbidden' }
+ *       404: { $ref: '#/components/responses/NotFound' }
+ */
+router.get('/users/:id', authenticate, authorize(UserRole.SUPER_ADMIN, UserRole.ADMIN), getUserById);
 
 /**
  * @openapi

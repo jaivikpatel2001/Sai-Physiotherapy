@@ -32,24 +32,9 @@ export function AddButton({ label, onClick, disabled }: AddButtonProps) {
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="admin-btn admin-btn-primary"
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: 'var(--space-2)',
-        padding: 'var(--space-3) var(--space-5)',
-        borderRadius: 'var(--radius-md)',
-        background: 'var(--color-accent-cta)',
-        color: 'white',
-        fontWeight: 600,
-        fontSize: 'var(--text-sm)',
-        boxShadow: 'var(--shadow-cta)',
-        cursor: disabled ? 'not-allowed' : 'pointer',
-        opacity: disabled ? 0.6 : 1,
-        transition: 'transform 150ms ease, box-shadow 150ms ease',
-      }}
+      className={styles.addButton}
     >
-      <i className="ri-add-line" style={{ fontSize: 18 }} />
+      <i className="ri-add-line" style={{ fontSize: 18, flexShrink: 0 }} />
       <span>{label}</span>
     </button>
   );

@@ -43,6 +43,12 @@ export const updateTestimonialAdmin = asyncHandler(async (req: AuthRequest, res:
   sendSuccess({ res, message: 'Testimonial updated', data: testimonial });
 });
 
+export const getTestimonialByIdAdmin = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const testimonial = await Testimonial.findById(req.params.id);
+  if (!testimonial) throw new AppError('Testimonial not found', 404);
+  sendSuccess({ res, data: testimonial });
+});
+
 export const getAllTestimonialsAdmin = asyncHandler(async (req: AuthRequest, res: Response) => {
   const { page, limit, skip } = getPaginationParams(req.query);
   const [testimonials, total] = await Promise.all([

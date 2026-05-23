@@ -1,7 +1,7 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
-import { usePagesStore } from '@/store';
+import { usePagesStore, pagesApi } from '@/store';
 import { formatDate } from '@sai-physio/utils';
 import {
   PageHeader,
@@ -14,6 +14,10 @@ import {
   DataTable,
   type Column,
   TagInput,
+  ResourceDetailModal,
+  FilterToolbar,
+  useTableQuery,
+  applyTableQuery,
 } from '@/components/admin';
 import adminStyles from '../admin.module.css';
 
@@ -77,6 +81,13 @@ export default function PagesAdminPage() {
   const [editing, setEditing] = useState<CmsPage | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [viewingId, setViewingId] = useState<string | null>(null);
+
+  const q = useTableQuery({
+    initialSortBy: 'updated',
+    initialSortOrder: 'desc',
+    initialFilters: { isPublished: '', showInFooter: '' },
+  });
 
   useEffect(() => {
     void fetchList();
@@ -88,10 +99,29 @@ export default function PagesAdminPage() {
     setDeletingId(null);
   };
 
+  const filtered = useMemo(() => applyTableQuery({
+    rows: pages,
+    search: q.debouncedSearch,
+    searchFields: (p) => `${p.title} ${p.slug} ${p.excerpt ?? ''} ${p.footerLabel ?? ''}`,
+    filters: q.filters,
+    filterAccessors: {
+      isPublished: (p) => String(p.isPublished),
+      showInFooter: (p) => String(p.showInFooter),
+    },
+    sortBy: q.sortBy,
+    sortOrder: q.sortOrder,
+    sortAccessors: {
+      updated: (p) => p.updatedAt ? new Date(p.updatedAt) : undefined,
+      title: (p) => p.title,
+      footer: (p) => p.footerOrder ?? 0,
+    },
+  }), [pages, q.debouncedSearch, q.filters, q.sortBy, q.sortOrder]);
+
   const columns: Column<CmsPage>[] = [
     {
       key: 'title',
       header: 'Title',
+      sortKey: 'title',
       render: (p) => (
         <div>
           <div style={{ fontWeight: 600 }}>{p.title}</div>
@@ -109,6 +139,7 @@ export default function PagesAdminPage() {
     {
       key: 'footer',
       header: 'In footer',
+      sortKey: 'footer',
       render: (p) =>
         p.showInFooter ? (
           <StatusBadge label={p.footerLabel || `Order ${p.footerOrder}`} tone="primary" icon="ri-link" />
@@ -119,6 +150,7 @@ export default function PagesAdminPage() {
     {
       key: 'updated',
       header: 'Last edited',
+      sortKey: 'updated',
       render: (p) => <span style={{ fontSize: 'var(--text-sm)' }}>{formatDate(p.updatedAt)}</span>,
     },
   ];
@@ -132,22 +164,65 @@ export default function PagesAdminPage() {
       />
 
       <div className={adminStyles.adminCard}>
+        <FilterToolbar
+          search={q.search}
+          onSearchChange={q.setSearch}
+          searchPlaceholder="Search title, slug, or excerpt…"
+          filters={[
+            {
+              type: 'select', key: 'isPublished', label: 'Status', icon: 'ri-flag-line',
+              options: [
+                { value: 'true', label: 'Published' },
+                { value: 'false', label: 'Draft' },
+              ],
+            },
+            {
+              type: 'select', key: 'showInFooter', label: 'Footer', icon: 'ri-link',
+              options: [
+                { value: 'true', label: 'In footer' },
+                { value: 'false', label: 'Hidden' },
+              ],
+            },
+          ]}
+          filterValues={q.filters}
+          onFilterChange={q.setFilter}
+          sort={{
+            options: [
+              { value: 'updated', label: 'Last edited' },
+              { value: 'title', label: 'Title' },
+              { value: 'footer', label: 'Footer order' },
+            ],
+          }}
+          sortBy={q.sortBy}
+          sortOrder={q.sortOrder}
+          onSortChange={(by, order) => q.setSort(by, order)}
+          onReset={q.resetAll}
+          hasActive={q.hasActive}
+          totalCount={pages.length}
+          filteredCount={filtered.length}
+        />
+
         <AsyncBoundary
           loading={loading}
           error={error || null}
-          empty={pages.length === 0}
-          emptyTitle="No CMS pages yet"
-          emptyDescription="Add a page (e.g. Privacy Policy, Terms & Conditions). Marked-for-footer pages appear automatically."
+          empty={filtered.length === 0}
+          emptyTitle={q.hasActive ? 'No pages match your filters' : 'No CMS pages yet'}
+          emptyDescription={q.hasActive ? 'Try clearing one or more filters.' : 'Add a page (e.g. Privacy Policy, Terms & Conditions). Marked-for-footer pages appear automatically.'}
           emptyIcon="ri-pages-line"
-          emptyAction={<AddButton label="Add Page" onClick={() => { setEditing(null); setShowModal(true); }} />}
+          emptyAction={q.hasActive
+            ? <button type="button" onClick={q.resetAll} className={`${adminStyles.btn} ${adminStyles.btnSecondary}`}><i className="ri-refresh-line" /> Reset filters</button>
+            : <AddButton label="Add Page" onClick={() => { setEditing(null); setShowModal(true); }} />}
         >
           <DataTable
-            rows={pages}
+            rows={filtered}
             columns={columns}
             rowKey={(p) => p._id}
+            sortBy={q.sortBy}
+            sortOrder={q.sortOrder}
+            onSort={q.toggleSort}
             renderActions={(p) => (
               <ActionMenu
-                onView={() => window.open(`/${p.slug}`, '_blank')}
+                onView={() => setViewingId(p._id)}
                 onEdit={() => { setEditing(p); setShowModal(true); }}
                 onDelete={() => setDeletingId(p._id)}
               />
@@ -170,6 +245,13 @@ export default function PagesAdminPage() {
         confirmLabel="Delete page"
         onConfirm={handleDelete}
         onCancel={() => setDeletingId(null)}
+      />
+
+      <ResourceDetailModal
+        open={!!viewingId}
+        id={viewingId}
+        onClose={() => setViewingId(null)}
+        fetcher={pagesApi.getOne}
       />
     </>
   );

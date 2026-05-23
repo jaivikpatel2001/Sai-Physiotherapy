@@ -1,7 +1,7 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
-import { useBlogsStore, type UploadedFile } from '@/store';
+import { useBlogsStore, type UploadedFile, blogsApi } from '@/store';
 import { formatDate } from '@sai-physio/utils';
 import {
   PageHeader,
@@ -16,6 +16,10 @@ import {
   type Column,
   TagInput,
   toneFor,
+  ResourceDetailModal,
+  FilterToolbar,
+  useTableQuery,
+  applyTableQuery,
 } from '@/components/admin';
 import adminStyles from '../admin.module.css';
 
@@ -69,8 +73,15 @@ export default function BlogAdminPage() {
   const removeBlog = useBlogsStore((s) => s.remove);
 
   const [editing, setEditing] = useState<BlogPost | null>(null);
+  const [viewingId, setViewingId] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const q = useTableQuery({
+    initialSortBy: 'date',
+    initialSortOrder: 'desc',
+    initialFilters: { status: '', category: '' },
+  });
 
   useEffect(() => {
     void fetchList();
@@ -82,10 +93,36 @@ export default function BlogAdminPage() {
     setDeletingId(null);
   };
 
+  const categoryOptions = useMemo(() => {
+    const set = new Set<string>();
+    posts.forEach((p) => { if (p.category) set.add(p.category); });
+    return Array.from(set).sort().map((c) => ({ value: c, label: c }));
+  }, [posts]);
+
+  const filtered = useMemo(() => applyTableQuery({
+    rows: posts,
+    search: q.debouncedSearch,
+    searchFields: (p) => `${p.title} ${p.slug} ${p.excerpt ?? ''} ${typeof p.author === 'object' ? p.author.name ?? '' : ''}`,
+    filters: q.filters,
+    filterAccessors: {
+      status: (p) => p.status,
+      category: (p) => p.category ?? '',
+    },
+    sortBy: q.sortBy,
+    sortOrder: q.sortOrder,
+    sortAccessors: {
+      date: (p) => p.publishedAt ? new Date(p.publishedAt) : (p.createdAt ? new Date(p.createdAt) : undefined),
+      title: (p) => p.title,
+      views: (p) => p.views ?? 0,
+      status: (p) => p.status,
+    },
+  }), [posts, q.debouncedSearch, q.filters, q.sortBy, q.sortOrder]);
+
   const columns: Column<BlogPost>[] = [
     {
       key: 'title',
       header: 'Title',
+      sortKey: 'title',
       render: (p) => (
         <div>
           <div style={{ fontWeight: 600 }}>{p.title}</div>
@@ -101,11 +138,13 @@ export default function BlogAdminPage() {
     {
       key: 'status',
       header: 'Status',
+      sortKey: 'status',
       render: (p) => <StatusBadge label={p.status} tone={toneFor(p.status)} />,
     },
     {
       key: 'views',
       header: 'Views',
+      sortKey: 'views',
       render: (p) => (
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
           <i className="ri-eye-line" style={{ fontSize: 14 }} /> {p.views ?? 0}
@@ -115,6 +154,7 @@ export default function BlogAdminPage() {
     {
       key: 'date',
       header: 'Date',
+      sortKey: 'date',
       render: (p) => formatDate(p.publishedAt || p.createdAt || ''),
     },
   ];
@@ -128,22 +168,61 @@ export default function BlogAdminPage() {
       />
 
       <div className={adminStyles.adminCard}>
+        <FilterToolbar
+          search={q.search}
+          onSearchChange={q.setSearch}
+          searchPlaceholder="Search title, slug, excerpt, or author…"
+          filters={[
+            {
+              type: 'select', key: 'status', label: 'Status', icon: 'ri-flag-line',
+              options: [
+                { value: 'draft', label: 'Draft' },
+                { value: 'published', label: 'Published' },
+                { value: 'archived', label: 'Archived' },
+              ],
+            },
+            { type: 'select', key: 'category', label: 'Category', icon: 'ri-price-tag-3-line', options: categoryOptions },
+          ]}
+          filterValues={q.filters}
+          onFilterChange={q.setFilter}
+          sort={{
+            options: [
+              { value: 'date', label: 'Date' },
+              { value: 'title', label: 'Title' },
+              { value: 'views', label: 'Views' },
+              { value: 'status', label: 'Status' },
+            ],
+          }}
+          sortBy={q.sortBy}
+          sortOrder={q.sortOrder}
+          onSortChange={(by, order) => q.setSort(by, order)}
+          onReset={q.resetAll}
+          hasActive={q.hasActive}
+          totalCount={posts.length}
+          filteredCount={filtered.length}
+        />
+
         <AsyncBoundary
           loading={loading}
           error={error || null}
-          empty={posts.length === 0}
-          emptyTitle="No posts yet"
-          emptyDescription="Create your first article to publish on the public blog."
+          empty={filtered.length === 0}
+          emptyTitle={q.hasActive ? 'No posts match your filters' : 'No posts yet'}
+          emptyDescription={q.hasActive ? 'Try clearing one or more filters.' : 'Create your first article to publish on the public blog.'}
           emptyIcon="ri-file-text-line"
-          emptyAction={<AddButton label="Add Blog" onClick={() => { setEditing(null); setShowModal(true); }} />}
+          emptyAction={q.hasActive
+            ? <button type="button" onClick={q.resetAll} className={`${adminStyles.btn} ${adminStyles.btnSecondary}`}><i className="ri-refresh-line" /> Reset filters</button>
+            : <AddButton label="Add Blog" onClick={() => { setEditing(null); setShowModal(true); }} />}
         >
           <DataTable
-            rows={posts}
+            rows={filtered}
             columns={columns}
             rowKey={(p) => p._id}
+            sortBy={q.sortBy}
+            sortOrder={q.sortOrder}
+            onSort={q.toggleSort}
             renderActions={(p) => (
               <ActionMenu
-                onView={() => window.open(`/blog/${p.slug}`, '_blank')}
+                onView={() => setViewingId(p._id)}
                 onEdit={() => { setEditing(p); setShowModal(true); }}
                 onDelete={() => setDeletingId(p._id)}
               />
@@ -166,6 +245,13 @@ export default function BlogAdminPage() {
         confirmLabel="Archive"
         onConfirm={handleDelete}
         onCancel={() => setDeletingId(null)}
+      />
+
+      <ResourceDetailModal
+        open={!!viewingId}
+        id={viewingId}
+        onClose={() => setViewingId(null)}
+        fetcher={blogsApi.getOne}
       />
     </>
   );

@@ -10,6 +10,10 @@ interface ModalProps {
   title: string;
   size?: ModalSize;
   hideClose?: boolean;
+  /** Hide the default header entirely (use when the body provides its own hero). */
+  hideHeader?: boolean;
+  /** Remove the default body padding (use when the body provides its own layout). */
+  flushBody?: boolean;
   footer?: React.ReactNode;
   children: React.ReactNode;
 }
@@ -27,6 +31,8 @@ export function Modal({
   title,
   size = 'md',
   hideClose = false,
+  hideHeader = false,
+  flushBody = false,
   footer,
   children,
 }: ModalProps) {
@@ -60,20 +66,26 @@ export function Modal({
         style={{ maxWidth: SIZE_PX[size] }}
         data-lenis-prevent
       >
-        <div className={adminStyles.modalHeader}>
-          <div className={adminStyles.modalTitle}>{title}</div>
-          {!hideClose && (
-            <button
-              type="button"
-              className={adminStyles.iconBtn}
-              onClick={onClose}
-              aria-label="Close dialog"
-            >
-              <i className="ri-close-line" style={{ fontSize: 18 }} />
-            </button>
-          )}
-        </div>
-        <div className={adminStyles.modalBody} data-lenis-prevent>
+        {!hideHeader && (
+          <div className={adminStyles.modalHeader}>
+            <div className={adminStyles.modalTitle}>{title}</div>
+            {!hideClose && (
+              <button
+                type="button"
+                className={adminStyles.iconBtn}
+                onClick={onClose}
+                aria-label="Close dialog"
+              >
+                <i className="ri-close-line" style={{ fontSize: 18 }} />
+              </button>
+            )}
+          </div>
+        )}
+        <div
+          className={adminStyles.modalBody}
+          data-lenis-prevent
+          style={flushBody ? { padding: 0 } : undefined}
+        >
           {children}
         </div>
         {footer && <div className={adminStyles.modalFooter}>{footer}</div>}

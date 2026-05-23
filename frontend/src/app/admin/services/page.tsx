@@ -1,8 +1,8 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import Image from 'next/image';
-import { useServicesStore, type UploadedFile } from '@/store';
+import { useServicesStore, type UploadedFile, servicesApi } from '@/store';
 import { formatCurrency } from '@sai-physio/utils';
 import {
   PageHeader,
@@ -14,6 +14,10 @@ import {
   AsyncBoundary,
   StatusBadge,
   TagInput,
+  ResourceDetailModal,
+  FilterToolbar,
+  useTableQuery,
+  applyTableQuery,
 } from '@/components/admin';
 import styles from '../admin.module.css';
 
@@ -84,6 +88,13 @@ export default function ServicesAdminPage() {
   const [editing, setEditing] = useState<Service | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [viewingId, setViewingId] = useState<string | null>(null);
+
+  const q = useTableQuery({
+    initialSortBy: 'name',
+    initialSortOrder: 'asc',
+    initialFilters: { category: '', isActive: '' },
+  });
 
   useEffect(() => {
     void fetchList();
@@ -95,6 +106,30 @@ export default function ServicesAdminPage() {
     setDeletingId(null);
   };
 
+  const categoryOptions = useMemo(() => {
+    const set = new Set<string>();
+    data.forEach((s) => { if (s.category) set.add(s.category); });
+    return Array.from(set).sort().map((c) => ({ value: c, label: c }));
+  }, [data]);
+
+  const filtered = useMemo(() => applyTableQuery({
+    rows: data,
+    search: q.debouncedSearch,
+    searchFields: (s) => `${s.name} ${s.category} ${s.shortDescription ?? ''} ${s.duration ?? ''}`,
+    filters: q.filters,
+    filterAccessors: {
+      category: (s) => s.category,
+      isActive: (s) => String(s.isActive ?? true),
+    },
+    sortBy: q.sortBy,
+    sortOrder: q.sortOrder,
+    sortAccessors: {
+      name: (s) => s.name,
+      price: (s) => s.price?.from ?? 0,
+      category: (s) => s.category,
+    },
+  }), [data, q.debouncedSearch, q.filters, q.sortBy, q.sortOrder]);
+
   return (
     <>
       <PageHeader
@@ -104,18 +139,52 @@ export default function ServicesAdminPage() {
       />
 
       <div className={styles.adminCard}>
+        <FilterToolbar
+          search={q.search}
+          onSearchChange={q.setSearch}
+          searchPlaceholder="Search service name, category, or description…"
+          filters={[
+            { type: 'select', key: 'category', label: 'Category', icon: 'ri-price-tag-3-line', options: categoryOptions },
+            {
+              type: 'select', key: 'isActive', label: 'Visibility', icon: 'ri-eye-line',
+              options: [
+                { value: 'true', label: 'Active' },
+                { value: 'false', label: 'Inactive' },
+              ],
+            },
+          ]}
+          filterValues={q.filters}
+          onFilterChange={q.setFilter}
+          sort={{
+            options: [
+              { value: 'name', label: 'Name' },
+              { value: 'price', label: 'Starting price' },
+              { value: 'category', label: 'Category' },
+            ],
+          }}
+          sortBy={q.sortBy}
+          sortOrder={q.sortOrder}
+          onSortChange={(by, order) => q.setSort(by, order)}
+          onReset={q.resetAll}
+          hasActive={q.hasActive}
+          totalCount={data.length}
+          filteredCount={filtered.length}
+        />
+
         <div style={{ padding: 'var(--space-6)' }}>
           <AsyncBoundary
             loading={loading}
             error={error || null}
-            empty={data.length === 0}
-            emptyTitle="No services yet"
-            emptyDescription="Add your first service to display on the public site."
+            empty={filtered.length === 0}
+            emptyTitle={q.hasActive ? 'No services match your filters' : 'No services yet'}
+            emptyDescription={q.hasActive ? 'Try clearing one or more filters.' : 'Add your first service to display on the public site.'}
             emptyIcon="ri-stethoscope-line"
-            emptyAction={<AddButton label="Add Service" onClick={() => { setEditing(null); setShowForm(true); }} />}
+            emptyAction={q.hasActive
+              ? <button type="button" onClick={q.resetAll} className={`${styles.btn} ${styles.btnSecondary}`}><i className="ri-refresh-line" /> Reset filters</button>
+              : <AddButton label="Add Service" onClick={() => { setEditing(null); setShowForm(true); }} />}
           >
             <div className={styles.cardGrid}>
-              {data.map((s) => (
+              {filtered.map((s) => (
                 <article key={s._id} className={styles.serviceCard}>
                   <div style={{ position: 'relative', height: 140, background: 'var(--color-surface)' }}>
                     {s.bannerImage ? (
@@ -142,7 +211,7 @@ export default function ServicesAdminPage() {
                   </div>
                   <div className={styles.serviceCardActions} style={{ justifyContent: 'flex-end' }}>
                     <ActionMenu
-                      onView={() => window.open(`/services/${s.slug}`, '_blank')}
+                      onView={() => setViewingId(s._id)}
                       onEdit={() => { setEditing(s); setShowForm(true); }}
                       onDelete={() => setDeletingId(s._id)}
                     />
@@ -168,6 +237,13 @@ export default function ServicesAdminPage() {
         confirmLabel="Deactivate"
         onConfirm={handleDelete}
         onCancel={() => setDeletingId(null)}
+      />
+
+      <ResourceDetailModal
+        open={!!viewingId}
+        id={viewingId}
+        onClose={() => setViewingId(null)}
+        fetcher={servicesApi.getOne}
       />
     </>
   );

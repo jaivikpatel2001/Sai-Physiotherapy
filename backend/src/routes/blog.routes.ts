@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import {
-  getPublishedBlogs, getBlogBySlug, getAllBlogsAdmin,
+  getPublishedBlogs, getBlogBySlug, getAllBlogsAdmin, getBlogByIdAdmin,
   createBlog, updateBlog, deleteBlog,
 } from '../controllers/blog.controller';
 import { authenticate, authorize } from '../middleware/auth.middleware';
@@ -100,6 +100,34 @@ router.get('/slug/:slug', getBlogBySlug);
  *       403: { $ref: '#/components/responses/Forbidden' }
  */
 router.get('/admin', authenticate, authorize(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DOCTOR), getAllBlogsAdmin);
+
+/**
+ * @openapi
+ * /blog/{id}:
+ *   get:
+ *     tags: [Blog]
+ *     summary: Admin — fetch a single blog post by ID (any status)
+ *     security: [{ BearerAuth: [] }]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: Blog post record
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiSuccess'
+ *                 - properties:
+ *                     data: { $ref: '#/components/schemas/Blog' }
+ *       401: { $ref: '#/components/responses/Unauthorized' }
+ *       403: { $ref: '#/components/responses/Forbidden' }
+ *       404: { $ref: '#/components/responses/NotFound' }
+ */
+router.get('/:id', authenticate, authorize(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DOCTOR), getBlogByIdAdmin);
 
 /**
  * @openapi
