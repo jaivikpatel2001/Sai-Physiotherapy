@@ -1,7 +1,6 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
-import Image from 'next/image';
 import { useServicesStore, type UploadedFile, servicesApi } from '@/store';
 import { formatCurrency } from '@sai-physio/utils';
 import {
@@ -13,9 +12,14 @@ import {
   FileUpload,
   AsyncBoundary,
   StatusBadge,
+  DataTable,
+  type Column,
   TagInput,
   ResourceDetailModal,
   FilterToolbar,
+  ThumbnailCell,
+  TablePagination,
+  usePagination,
   useTableQuery,
   applyTableQuery,
 } from '@/components/admin';
@@ -127,8 +131,62 @@ export default function ServicesAdminPage() {
       name: (s) => s.name,
       price: (s) => s.price?.from ?? 0,
       category: (s) => s.category,
+      order: (s) => s.order ?? 0,
     },
   }), [data, q.debouncedSearch, q.filters, q.sortBy, q.sortOrder]);
+
+  const pager = usePagination(
+    filtered,
+    `${q.debouncedSearch}|${q.filters.category ?? ''}|${q.filters.isActive ?? ''}|${q.sortBy}|${q.sortOrder}`,
+  );
+
+  const columns: Column<Service>[] = [
+    {
+      key: 'name',
+      header: 'Service',
+      sortKey: 'name',
+      render: (s) => (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
+          <ThumbnailCell src={s.bannerImage} alt={s.name} variant="square" size="md" />
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontWeight: 600 }}>{s.name}</div>
+            <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', maxWidth: 320, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              /{s.slug}
+            </div>
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: 'category',
+      header: 'Category',
+      sortKey: 'category',
+      render: (s) => <span style={{ fontSize: 'var(--text-sm)' }}>{s.category}</span>,
+    },
+    {
+      key: 'duration',
+      header: 'Duration',
+      render: (s) => <span style={{ fontSize: 'var(--text-sm)' }}>{s.duration}</span>,
+    },
+    {
+      key: 'price',
+      header: 'Price',
+      sortKey: 'price',
+      render: (s) => (
+        <span style={{ fontWeight: 600 }}>
+          From {formatCurrency(s.price?.from ?? 0)}
+          {s.price?.to ? <span style={{ color: 'var(--color-text-muted)', fontWeight: 400 }}> – {formatCurrency(s.price.to)}</span> : null}
+        </span>
+      ),
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      render: (s) => (
+        <StatusBadge label={s.isActive ? 'Active' : 'Inactive'} tone={s.isActive ? 'success' : 'neutral'} />
+      ),
+    },
+  ];
 
   return (
     <>
@@ -160,6 +218,7 @@ export default function ServicesAdminPage() {
               { value: 'name', label: 'Name' },
               { value: 'price', label: 'Starting price' },
               { value: 'category', label: 'Category' },
+              { value: 'order', label: 'Display order' },
             ],
           }}
           sortBy={q.sortBy}
@@ -171,56 +230,40 @@ export default function ServicesAdminPage() {
           filteredCount={filtered.length}
         />
 
-        <div style={{ padding: 'var(--space-6)' }}>
-          <AsyncBoundary
-            loading={loading}
-            error={error || null}
-            empty={filtered.length === 0}
-            emptyTitle={q.hasActive ? 'No services match your filters' : 'No services yet'}
-            emptyDescription={q.hasActive ? 'Try clearing one or more filters.' : 'Add your first service to display on the public site.'}
-            emptyIcon="ri-stethoscope-line"
-            emptyAction={q.hasActive
-              ? <button type="button" onClick={q.resetAll} className={`${styles.btn} ${styles.btnSecondary}`}><i className="ri-refresh-line" /> Reset filters</button>
-              : <AddButton label="Add Service" onClick={() => { setEditing(null); setShowForm(true); }} />}
-          >
-            <div className={styles.cardGrid}>
-              {filtered.map((s) => (
-                <article key={s._id} className={styles.serviceCard}>
-                  <div style={{ position: 'relative', height: 140, background: 'var(--color-surface)' }}>
-                    {s.bannerImage ? (
-                      <Image
-                        src={s.bannerImage}
-                        alt={s.name}
-                        fill
-                        sizes="(max-width: 600px) 100vw, 320px"
-                        style={{ objectFit: 'cover' }}
-                      />
-                    ) : (
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'var(--color-text-muted)' }}>
-                        <i className="ri-image-line" style={{ fontSize: 28 }} />
-                      </div>
-                    )}
-                  </div>
-                  <div className={styles.serviceCardBody}>
-                    <div className={styles.serviceCardName}>{s.name}</div>
-                    <div className={styles.serviceCardMeta}>{s.category} · {s.duration}</div>
-                    <div className={styles.serviceCardMeta}>From {formatCurrency(s.price?.from ?? 0)}</div>
-                    <div style={{ alignSelf: 'flex-start' }}>
-                      <StatusBadge label={s.isActive ? 'Active' : 'Inactive'} tone={s.isActive ? 'success' : 'neutral'} />
-                    </div>
-                  </div>
-                  <div className={styles.serviceCardActions} style={{ justifyContent: 'flex-end' }}>
-                    <ActionMenu
-                      onView={() => setViewingId(s._id)}
-                      onEdit={() => { setEditing(s); setShowForm(true); }}
-                      onDelete={() => setDeletingId(s._id)}
-                    />
-                  </div>
-                </article>
-              ))}
-            </div>
-          </AsyncBoundary>
-        </div>
+        <AsyncBoundary
+          loading={loading}
+          error={error || null}
+          empty={filtered.length === 0}
+          emptyTitle={q.hasActive ? 'No services match your filters' : 'No services yet'}
+          emptyDescription={q.hasActive ? 'Try clearing one or more filters.' : 'Add your first service to display on the public site.'}
+          emptyIcon="ri-stethoscope-line"
+          emptyAction={q.hasActive
+            ? <button type="button" onClick={q.resetAll} className={`${styles.btn} ${styles.btnSecondary}`}><i className="ri-refresh-line" /> Reset filters</button>
+            : <AddButton label="Add Service" onClick={() => { setEditing(null); setShowForm(true); }} />}
+        >
+          <DataTable
+            rows={pager.paginated}
+            columns={columns}
+            rowKey={(s) => s._id}
+            sortBy={q.sortBy}
+            sortOrder={q.sortOrder}
+            onSort={q.toggleSort}
+            renderActions={(s) => (
+              <ActionMenu
+                onView={() => setViewingId(s._id)}
+                onEdit={() => { setEditing(s); setShowForm(true); }}
+                onDelete={() => setDeletingId(s._id)}
+              />
+            )}
+          />
+          <TablePagination
+            page={pager.page}
+            pageSize={pager.pageSize}
+            total={pager.total}
+            onPageChange={pager.setPage}
+            onPageSizeChange={pager.setPageSize}
+          />
+        </AsyncBoundary>
       </div>
 
       <ServiceFormModal
@@ -265,7 +308,6 @@ function ServiceFormModal({
   });
   const name = watch('name');
   const slug = watch('slug');
-  const [err, setErr] = useState('');
   const createService = useServicesStore((s) => s.create);
   const updateService = useServicesStore((s) => s.update);
 
@@ -299,7 +341,6 @@ function ServiceFormModal({
     } else {
       reset(defaultForm);
     }
-    setErr('');
   }, [open, initial, reset]);
 
   useEffect(() => {
@@ -307,7 +348,6 @@ function ServiceFormModal({
   }, [name, slug, initial, setValue]);
 
   const onSubmit = async (f: ServiceForm) => {
-    setErr('');
     const payload = {
       name: f.name,
       slug: f.slug,
@@ -327,11 +367,12 @@ function ServiceFormModal({
       isActive: f.isActive,
       order: Number(f.order),
     };
+    // Backend's "Service created" / "Service updated" success + any failure
+    // surface via the global axios toast interceptor.
     const result = initial
       ? await updateService(initial._id, payload as never)
       : await createService(payload as never);
     if (result) onSaved();
-    else setErr('Failed to save');
   };
 
   return (
@@ -355,12 +396,6 @@ function ServiceFormModal({
       }
     >
       <form id="service-form" onSubmit={handleSubmit(onSubmit)}>
-        {err && (
-          <div className={styles.errorBox}>
-            <i className="ri-error-warning-line" /> {err}
-          </div>
-        )}
-
         <Controller
           control={control}
           name="banner"

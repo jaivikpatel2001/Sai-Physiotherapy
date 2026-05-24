@@ -3,6 +3,7 @@ import { useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthStore } from '@/store';
+import { notifyError, notifyWarning } from '@/lib/toast';
 import styles from '../login.module.css';
 
 function ResetPasswordInner() {
@@ -14,33 +15,33 @@ function ResetPasswordInner() {
   const [confirm, setConfirm] = useState('');
   const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   const [done, setDone] = useState(false);
   const resetPassword = useAuthStore((s) => s.resetPassword);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    // Local-only validation (no API call yet) — surfaces via toast for
+    // consistency with backend-driven messages.
     if (!token) {
-      setError('Reset token missing or invalid.');
+      notifyError('Reset token missing or invalid.');
       return;
     }
     if (password.length < 8) {
-      setError('Password must be at least 8 characters.');
+      notifyWarning('Password must be at least 8 characters.');
       return;
     }
     if (password !== confirm) {
-      setError('Passwords do not match.');
+      notifyWarning('Passwords do not match.');
       return;
     }
     setLoading(true);
+    // Backend's "Password reset successful. Please login." / "Invalid or
+    // expired OTP" comes through the global axios toast interceptor.
     const ok = await resetPassword({ token, password });
     setLoading(false);
     if (ok) {
       setDone(true);
       setTimeout(() => router.push('/login'), 2000);
-    } else {
-      setError('Failed to save');
     }
   };
 
@@ -64,13 +65,6 @@ function ResetPasswordInner() {
         <h1 className={styles.cardTitle}>Reset Password</h1>
         <p className={styles.cardSub}>Choose a new password for your account.</p>
       </div>
-
-      {error && (
-        <div className={styles.errorAlert}>
-          <i className="ri-error-warning-line" style={{ fontSize: 16 }} />
-          {error}
-        </div>
-      )}
 
       <form onSubmit={handleSubmit} className={styles.form}>
         <div className="form-group">

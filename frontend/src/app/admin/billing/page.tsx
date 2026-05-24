@@ -66,7 +66,6 @@ export default function BillingPage() {
 function InvoicesView() {
   const bills = useBillingsStore((s) => s.items) as unknown as Bill[];
   const loading = useBillingsStore((s) => s.status === 'loading');
-  const error = useBillingsStore((s) => s.error?.message ?? '');
   const fetchList = useBillingsStore((s) => s.fetchList);
   const [showCreate, setShowCreate] = useState(false);
   const [paymentTarget, setPaymentTarget] = useState<Bill | null>(null);
@@ -108,7 +107,6 @@ function InvoicesView() {
 
   return (
     <>
-      {error && <div className={styles.errorBox}><i className="ri-error-warning-line" style={{ fontSize: 16 }} />{error}</div>}
       <div className={styles.adminCard}>
         <div className={styles.cardHeader}>
           <div className={styles.cardTitle}>Invoices</div>
@@ -375,7 +373,6 @@ function CreateInvoiceModal({ onClose, onSaved }: { onClose: () => void; onSaved
   const grand = subtotal - discountAmt + taxAmt;
 
   const [pq, setPq] = useState('');
-  const [err, setErr] = useState('');
   const patients = usePatientsStore((s) => s.searchResults) as unknown as PatientLite[];
   const searchPatients = usePatientsStore((s) => s.search);
   const services = useServicesStore((s) => s.items) as unknown as ServiceLite[];
@@ -390,7 +387,6 @@ function CreateInvoiceModal({ onClose, onSaved }: { onClose: () => void; onSaved
   }, [pq, searchPatients]);
 
   const onSubmit = async (form: InvoiceForm) => {
-    setErr('');
     const payload = {
       patient: form.patient,
       items: form.items.map((i) => ({ ...i, total: Number(i.quantity) * Number(i.unitPrice) })),
@@ -402,9 +398,9 @@ function CreateInvoiceModal({ onClose, onSaved }: { onClose: () => void; onSaved
       paymentMethod: form.paymentMethod,
       notes: form.notes,
     };
+    // Global axios interceptor surfaces backend success/error messages.
     const result = await createBill(payload as never);
     if (result) onSaved();
-    else setErr('Failed to save');
   };
 
   return (
@@ -420,8 +416,6 @@ function CreateInvoiceModal({ onClose, onSaved }: { onClose: () => void; onSaved
         </div>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className={styles.modalBody}>
-            {err && <div className={styles.errorBox}><i className="ri-error-warning-line" style={{ fontSize: 16 }} />{err}</div>}
-
             <div className="form-group">
               <label className="form-label">Search Patient *</label>
               <input className="form-input" placeholder="Type name or phone..." value={pq} onChange={(e) => setPq(e.target.value)} />
@@ -525,18 +519,16 @@ function RecordPaymentModal({ bill, onClose, onSaved }: { bill: Bill; onClose: (
   const { register, handleSubmit, formState: { isSubmitting } } = useForm<{ amount: number; paymentMethod: string; reference?: string }>({
     defaultValues: { amount: bill.balanceDue, paymentMethod: 'cash' },
   });
-  const [err, setErr] = useState('');
   const recordPayment = useBillingsStore((s) => s.recordPayment);
 
   const onSubmit = async (form: { amount: number; paymentMethod: string; reference?: string }) => {
-    setErr('');
+    // Backend's "Payment recorded" + any failure surface via the global toast.
     const result = await recordPayment(bill._id, {
       amount: Number(form.amount),
       paymentMethod: form.paymentMethod,
       reference: form.reference,
     });
     if (result) onSaved();
-    else setErr('Failed to save');
   };
 
   return (
@@ -548,7 +540,6 @@ function RecordPaymentModal({ bill, onClose, onSaved }: { bill: Bill; onClose: (
         </div>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className={styles.modalBody}>
-            {err && <div className={styles.errorBox}><i className="ri-error-warning-line" style={{ fontSize: 16 }} />{err}</div>}
             <div className={styles.formGrid}>
               <div className="form-group">
                 <label className="form-label">Amount *</label>

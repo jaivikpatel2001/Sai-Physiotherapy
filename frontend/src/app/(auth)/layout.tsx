@@ -6,6 +6,10 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
     <div className={styles.layout}>
       {/* Left panel */}
       <div className={styles.left}>
+        <Link href="/" className={styles.backLink} aria-label="Back to website">
+          <i className="ri-arrow-left-line" aria-hidden /> Back to Website
+        </Link>
+
         <div className={styles.brand}>
           <div className={styles.logoIcon}><i className="ri-pulse-line" style={{ fontSize: 24 }} /></div>
           <div>
@@ -24,13 +28,13 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             </div>
           ))}
         </div>
-        <div className={styles.leftFooter}>
-          <Link href="/" className={styles.backHome}>← Back to website</Link>
-        </div>
       </div>
 
       {/* Right panel */}
       <div className={styles.right}>
+        <Link href="/" className={styles.backLinkMobile} aria-label="Back to website">
+          <i className="ri-arrow-left-line" aria-hidden /> Back to Website
+        </Link>
         {children}
       </div>
     </div>

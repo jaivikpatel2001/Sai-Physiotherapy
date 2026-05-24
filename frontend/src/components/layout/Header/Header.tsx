@@ -2,24 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import styles from './Header.module.css';
 
-const SERVICES_GRID = [
-  { label: 'Back Pain Treatment', icon: 'ri-walk-line', href: '/services/back-pain-treatment', recovery: '8-12 sessions' },
-  { label: 'Spine Care & Disc', icon: 'ri-mental-health-line', href: '/services/spine-care-disc-problems', recovery: '10-14 sessions' },
-  { label: 'Paralysis Rehab', icon: 'ri-heart-pulse-line', href: '/services/paralysis-rehabilitation', recovery: '12-24 weeks' },
-  { label: 'Knee & Joint Care', icon: 'ri-run-line', href: '/services/knee-pain-joint-care', recovery: '6-10 sessions' },
-  { label: 'Sports Injury', icon: 'ri-football-line', href: '/services/sports-injury-rehabilitation', recovery: '4-8 weeks' },
-  { label: 'Neuro Physiotherapy', icon: 'ri-flashlight-line', href: '/services/neuro-physiotherapy', recovery: '12+ weeks' },
-  { label: 'Neck & Cervical', icon: 'ri-emotion-unhappy-line', href: '/services/neck-pain-cervical-spondylosis', recovery: '6-10 sessions' },
-  { label: 'Post-Surgery Rehab', icon: 'ri-hospital-line', href: '/services/post-surgery-rehabilitation', recovery: '6-12 weeks' },
-  { label: 'Pediatric Physio', icon: 'ri-parent-line', href: '/services/pediatric-physiotherapy', recovery: 'Varies' },
-];
-
 const NAV_LINKS = [
   { label: 'Home', href: '/' },
-  { label: 'Services', href: '/services', mega: true },
+  { label: 'Services', href: '/services' },
   { label: 'Doctors', href: '/doctors' },
   { label: 'Gallery', href: '/gallery' },
   { label: 'Blog', href: '/blog' },
@@ -30,10 +19,13 @@ const NAV_LINKS = [
 const WHATSAPP = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '919999999999';
 const PHONE = process.env.NEXT_PUBLIC_CLINIC_PHONE || '+91 99999 99999';
 
+const isActiveLink = (pathname: string, href: string) =>
+  href === '/' ? pathname === '/' : pathname === href || pathname.startsWith(`${href}/`);
+
 export default function Header() {
+  const pathname = usePathname() || '/';
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [megaOpen, setMegaOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
@@ -106,60 +98,20 @@ export default function Header() {
               </div>
             </Link>
 
-            <nav className={styles.nav} onMouseLeave={() => setMegaOpen(false)}>
-              {NAV_LINKS.map((link) => (
-                <div
-                  key={link.label}
-                  className={styles.navItem}
-                  onMouseEnter={() => setMegaOpen(!!link.mega)}
-                >
-                  <Link href={link.href} className={styles.navLink}>
-                    {link.label}
-                    {link.mega && <i className="ri-arrow-down-s-line" style={{ fontSize: 14 }} />}
-                  </Link>
-                </div>
-              ))}
-
-              <AnimatePresence>
-                {megaOpen && (
-                  <motion.div
-                    className={styles.megaMenu}
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 8 }}
-                    transition={{ duration: 0.18 }}
-                    onMouseEnter={() => setMegaOpen(true)}
+            <nav className={styles.nav}>
+              {NAV_LINKS.map((link) => {
+                const active = isActiveLink(pathname, link.href);
+                return (
+                  <Link
+                    key={link.label}
+                    href={link.href}
+                    className={`${styles.navLink} ${active ? styles.navLinkActive : ''}`}
+                    aria-current={active ? 'page' : undefined}
                   >
-                    <div className={styles.megaInner}>
-                      <div className={styles.megaGrid}>
-                        {SERVICES_GRID.map((s) => (
-                          <Link key={s.href} href={s.href} className={styles.megaItem} onClick={() => setMegaOpen(false)}>
-                            <div className={styles.megaIcon}>
-                              <i className={s.icon} style={{ fontSize: 20 }} />
-                            </div>
-                            <div>
-                              <p className={styles.megaLabel}>{s.label}</p>
-                              <p className={styles.megaRecovery}>
-                                <i className="ri-time-line" style={{ fontSize: 11 }} /> {s.recovery}
-                              </p>
-                            </div>
-                          </Link>
-                        ))}
-                      </div>
-                      <div className={styles.megaFeatured}>
-                        <span className={styles.megaFeaturedTag}>Featured</span>
-                        <h4 className={styles.megaFeaturedTitle}>Need help choosing?</h4>
-                        <p className={styles.megaFeaturedSub}>
-                          Take our 60-second symptom check or talk to a specialist now.
-                        </p>
-                        <Link href="/book-appointment" className={styles.megaFeaturedBtn} onClick={() => setMegaOpen(false)}>
-                          Book Free Consultation <i className="ri-arrow-right-line" style={{ fontSize: 14 }} />
-                        </Link>
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                    {link.label}
+                  </Link>
+                );
+              })}
             </nav>
 
             <div className={styles.headerCta}>
@@ -202,17 +154,21 @@ export default function Header() {
                 </button>
               </div>
               <nav className={styles.mobileNav}>
-                {NAV_LINKS.map((link) => (
-                  <Link
-                    key={link.label}
-                    href={link.href}
-                    className={styles.mobileNavLink}
-                    onClick={() => setMobileOpen(false)}
-                  >
-                    {link.label}
-                    <i className="ri-arrow-right-s-line" style={{ fontSize: 16 }} />
-                  </Link>
-                ))}
+                {NAV_LINKS.map((link) => {
+                  const active = isActiveLink(pathname, link.href);
+                  return (
+                    <Link
+                      key={link.label}
+                      href={link.href}
+                      className={`${styles.mobileNavLink} ${active ? styles.mobileNavLinkActive : ''}`}
+                      aria-current={active ? 'page' : undefined}
+                      onClick={() => setMobileOpen(false)}
+                    >
+                      {link.label}
+                      <i className="ri-arrow-right-s-line" style={{ fontSize: 16 }} />
+                    </Link>
+                  );
+                })}
               </nav>
               <div className={styles.mobileCta}>
                 <Link

@@ -2,3 +2,5 @@ packages:
   - "backend"
   - "frontend"
   - "packages/*"
+allowBuilds:
+  '@scarf/scarf': false

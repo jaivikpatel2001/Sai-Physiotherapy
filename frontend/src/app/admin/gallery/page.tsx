@@ -1,8 +1,8 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
-import Image from 'next/image';
 import { useGalleryStore, type UploadedFile, galleryApi } from '@/store';
+import { formatDate } from '@sai-physio/utils';
 import {
   PageHeader,
   AddButton,
@@ -12,12 +12,18 @@ import {
   FileUpload,
   AsyncBoundary,
   StatusBadge,
+  DataTable,
+  type Column,
+  ThumbnailCell,
+  TablePagination,
+  usePagination,
   ResourceDetailModal,
   FilterToolbar,
   useTableQuery,
   applyTableQuery,
 } from '@/components/admin';
 import adminStyles from '../admin.module.css';
+import { notifyWarning } from '@/lib/toast';
 
 interface GalleryItem {
   _id: string;
@@ -103,6 +109,66 @@ export default function GalleryAdminPage() {
     },
   }), [items, q.debouncedSearch, q.filters.isPublished, q.sortBy, q.sortOrder]);
 
+  const pager = usePagination(
+    filtered,
+    `${q.debouncedSearch}|${q.filters.category ?? ''}|${q.filters.isPublished ?? ''}|${q.sortBy}|${q.sortOrder}`,
+  );
+
+  const columns: Column<GalleryItem>[] = [
+    {
+      key: 'title',
+      header: 'Title',
+      sortKey: 'title',
+      render: (item) => (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
+          <ThumbnailCell src={item.image?.url} alt={item.alt || item.title} variant="square" size="md" />
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontWeight: 600 }}>{item.title}</div>
+            {item.caption && (
+              <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', maxWidth: 320, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {item.caption}
+              </div>
+            )}
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: 'category',
+      header: 'Category',
+      sortKey: 'category',
+      render: (item) => (
+        <span style={{ textTransform: 'capitalize', fontSize: 'var(--text-sm)' }}>{item.category}</span>
+      ),
+    },
+    {
+      key: 'order',
+      header: 'Order',
+      sortKey: 'order',
+      align: 'center',
+      width: 80,
+      render: (item) => <span>{item.order ?? 0}</span>,
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      render: (item) => (
+        <StatusBadge
+          label={item.isPublished ? 'Published' : 'Draft'}
+          tone={item.isPublished ? 'success' : 'neutral'}
+        />
+      ),
+    },
+    {
+      key: 'createdAt',
+      header: 'Created',
+      sortKey: 'createdAt',
+      render: (item) => (
+        <span style={{ fontSize: 'var(--text-sm)' }}>{item.createdAt ? formatDate(item.createdAt) : '—'}</span>
+      ),
+    },
+  ];
+
   return (
     <>
       <PageHeader
@@ -145,80 +211,40 @@ export default function GalleryAdminPage() {
           filteredCount={filtered.length}
         />
 
-        <div style={{ padding: 'var(--space-6)' }}>
-          <AsyncBoundary
-            loading={loading}
-            error={error || null}
-            empty={filtered.length === 0}
-            emptyTitle={q.hasActive ? 'No images match your filters' : 'No images yet'}
-            emptyDescription={q.hasActive ? 'Try clearing one or more filters.' : 'Add your first gallery image to start curating what visitors see.'}
-            emptyIcon="ri-image-2-line"
-            emptyAction={q.hasActive
-              ? <button type="button" onClick={q.resetAll} className={`${adminStyles.btn} ${adminStyles.btnSecondary}`}><i className="ri-refresh-line" /> Reset filters</button>
-              : <AddButton label="Add Image" onClick={openNew} />}
-          >
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
-                gap: 'var(--space-4)',
-              }}
-            >
-              {filtered.map((item) => (
-                <article
-                  key={item._id}
-                  style={{
-                    background: 'white',
-                    border: '1px solid var(--color-hairline)',
-                    borderRadius: 'var(--radius-lg)',
-                    overflow: 'hidden',
-                    boxShadow: 'var(--shadow-card)',
-                    display: 'flex',
-                    flexDirection: 'column',
-                  }}
-                >
-                  <div style={{ position: 'relative', aspectRatio: '4/3', background: 'var(--color-surface)' }}>
-                    <Image
-                      src={item.image.url}
-                      alt={item.alt}
-                      fill
-                      sizes="(max-width: 600px) 50vw, 220px"
-                      style={{ objectFit: 'cover' }}
-                    />
-                  </div>
-                  <div style={{ padding: 'var(--space-3)', display: 'flex', flexDirection: 'column', gap: 6 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-                      <div style={{ fontWeight: 600, fontSize: 'var(--text-sm)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {item.title}
-                      </div>
-                      <StatusBadge
-                        label={item.isPublished ? 'Published' : 'Draft'}
-                        tone={item.isPublished ? 'success' : 'neutral'}
-                      />
-                    </div>
-                    <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', textTransform: 'capitalize' }}>
-                      {item.category} · order {item.order}
-                    </div>
-                  </div>
-                  <div
-                    style={{
-                      padding: 'var(--space-2) var(--space-3)',
-                      borderTop: '1px solid var(--color-hairline-soft)',
-                      display: 'flex',
-                      justifyContent: 'flex-end',
-                    }}
-                  >
-                    <ActionMenu
-                      onView={() => setViewingId(item._id)}
-                      onEdit={() => openEdit(item)}
-                      onDelete={() => setDeletingId(item._id)}
-                    />
-                  </div>
-                </article>
-              ))}
-            </div>
-          </AsyncBoundary>
-        </div>
+        <AsyncBoundary
+          loading={loading}
+          error={error || null}
+          empty={filtered.length === 0}
+          emptyTitle={q.hasActive ? 'No images match your filters' : 'No images yet'}
+          emptyDescription={q.hasActive ? 'Try clearing one or more filters.' : 'Add your first gallery image to start curating what visitors see.'}
+          emptyIcon="ri-image-2-line"
+          emptyAction={q.hasActive
+            ? <button type="button" onClick={q.resetAll} className={`${adminStyles.btn} ${adminStyles.btnSecondary}`}><i className="ri-refresh-line" /> Reset filters</button>
+            : <AddButton label="Add Image" onClick={openNew} />}
+        >
+          <DataTable
+            rows={pager.paginated}
+            columns={columns}
+            rowKey={(item) => item._id}
+            sortBy={q.sortBy}
+            sortOrder={q.sortOrder}
+            onSort={q.toggleSort}
+            renderActions={(item) => (
+              <ActionMenu
+                onView={() => setViewingId(item._id)}
+                onEdit={() => openEdit(item)}
+                onDelete={() => setDeletingId(item._id)}
+              />
+            )}
+          />
+          <TablePagination
+            page={pager.page}
+            pageSize={pager.pageSize}
+            total={pager.total}
+            onPageChange={pager.setPage}
+            onPageSizeChange={pager.setPageSize}
+          />
+        </AsyncBoundary>
       </div>
 
       <GalleryFormModal
@@ -279,7 +305,6 @@ function GalleryFormModal({
       image: null,
     },
   });
-  const [err, setErr] = useState('');
   const createItem = useGalleryStore((s) => s.create);
   const updateItem = useGalleryStore((s) => s.update);
 
@@ -313,13 +338,11 @@ function GalleryFormModal({
         image: null,
       });
     }
-    setErr('');
   }, [open, item, reset]);
 
   const onSubmit = async (form: GalleryForm) => {
-    setErr('');
     if (!form.image) {
-      setErr('Please upload an image before saving.');
+      notifyWarning('Please upload an image before saving.');
       return;
     }
     const payload = {
@@ -336,11 +359,12 @@ function GalleryFormModal({
         mimetype: form.image.mimetype,
       },
     };
+    // Backend's "Gallery item created/updated" + any failure surface via
+    // the global axios toast interceptor.
     const result = isEdit && item
       ? await updateItem(item._id, payload as never)
       : await createItem(payload as never);
     if (result) onSaved();
-    else setErr('Failed to save');
   };
 
   return (
@@ -366,12 +390,6 @@ function GalleryFormModal({
       }
     >
       <form id="gallery-form" onSubmit={handleSubmit(onSubmit)}>
-        {err && (
-          <div className={adminStyles.errorBox}>
-            <i className="ri-error-warning-line" /> {err}
-          </div>
-        )}
-
         <Controller
           control={control}
           name="image"

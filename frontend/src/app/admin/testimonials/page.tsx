@@ -9,12 +9,13 @@ import {
   ActionMenu,
   Modal,
   ConfirmDialog,
-  AsyncBoundary,
   StatusBadge,
   ResourceDetailModal,
   FilterToolbar,
   useTableQuery,
   applyTableQuery,
+  DataTable,
+  type Column,
 } from '@/components/admin';
 import styles from '../admin.module.css';
 
@@ -53,17 +54,52 @@ const defaultForm: TestimonialForm = {
   isFeatured: false,
 };
 
+const SOURCE_LABEL: Record<Testimonial['source'], string> = {
+  manual: 'Manual',
+  website_form: 'Website form',
+  google: 'Google',
+};
+
+const SOURCE_ICON: Record<Testimonial['source'], string> = {
+  manual: 'ri-user-add-line',
+  website_form: 'ri-quill-pen-line',
+  google: 'ri-google-fill',
+};
+
+const initials = (name: string) => name
+  .trim()
+  .split(/\s+/)
+  .slice(0, 2)
+  .map((part) => part[0])
+  .join('')
+  .toUpperCase() || '?';
+
+function Stars({ rating }: { rating: number }) {
+  return (
+    <div className={styles.stars} aria-label={`Rated ${rating} out of 5`}>
+      {Array.from({ length: 5 }).map((_, i) => (
+        <i
+          key={i}
+          className={i < rating ? 'ri-star-fill' : 'ri-star-line'}
+          style={{ fontSize: 14, color: i < rating ? 'var(--color-accent-cta)' : 'var(--color-border)' }}
+        />
+      ))}
+      <span style={{ marginLeft: 6, fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)' }}>{rating}/5</span>
+    </div>
+  );
+}
+
 export default function TestimonialsPage() {
   const items = useTestimonialsStore((s) => s.items) as unknown as Testimonial[];
   const loading = useTestimonialsStore((s) => s.status === 'loading');
-  const error = useTestimonialsStore((s) => s.error?.message ?? '');
   const fetchList = useTestimonialsStore((s) => s.fetchList);
   const moderateItem = useTestimonialsStore((s) => s.moderate);
   const removeItem = useTestimonialsStore((s) => s.remove);
 
   const [editing, setEditing] = useState<Testimonial | null>(null);
   const [showModal, setShowModal] = useState(false);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState<Testimonial | null>(null);
+  const [deleteBusy, setDeleteBusy] = useState(false);
   const [viewingId, setViewingId] = useState<string | null>(null);
 
   const q = useTableQuery({
@@ -79,7 +115,7 @@ export default function TestimonialsPage() {
   const filtered = useMemo(() => applyTableQuery({
     rows: items,
     search: q.debouncedSearch,
-    searchFields: (t) => `${t.patientName} ${t.condition} ${t.review}`,
+    searchFields: (t) => `${t.patientName ?? ''} ${t.condition ?? ''} ${t.review ?? ''}`,
     filters: q.filters,
     filterAccessors: {
       isApproved: (t) => String(t.isApproved),
@@ -96,6 +132,8 @@ export default function TestimonialsPage() {
     },
   }), [items, q.debouncedSearch, q.filters, q.sortBy, q.sortOrder]);
 
+  // Backend's dynamic message ("Testimonial updated", "Testimonial deleted", …)
+  // is shown via the global axios toast interceptor — no local state needed.
   const moderate = async (id: string, isApproved: boolean) => {
     await moderateItem(id, { isApproved });
   };
@@ -105,10 +143,67 @@ export default function TestimonialsPage() {
   };
 
   const handleDelete = async () => {
-    if (!deletingId) return;
-    await removeItem(deletingId);
-    setDeletingId(null);
+    if (!deleting) return;
+    setDeleteBusy(true);
+    const ok = await removeItem(deleting._id);
+    setDeleteBusy(false);
+    if (ok) setDeleting(null);
   };
+
+  const columns: Column<Testimonial>[] = [
+    {
+      key: 'patient',
+      header: 'Patient',
+      sortKey: 'patientName',
+      render: (t) => (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
+          <div className={styles.userAvatar} aria-hidden>{initials(t.patientName)}</div>
+          <div className={styles.listMain}>
+            <div className={styles.listTitle} style={{ fontWeight: 600 }}>
+              {t.patientName}{t.patientAge ? `, ${t.patientAge}` : ''}
+            </div>
+            <div className={styles.listSubtitle} style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)' }}>
+              {t.condition || '—'}
+            </div>
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: 'rating',
+      header: 'Rating',
+      sortKey: 'rating',
+      render: (t) => <Stars rating={t.rating} />,
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      render: (t) => (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'flex-start' }}>
+          <StatusBadge label={t.isApproved ? 'Approved' : 'Pending'} tone={t.isApproved ? 'success' : 'warning'} />
+          {t.isFeatured && <StatusBadge label="Featured" tone="primary" icon="ri-star-fill" />}
+        </div>
+      ),
+    },
+    {
+      key: 'source',
+      header: 'Source',
+      render: (t) => (
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 'var(--text-sm)', color: 'var(--color-text-muted)' }}>
+          <i className={SOURCE_ICON[t.source]} style={{ fontSize: 14 }} />
+          {SOURCE_LABEL[t.source]}
+        </span>
+      ),
+    },
+    {
+      key: 'createdAt',
+      header: 'Created',
+      sortKey: 'createdAt',
+      render: (t) => (
+        <span style={{ fontSize: 'var(--text-sm)' }}>{formatDate(t.createdAt)}</span>
+      ),
+    },
+  ];
 
   return (
     <>
@@ -169,110 +264,78 @@ export default function TestimonialsPage() {
           filteredCount={filtered.length}
         />
 
-        <div style={{ padding: 'var(--space-6)' }}>
-          <AsyncBoundary
-            loading={loading}
-            error={error || null}
-            empty={filtered.length === 0}
-            emptyTitle={q.hasActive ? 'No testimonials match your filters' : 'No testimonials'}
-            emptyDescription={q.hasActive ? 'Try clearing one or more filters.' : 'Add a testimonial manually or wait for visitors to submit one.'}
-            emptyIcon="ri-message-3-line"
-            emptyAction={q.hasActive
-              ? <button type="button" onClick={q.resetAll} className={`${styles.btn} ${styles.btnSecondary}`}><i className="ri-refresh-line" /> Reset filters</button>
-              : <AddButton label="Add Testimonial" onClick={() => { setEditing(null); setShowModal(true); }} />}
-          >
-            <div className={styles.cardGrid}>
-              {filtered.map((t) => (
-                <div key={t._id} className={styles.serviceCard}>
-                  <div className={styles.serviceCardBody}>
-                    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
-                      <div>
-                        <div className={styles.serviceCardName}>
-                          {t.patientName}
-                          {t.patientAge ? `, ${t.patientAge}` : ''}
-                        </div>
-                        <div className={styles.serviceCardMeta}>{t.condition}</div>
-                      </div>
-                      <StatusBadge
-                        label={t.isApproved ? 'Approved' : 'Pending'}
-                        tone={t.isApproved ? 'success' : 'warning'}
-                      />
-                    </div>
-                    <div className={styles.stars}>
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <i
-                          key={i}
-                          className={i < t.rating ? 'ri-star-fill' : 'ri-star-line'}
-                          style={{ fontSize: 14 }}
-                        />
-                      ))}
-                    </div>
-                    <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text)', lineHeight: 'var(--leading-snug)' }}>
-                      {t.review}
-                    </p>
-                    <div className={styles.serviceCardMeta}>
-                      {formatDate(t.createdAt)} · {t.source.replace('_', ' ')}
-                      {t.isFeatured && (
-                        <>
-                          {' · '}
-                          <span style={{ color: 'var(--color-accent-cta)', fontWeight: 600 }}>Featured</span>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                  <div className={styles.serviceCardActions} style={{ justifyContent: 'space-between' }}>
-                    <div style={{ display: 'flex', gap: 6 }}>
-                      {!t.isApproved ? (
-                        <button
-                          className={`${styles.btn} ${styles.btnPrimary} ${styles.btnSm}`}
-                          onClick={() => moderate(t._id, true)}
-                        >
-                          <i className="ri-check-line" style={{ fontSize: 14 }} /> Approve
-                        </button>
-                      ) : (
-                        <button
-                          className={`${styles.btn} ${styles.btnSecondary} ${styles.btnSm}`}
-                          onClick={() => moderate(t._id, false)}
-                        >
-                          <i className="ri-close-line" style={{ fontSize: 14 }} /> Unapprove
-                        </button>
-                      )}
-                      {t.isApproved && (
-                        <button
-                          className={`${styles.btn} ${styles.btnSecondary} ${styles.btnSm}`}
-                          onClick={() => toggleFeatured(t._id, t.isFeatured)}
-                        >
-                          <i className={t.isFeatured ? 'ri-star-fill' : 'ri-star-line'} style={{ fontSize: 14 }} />
-                        </button>
-                      )}
-                    </div>
-                    <ActionMenu
-                      onView={() => setViewingId(t._id)}
-                      onEdit={() => { setEditing(t); setShowModal(true); }}
-                      onDelete={() => setDeletingId(t._id)}
-                    />
-                  </div>
-                </div>
-              ))}
+        <DataTable
+          rows={filtered}
+          columns={columns}
+          rowKey={(t) => t._id}
+          loading={loading}
+          sortBy={q.sortBy}
+          sortOrder={q.sortOrder}
+          onSort={q.toggleSort}
+          renderActions={(t) => (
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+              {!t.isApproved ? (
+                <button
+                  type="button"
+                  className={`${styles.btn} ${styles.btnPrimary} ${styles.btnSm}`}
+                  onClick={() => void moderate(t._id, true)}
+                  title="Approve testimonial"
+                >
+                  <i className="ri-check-line" style={{ fontSize: 14 }} /> Approve
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className={`${styles.btn} ${styles.btnSecondary} ${styles.btnSm}`}
+                  onClick={() => void toggleFeatured(t._id, t.isFeatured)}
+                  title={t.isFeatured ? 'Remove from featured' : 'Mark as featured'}
+                  aria-label={t.isFeatured ? 'Remove from featured' : 'Mark as featured'}
+                >
+                  <i className={t.isFeatured ? 'ri-star-fill' : 'ri-star-line'} style={{ fontSize: 14, color: t.isFeatured ? 'var(--color-accent-cta)' : 'inherit' }} />
+                </button>
+              )}
+              <ActionMenu
+                onView={() => setViewingId(t._id)}
+                onEdit={() => { setEditing(t); setShowModal(true); }}
+                onDelete={() => setDeleting(t)}
+              />
             </div>
-          </AsyncBoundary>
-        </div>
+          )}
+        />
+
+        {!loading && filtered.length === 0 && (
+          <div className={styles.empty}>
+            <i className={`ri-message-3-line ${styles.emptyIcon}`} style={{ fontSize: 40 }} />
+            <span>{q.hasActive ? 'No testimonials match your filters' : 'No testimonials yet'}</span>
+            {q.hasActive ? (
+              <button type="button" onClick={q.resetAll} className={`${styles.btn} ${styles.btnSecondary} ${styles.btnSm}`}>
+                <i className="ri-refresh-line" /> Reset filters
+              </button>
+            ) : (
+              <AddButton label="Add Testimonial" onClick={() => { setEditing(null); setShowModal(true); }} />
+            )}
+          </div>
+        )}
       </div>
 
       <TestimonialFormModal
         open={showModal}
         initial={editing}
         onClose={() => setShowModal(false)}
-        onSaved={() => { setShowModal(false); void fetchList(undefined, { force: true }); }}
+        onSaved={() => {
+          setShowModal(false);
+          void fetchList(undefined, { force: true });
+        }}
       />
 
       <ConfirmDialog
-        open={!!deletingId}
+        open={!!deleting}
         title="Delete this testimonial?"
-        message="This permanently removes the testimonial from the database."
+        message={deleting ? `Permanently delete the testimonial from “${deleting.patientName}”? This cannot be undone.` : ''}
         confirmLabel="Delete"
+        loading={deleteBusy}
         onConfirm={handleDelete}
-        onCancel={() => setDeletingId(null)}
+        onCancel={() => { if (!deleteBusy) setDeleting(null); }}
       />
 
       <ResourceDetailModal
@@ -280,6 +343,38 @@ export default function TestimonialsPage() {
         id={viewingId}
         onClose={() => setViewingId(null)}
         fetcher={testimonialsApi.getOne}
+        extraActions={(record) => {
+          const t = record as unknown as Testimonial;
+          return (
+            <>
+              <button
+                type="button"
+                onClick={() => { setViewingId(null); setEditing(t); setShowModal(true); }}
+                className={`${styles.btn} ${styles.btnSecondary}`}
+              >
+                <i className="ri-pencil-line" style={{ fontSize: 16 }} /> Edit
+              </button>
+              {!t.isApproved ? (
+                <button
+                  type="button"
+                  onClick={() => { void moderate(t._id, true); setViewingId(null); }}
+                  className={`${styles.btn} ${styles.btnPrimary}`}
+                >
+                  <i className="ri-check-line" style={{ fontSize: 16 }} /> Approve
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => { void toggleFeatured(t._id, t.isFeatured); setViewingId(null); }}
+                  className={`${styles.btn} ${styles.btnSecondary}`}
+                >
+                  <i className={t.isFeatured ? 'ri-star-fill' : 'ri-star-line'} style={{ fontSize: 16 }} />
+                  {t.isFeatured ? 'Unfeature' : 'Feature'}
+                </button>
+              )}
+            </>
+          );
+        }}
       />
     </>
   );
@@ -294,13 +389,12 @@ function TestimonialFormModal({
   open: boolean;
   initial: Testimonial | null;
   onClose: () => void;
-  onSaved: () => void;
+  onSaved: (mode: 'create' | 'edit') => void;
 }) {
   const isEdit = !!initial;
   const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<TestimonialForm>({
     defaultValues: defaultForm,
   });
-  const [err, setErr] = useState('');
   const createTestimonial = useTestimonialsStore((s) => s.create);
   const updateTestimonial = useTestimonialsStore((s) => s.update);
 
@@ -320,21 +414,19 @@ function TestimonialFormModal({
     } else {
       reset(defaultForm);
     }
-    setErr('');
   }, [open, initial, reset]);
 
   const onSubmit = async (form: TestimonialForm) => {
-    setErr('');
     const payload = {
       ...form,
       rating: Number(form.rating),
       patientAge: form.patientAge ? Number(form.patientAge) : undefined,
     };
+    // Success/error toasts come from the backend message via the global interceptor.
     const result = isEdit && initial
       ? await updateTestimonial(initial._id, payload as never)
       : await createTestimonial(payload as never);
-    if (result) onSaved();
-    else setErr('Failed to save');
+    if (result) onSaved(isEdit ? 'edit' : 'create');
   };
 
   return (
@@ -358,12 +450,6 @@ function TestimonialFormModal({
       }
     >
       <form id="testimonial-form" onSubmit={handleSubmit(onSubmit)}>
-        {err && (
-          <div className={styles.errorBox}>
-            <i className="ri-error-warning-line" /> {err}
-          </div>
-        )}
-
         <div className={styles.formGrid}>
           <div className="form-group">
             <label className="form-label">Patient name *</label>
@@ -375,8 +461,9 @@ function TestimonialFormModal({
             <input type="number" min={1} className="form-input" {...register('patientAge', { valueAsNumber: true })} />
           </div>
           <div className="form-group">
-            <label className="form-label">Condition *</label>
-            <input className="form-input" {...register('condition', { required: true })} />
+            <label className="form-label">Condition / Designation *</label>
+            <input className="form-input" placeholder="e.g. Lower back pain · Athlete" {...register('condition', { required: true })} />
+            {errors.condition && <div className="form-error">Required</div>}
           </div>
           <div className="form-group">
             <label className="form-label">Rating *</label>
@@ -389,6 +476,7 @@ function TestimonialFormModal({
           <div className="form-group full">
             <label className="form-label">Review *</label>
             <textarea rows={4} className="form-input" {...register('review', { required: true, minLength: 10 })} />
+            {errors.review && <div className="form-error">Minimum 10 characters</div>}
           </div>
           <div className="form-group full">
             <label className="form-label">Video URL (optional)</label>

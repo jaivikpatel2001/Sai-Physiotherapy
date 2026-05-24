@@ -10,18 +10,14 @@ export default function LoginPage() {
   const login = useAuthStore((s) => s.login);
   const storeLoading = useAuthStore((s) => s.status === 'loading');
   const [show, setShow] = useState(false);
-  const [error, setError] = useState('');
   const [form, setForm] = useState({ email: '', password: '' });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    // Backend "Login successful" success + "Invalid email or password" / lockout
+    // errors surface via the global axios toast interceptor.
     const user = await login(form);
-    if (!user) {
-      const storeError = useAuthStore.getState().error;
-      setError(storeError?.message ?? 'Login failed. Please try again.');
-      return;
-    }
+    if (!user) return;
     // Mirror the user object for getRole() in lib/auth (used by admin/users + admin/settings).
     if (typeof window !== 'undefined') {
       window.localStorage.setItem('user', JSON.stringify(user));
@@ -45,13 +41,6 @@ export default function LoginPage() {
         <h1 className={styles.cardTitle}>Staff Login</h1>
         <p className={styles.cardSub}>Sign in to access the clinic management system</p>
       </div>
-
-      {error && (
-        <div className={styles.errorAlert}>
-          <i className="ri-error-warning-line" style={{ fontSize: 16 }} />
-          {error}
-        </div>
-      )}
 
       <form onSubmit={handleSubmit} className={styles.form}>
         <div className="form-group">

@@ -18,8 +18,10 @@ import {
   FilterToolbar,
   useTableQuery,
   applyTableQuery,
+  SummernoteEditor,
 } from '@/components/admin';
 import adminStyles from '../admin.module.css';
+import { notifyError } from '@/lib/toast';
 
 interface CmsPage {
   _id: string;
@@ -81,6 +83,7 @@ export default function PagesAdminPage() {
   const [editing, setEditing] = useState<CmsPage | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleteBusy, setDeleteBusy] = useState(false);
   const [viewingId, setViewingId] = useState<string | null>(null);
 
   const q = useTableQuery({
@@ -95,8 +98,10 @@ export default function PagesAdminPage() {
 
   const handleDelete = async () => {
     if (!deletingId) return;
-    await removePage(deletingId);
-    setDeletingId(null);
+    setDeleteBusy(true);
+    const ok = await removePage(deletingId);
+    setDeleteBusy(false);
+    if (ok) setDeletingId(null);
   };
 
   const filtered = useMemo(() => applyTableQuery({
@@ -235,7 +240,10 @@ export default function PagesAdminPage() {
         open={showModal}
         page={editing}
         onClose={() => setShowModal(false)}
-        onSaved={() => { setShowModal(false); void fetchList(undefined, { force: true }); }}
+        onSaved={() => {
+          setShowModal(false);
+          void fetchList(undefined, { force: true });
+        }}
       />
 
       <ConfirmDialog
@@ -243,8 +251,9 @@ export default function PagesAdminPage() {
         title="Delete this page?"
         message="This permanently removes the page from the public site and any footer links."
         confirmLabel="Delete page"
+        loading={deleteBusy}
         onConfirm={handleDelete}
-        onCancel={() => setDeletingId(null)}
+        onCancel={() => { if (!deleteBusy) setDeletingId(null); }}
       />
 
       <ResourceDetailModal
@@ -266,7 +275,7 @@ function PageFormModal({
   open: boolean;
   page: CmsPage | null;
   onClose: () => void;
-  onSaved: () => void;
+  onSaved: (mode: 'create' | 'edit') => void;
 }) {
   const isEdit = !!page;
   const {
@@ -278,7 +287,6 @@ function PageFormModal({
     reset,
     formState: { errors, isSubmitting },
   } = useForm<PageForm>({ defaultValues: defaultForm });
-  const [err, setErr] = useState('');
   const titleVal = watch('title');
   const slugVal = watch('slug');
   const createPage = usePagesStore((s) => s.create);
@@ -303,7 +311,6 @@ function PageFormModal({
     } else {
       reset(defaultForm);
     }
-    setErr('');
   }, [open, page, reset]);
 
   useEffect(() => {
@@ -311,7 +318,12 @@ function PageFormModal({
   }, [titleVal, slugVal, isEdit, setValue]);
 
   const onSubmit = async (form: PageForm) => {
-    setErr('');
+    // Local-only check (no API hit): the editor allows empty markup but the
+    // backend Zod schema rejects an empty body — keep the inline guard.
+    if (!form.content || form.content.replace(/<[^>]*>/g, '').trim().length === 0) {
+      notifyError('Content is required');
+      return;
+    }
     const payload = {
       title: form.title,
       slug: form.slug,
@@ -327,11 +339,11 @@ function PageFormModal({
         keywords: form.keywords,
       },
     };
+    // Backend success/failure messages surface via the global axios interceptor.
     const result = isEdit && page
       ? await updatePage(page._id, payload as never)
       : await createPage(payload as never);
-    if (result) onSaved();
-    else setErr('Failed to save');
+    if (result) onSaved(isEdit ? 'edit' : 'create');
   };
 
   return (
@@ -357,12 +369,6 @@ function PageFormModal({
       }
     >
       <form id="page-form" onSubmit={handleSubmit(onSubmit)}>
-        {err && (
-          <div className={adminStyles.errorBox}>
-            <i className="ri-error-warning-line" /> {err}
-          </div>
-        )}
-
         <div className={adminStyles.formGrid}>
           <div className="form-group">
             <label className="form-label">Title *</label>
@@ -385,17 +391,24 @@ function PageFormModal({
           </div>
 
           <div className="form-group full">
-            <label className="form-label">Content (HTML or rich text) *</label>
-            <textarea
-              rows={12}
-              className="form-input"
-              style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-sm)' }}
-              placeholder="<h2>Privacy Policy</h2>&#10;<p>…</p>"
-              {...register('content', { required: true })}
+            <Controller
+              control={control}
+              name="content"
+              rules={{ required: true }}
+              render={({ field }) => (
+                <SummernoteEditor
+                  label="Content"
+                  required
+                  uploadModule="pages"
+                  value={field.value || ''}
+                  onChange={field.onChange}
+                  height={420}
+                  placeholder="Write the page content here. Use the toolbar for headings, links, images and tables."
+                  hint="Use H2/H3 for SEO-friendly structure. Inline images upload to Cloudflare R2."
+                />
+              )}
             />
-            <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', marginTop: 4 }}>
-              HTML is rendered as-is on the public page. Use semantic headings (h2/h3) for SEO.
-            </div>
+            {errors.content && <div className="form-error">Content is required</div>}
           </div>
 
           <div className="form-group full">

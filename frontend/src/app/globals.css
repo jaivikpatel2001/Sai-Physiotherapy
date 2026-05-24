@@ -1332,3 +1332,11 @@ div.hero-aura {
     padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
   }
 }
+
+/* ── Summernote (admin rich-text editor) z-index escape ─────────────────── */
+/* Summernote dialogs (link, image, video) render at <body> via dialogsInBody.
+   Lift them above our --z-modal (400) so they're usable inside admin modals. */
+.note-modal-backdrop { z-index: 600; }
+.note-modal { z-index: 610; }
+.note-popover { z-index: 620; }
+.note-toolbar { z-index: 1; }

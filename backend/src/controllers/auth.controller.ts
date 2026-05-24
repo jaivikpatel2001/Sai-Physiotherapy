@@ -245,16 +245,86 @@ export const getUserById = asyncHandler(async (req: AuthRequest, res: Response) 
  * @route  PATCH /api/v1/auth/users/:id/toggle-status
  * @access Super Admin only
  */
-export const toggleUserStatus = asyncHandler(async (req: Request, res: Response) => {
+export const toggleUserStatus = asyncHandler(async (req: AuthRequest, res: Response) => {
+  if (req.user?._id?.toString() === req.params.id) {
+    throw new AppError('You cannot change the status of your own account', 400);
+  }
+
   const user = await User.findById(req.params.id);
   if (!user) throw new AppError('User not found', 404);
 
   user.isActive = !user.isActive;
+  // Invalidate refresh token when deactivating so the user is forced out
+  if (!user.isActive) user.refreshToken = undefined;
   await user.save();
+
+  // Re-fetch via toJSON-transformed find so password & sensitive fields are stripped
+  const fresh = await User.findById(user._id);
 
   sendSuccess({
     res,
     message: `User ${user.isActive ? 'activated' : 'deactivated'} successfully`,
-    data: { isActive: user.isActive },
+    data: fresh,
   });
+});
+
+const updateUserSchema = z.object({
+  name: z.string().min(2).optional(),
+  email: z.string().email().optional(),
+  phone: z.string().regex(/^[6-9]\d{9}$/, 'Invalid Indian phone number').optional(),
+  role: z.nativeEnum(UserRole).optional(),
+  specialization: z.string().optional(),
+  qualification: z.string().optional(),
+  experience: z.number().int().min(0).optional(),
+  bio: z.string().optional(),
+  avatar: z.string().optional(),
+  isActive: z.boolean().optional(),
+});
+
+export { updateUserSchema };
+
+/**
+ * @route  PUT /api/v1/auth/users/:id
+ * @access Super Admin / Admin
+ */
+export const updateUser = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const payload = req.body as z.infer<typeof updateUserSchema>;
+
+  if (payload.email) {
+    const conflict = await User.findOne({ email: payload.email, _id: { $ne: req.params.id } });
+    if (conflict) throw new AppError('Email already in use by another account', 409);
+  }
+
+  if (payload.role && req.user?.role !== UserRole.SUPER_ADMIN) {
+    throw new AppError('Only super admins can change user roles', 403);
+  }
+
+  const user = await User.findByIdAndUpdate(req.params.id, payload, { new: true, runValidators: true });
+  if (!user) throw new AppError('User not found', 404);
+
+  sendSuccess({ res, message: 'User updated successfully', data: user });
+});
+
+/**
+ * @route  DELETE /api/v1/auth/users/:id
+ * @access Super Admin only
+ */
+export const deleteUser = asyncHandler(async (req: AuthRequest, res: Response) => {
+  if (req.user?._id?.toString() === req.params.id) {
+    throw new AppError('You cannot delete your own account', 400);
+  }
+
+  const user = await User.findById(req.params.id);
+  if (!user) throw new AppError('User not found', 404);
+
+  if (user.role === UserRole.SUPER_ADMIN) {
+    const superAdmins = await User.countDocuments({ role: UserRole.SUPER_ADMIN });
+    if (superAdmins <= 1) {
+      throw new AppError('Cannot delete the last remaining super admin', 400);
+    }
+  }
+
+  await user.deleteOne();
+
+  sendSuccess({ res, message: 'User deleted successfully', data: { _id: req.params.id } });
 });

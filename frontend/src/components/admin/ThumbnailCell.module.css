@@ -1,0 +1,75 @@
+/* Shared admin table image cell.
+   One source of truth for thumbnail size/radius/border/shadow so every
+   module that lists images (gallery, blog, services, doctors, users, …)
+   renders an identical visual treatment. */
+
+.thumb {
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--color-surface);
+  border: 1px solid var(--color-hairline);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  /* Subtle lift on hover — purely decorative; pointer-events stay off. */
+  transition: box-shadow var(--transition-fast), transform var(--transition-fast);
+}
+
+.thumb:hover {
+  box-shadow: var(--shadow-soft);
+}
+
+.img {
+  object-fit: cover;
+}
+
+.icon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.initials {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  color: var(--color-primary-deep);
+  letter-spacing: 0.02em;
+}
+
+/* ── Variants ─────────────────────────────────────────────────────────── */
+
+.square {
+  border-radius: var(--radius-sm);
+  aspect-ratio: 4 / 3;
+}
+
+.circle {
+  border-radius: 50%;
+  aspect-ratio: 1 / 1;
+  background: var(--color-primary-50);
+  border-color: var(--color-primary-100, var(--color-hairline));
+}
+
+/* ── Sizes (height) ──────────────────────────────────────────────────── */
+
+.sm { height: 32px; }
+.sm.square { width: 44px; }
+.sm.circle { width: 32px; }
+.sm .icon { font-size: 14px; }
+.sm .initials { font-size: 10px; }
+
+.md { height: 40px; }
+.md.square { width: 56px; }
+.md.circle { width: 40px; }
+
+.lg { height: 56px; }
+.lg.square { width: 76px; }
+.lg.circle { width: 56px; }
+.lg .icon { font-size: 22px; }
+.lg .initials { font-size: var(--text-sm); }
+
+@media (max-width: 600px) {
+  .md.square { width: 48px; }
+  .lg.square { width: 60px; }
+}

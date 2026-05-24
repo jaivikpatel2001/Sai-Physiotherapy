@@ -20,6 +20,8 @@ interface UsersState {
 interface UsersActions {
   fetchList: (params?: Record<string, unknown>, opts?: { force?: boolean }) => Promise<AuthUser[] | null>;
   toggleStatus: (id: string) => Promise<AuthUser | null>;
+  update: (id: string, payload: Partial<AuthUser>) => Promise<AuthUser | null>;
+  remove: (id: string) => Promise<boolean>;
   setFilters: (partial: Record<string, unknown>) => void;
   reset: () => void;
 }
@@ -70,13 +72,45 @@ export const useUsersStore = create<UsersStore>()(
         try {
           const env = await usersApi.toggleStatus(id);
           set((s) => ({
-            items: s.items.map((u) => (u._id === id && env.data ? env.data : u)),
+            items: env.data
+              ? s.items.map((u) => (u._id === id ? { ...u, ...env.data! } : u))
+              : s.items,
             writeStatus: REQUEST_STATUS.SUCCEEDED,
           }));
           return env.data ?? null;
         } catch (err) {
           set({ writeStatus: REQUEST_STATUS.FAILED, error: pickError(err) });
           return null;
+        }
+      },
+      update: async (id, payload) => {
+        set({ writeStatus: REQUEST_STATUS.LOADING, error: null });
+        try {
+          const env = await usersApi.update(id, payload);
+          set((s) => ({
+            items: env.data
+              ? s.items.map((u) => (u._id === id ? { ...u, ...env.data! } : u))
+              : s.items,
+            writeStatus: REQUEST_STATUS.SUCCEEDED,
+          }));
+          return env.data ?? null;
+        } catch (err) {
+          set({ writeStatus: REQUEST_STATUS.FAILED, error: pickError(err) });
+          return null;
+        }
+      },
+      remove: async (id) => {
+        set({ writeStatus: REQUEST_STATUS.LOADING, error: null });
+        try {
+          await usersApi.remove(id);
+          set((s) => ({
+            items: s.items.filter((u) => u._id !== id),
+            writeStatus: REQUEST_STATUS.SUCCEEDED,
+          }));
+          return true;
+        } catch (err) {
+          set({ writeStatus: REQUEST_STATUS.FAILED, error: pickError(err) });
+          return false;
         }
       },
       setFilters: (partial) => set((s) => ({ filters: { ...s.filters, ...partial }, lastFetchedAt: null })),

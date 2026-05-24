@@ -7,18 +7,17 @@ import styles from '../login.module.css';
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   const [sent, setSent] = useState(false);
   const forgotPassword = useAuthStore((s) => s.forgotPassword);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
+    // Backend's "OTP sent to your email address. Valid for 10 minutes."
+    // (or the email-enumeration-safe variant) surfaces via the global toast.
     const ok = await forgotPassword(email);
     setLoading(false);
     if (ok) setSent(true);
-    else setError('Failed to save');
   };
 
   if (sent) {
@@ -46,13 +45,6 @@ export default function ForgotPasswordPage() {
         <h1 className={styles.cardTitle}>Forgot Password</h1>
         <p className={styles.cardSub}>Enter your email and we&apos;ll send you a reset link.</p>
       </div>
-
-      {error && (
-        <div className={styles.errorAlert}>
-          <i className="ri-error-warning-line" style={{ fontSize: 16 }} />
-          {error}
-        </div>
-      )}
 
       <form onSubmit={handleSubmit} className={styles.form}>
         <div className="form-group">

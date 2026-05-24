@@ -111,21 +111,41 @@
   flex-shrink: 0;
 }
 
-.leftFooter {
-  margin-top: auto;
+/* Back-to-website pill — sits at the very top of the left panel,
+   above the SAI Physiotherapy / Staff Portal brand block. */
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  padding: 8px 14px 8px 12px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.10);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: rgba(255, 255, 255, 0.92);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  letter-spacing: -0.005em;
   position: relative;
   z-index: 1;
+  transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
 }
 
-.backHome {
-  font-size: var(--text-sm);
-  color: rgba(255,255,255,0.75);
-  transition: color var(--transition-fast);
+.backLink:hover {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.40);
+  color: #fff;
+  transform: translateX(-2px);
 }
-.backHome:hover { color: white; }
+
+.backLink i {
+  font-size: 16px;
+  line-height: 1;
+}
 
 /* â”€â”€ Right â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .right {
+  position: relative;
   background: var(--color-bg);
   display: flex;
   align-items: center;
@@ -134,8 +154,45 @@
   overflow-y: auto;
 }
 
+/* Mobile-only back pill — only shown when the dark left panel is hidden. */
+.backLinkMobile {
+  display: none;
+}
+
 @media (max-width: 900px) {
   .layout { grid-template-columns: 1fr; }
   .left { display: none; }
-  .right { min-height: 100vh; }
+  .right {
+    min-height: 100vh;
+    padding-top: calc(var(--space-16) + env(safe-area-inset-top, 0px));
+  }
+  .backLinkMobile {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px 8px 12px;
+    border-radius: var(--radius-full);
+    background: var(--color-canvas);
+    border: 1px solid var(--color-border);
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    box-shadow: var(--shadow-sm);
+    position: absolute;
+    top: max(var(--space-5), env(safe-area-inset-top, 0px));
+    left: max(var(--space-5), env(safe-area-inset-left, 0px));
+    z-index: 2;
+    transition: color var(--transition-fast), background var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
+  }
+  .backLinkMobile:hover {
+    color: var(--color-primary);
+    background: var(--color-primary-50);
+    border-color: var(--color-primary-100);
+    transform: translateX(-2px);
+  }
+  .backLinkMobile i {
+    font-size: 16px;
+    line-height: 1;
+  }
 }

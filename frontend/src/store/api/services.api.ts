@@ -210,6 +210,10 @@ export const usersApi = {
     apiClient.get<ApiEnvelope<AuthUser[]>>('/auth/users', { params }).then((r) => r.data),
   getOne: (id: string) =>
     apiClient.get<ApiEnvelope<AuthUser>>(`/auth/users/${id}`).then((r) => r.data),
+  update: (id: string, payload: Partial<AuthUser>) =>
+    apiClient.put<ApiEnvelope<AuthUser>>(`/auth/users/${id}`, payload).then((r) => r.data),
+  remove: (id: string) =>
+    apiClient.delete<ApiEnvelope<{ _id: string }>>(`/auth/users/${id}`).then((r) => r.data),
   toggleStatus: (id: string) =>
     apiClient.patch<ApiEnvelope<AuthUser>>(`/auth/users/${id}/toggle-status`).then((r) => r.data),
 };

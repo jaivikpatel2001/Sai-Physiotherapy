@@ -1,7 +1,6 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
-import Image from 'next/image';
 import { useDoctorsStore, type UploadedFile, doctorsApi } from '@/store';
 import {
   PageHeader,
@@ -17,10 +16,14 @@ import {
   TagInput,
   ResourceDetailModal,
   FilterToolbar,
+  ThumbnailCell,
+  TablePagination,
+  usePagination,
   useTableQuery,
   applyTableQuery,
 } from '@/components/admin';
 import adminStyles from '../admin.module.css';
+import { notifyWarning } from '@/lib/toast';
 
 type Day = 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun';
 
@@ -180,19 +183,20 @@ export default function DoctorsAdminPage() {
     },
   }), [doctors, q.debouncedSearch, q.filters, q.sortBy, q.sortOrder]);
 
+  const pager = usePagination(
+    filtered,
+    `${q.debouncedSearch}|${q.filters.isActive ?? ''}|${q.filters.specialty ?? ''}|${q.sortBy}|${q.sortOrder}`,
+  );
+
   const columns: Column<Doctor>[] = [
     {
       key: 'name',
       header: 'Doctor',
       sortKey: 'name',
       render: (d) => (
-        <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-          <div style={{ position: 'relative', width: 44, height: 44, borderRadius: '50%', overflow: 'hidden', background: 'var(--color-surface)' }}>
-            {d.photo?.url && (
-              <Image src={d.photo.url} alt={d.name} fill sizes="44px" style={{ objectFit: 'cover' }} />
-            )}
-          </div>
-          <div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
+          <ThumbnailCell src={d.photo?.url} alt={d.name} variant="circle" size="md" fallbackText={d.name} />
+          <div style={{ minWidth: 0 }}>
             <div style={{ fontWeight: 600 }}>{d.name}</div>
             <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)' }}>
               {d.designation}
@@ -282,7 +286,7 @@ export default function DoctorsAdminPage() {
             : <AddButton label="Add Doctor" onClick={() => { setEditing(null); setShowModal(true); }} />}
         >
           <DataTable
-            rows={filtered}
+            rows={pager.paginated}
             columns={columns}
             rowKey={(d) => d._id}
             sortBy={q.sortBy}
@@ -295,6 +299,13 @@ export default function DoctorsAdminPage() {
                 onDelete={() => setDeletingId(d._id)}
               />
             )}
+          />
+          <TablePagination
+            page={pager.page}
+            pageSize={pager.pageSize}
+            total={pager.total}
+            onPageChange={pager.setPage}
+            onPageSizeChange={pager.setPageSize}
           />
         </AsyncBoundary>
       </div>
@@ -346,7 +357,6 @@ function DoctorFormModal({
     reset,
     formState: { errors, isSubmitting },
   } = useForm<DoctorForm>({ defaultValues: defaultForm });
-  const [err, setErr] = useState('');
   const nameVal = watch('name');
   const slugVal = watch('slug');
   const createDoctor = useDoctorsStore((s) => s.create);
@@ -393,7 +403,6 @@ function DoctorFormModal({
     } else {
       reset(defaultForm);
     }
-    setErr('');
   }, [open, doctor, reset]);
 
   // Auto-generate slug from name on create
@@ -404,9 +413,9 @@ function DoctorFormModal({
   }, [nameVal, slugVal, isEdit, setValue]);
 
   const onSubmit = async (form: DoctorForm) => {
-    setErr('');
+    // Local-only precondition (no API hit): toast for consistency.
     if (!form.photo) {
-      setErr('Please upload a photo before saving.');
+      notifyWarning('Please upload a photo before saving.');
       return;
     }
     const payload = {
@@ -448,11 +457,12 @@ function DoctorFormModal({
         mimetype: form.photo.mimetype,
       },
     };
+    // Backend's "Doctor created" / "Doctor updated" + any failure surface
+    // via the global axios toast interceptor.
     const result = isEdit && doctor
       ? await updateDoctor(doctor._id, payload as never)
       : await createDoctor(payload as never);
     if (result) onSaved();
-    else setErr('Failed to save');
   };
 
   return (
@@ -478,12 +488,6 @@ function DoctorFormModal({
       }
     >
       <form id="doctor-form" onSubmit={handleSubmit(onSubmit)}>
-        {err && (
-          <div className={adminStyles.errorBox}>
-            <i className="ri-error-warning-line" /> {err}
-          </div>
-        )}
-
         <Controller
           control={control}
           name="photo"

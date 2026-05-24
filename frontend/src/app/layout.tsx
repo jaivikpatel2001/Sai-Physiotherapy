@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import 'lenis/dist/lenis.css';
 import SmoothScroll from '@/components/providers/SmoothScroll';
+import ToastProvider from '@/components/providers/ToastProvider';
 import Preloader from '@/components/ui/Preloader/Preloader';
 import JsonLd from '@/components/seo/JsonLd';
 import Analytics from '@/components/seo/Analytics';
@@ -90,6 +91,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Preloader />
         <SmoothScroll />
         {children}
+        <ToastProvider />
         <Analytics />
       </body>
     </html>

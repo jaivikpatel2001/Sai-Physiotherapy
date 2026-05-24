@@ -18,6 +18,9 @@ import {
   toneFor,
   ResourceDetailModal,
   FilterToolbar,
+  ThumbnailCell,
+  TablePagination,
+  usePagination,
   useTableQuery,
   applyTableQuery,
 } from '@/components/admin';
@@ -118,15 +121,23 @@ export default function BlogAdminPage() {
     },
   }), [posts, q.debouncedSearch, q.filters, q.sortBy, q.sortOrder]);
 
+  const pager = usePagination(
+    filtered,
+    `${q.debouncedSearch}|${q.filters.status ?? ''}|${q.filters.category ?? ''}|${q.sortBy}|${q.sortOrder}`,
+  );
+
   const columns: Column<BlogPost>[] = [
     {
       key: 'title',
       header: 'Title',
       sortKey: 'title',
       render: (p) => (
-        <div>
-          <div style={{ fontWeight: 600 }}>{p.title}</div>
-          <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)' }}>/{p.slug}</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
+          <ThumbnailCell src={p.featuredImage} alt={p.title} variant="square" size="md" />
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontWeight: 600 }}>{p.title}</div>
+            <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)' }}>/{p.slug}</div>
+          </div>
         </div>
       ),
     },
@@ -214,7 +225,7 @@ export default function BlogAdminPage() {
             : <AddButton label="Add Blog" onClick={() => { setEditing(null); setShowModal(true); }} />}
         >
           <DataTable
-            rows={filtered}
+            rows={pager.paginated}
             columns={columns}
             rowKey={(p) => p._id}
             sortBy={q.sortBy}
@@ -227,6 +238,13 @@ export default function BlogAdminPage() {
                 onDelete={() => setDeletingId(p._id)}
               />
             )}
+          />
+          <TablePagination
+            page={pager.page}
+            pageSize={pager.pageSize}
+            total={pager.total}
+            onPageChange={pager.setPage}
+            onPageSizeChange={pager.setPageSize}
           />
         </AsyncBoundary>
       </div>
@@ -280,7 +298,6 @@ function BlogFormModal({
   } = useForm<BlogForm>({ defaultValues: defaultForm });
   const titleVal = watch('title');
   const slugVal = watch('slug');
-  const [err, setErr] = useState('');
   const createBlog = useBlogsStore((s) => s.create);
   const updateBlog = useBlogsStore((s) => s.update);
 
@@ -309,7 +326,6 @@ function BlogFormModal({
     } else {
       reset(defaultForm);
     }
-    setErr('');
   }, [open, post, reset]);
 
   useEffect(() => {
@@ -317,7 +333,6 @@ function BlogFormModal({
   }, [titleVal, slugVal, isEdit, setValue]);
 
   const onSubmit = async (form: BlogForm) => {
-    setErr('');
     const payload = {
       title: form.title,
       slug: form.slug,
@@ -330,11 +345,12 @@ function BlogFormModal({
       tags: form.tags,
       status: form.status,
     };
+    // Backend's "Blog post created" / "Blog updated" + any failure surface
+    // via the global axios toast interceptor.
     const result = isEdit && post
       ? await updateBlog(post._id, payload as never)
       : await createBlog(payload as never);
     if (result) onSaved();
-    else setErr('Failed to save');
   };
 
   return (
@@ -358,11 +374,6 @@ function BlogFormModal({
       }
     >
       <form id="blog-form" onSubmit={handleSubmit(onSubmit)}>
-        {err && (
-          <div className={adminStyles.errorBox}>
-            <i className="ri-error-warning-line" /> {err}
-          </div>
-        )}
 
         <Controller
           control={control}

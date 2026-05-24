@@ -70,7 +70,6 @@ export default function PatientsPage() {
   const router = useRouter();
   const items = usePatientsStore((s) => s.items) as unknown as Patient[];
   const loading = usePatientsStore((s) => s.status === 'loading');
-  const error = usePatientsStore((s) => s.error?.message ?? '');
   const fetchList = usePatientsStore((s) => s.fetchList);
   const removePatient = usePatientsStore((s) => s.remove);
   const usersAllForFilter = useUsersStore((s) => s.items) as unknown as DoctorUserLite[];
@@ -136,8 +135,6 @@ export default function PatientsPage() {
         subtitle="All registered patients"
         actions={<AddButton label="Add Patient" onClick={() => setShowModal(true)} />}
       />
-
-      {error && <div className={styles.errorBox}><i className="ri-error-warning-line" style={{ fontSize: 16 }} />{error}</div>}
 
       <div className={styles.adminCard}>
         <FilterToolbar
@@ -256,7 +253,6 @@ export default function PatientsPage() {
 
 function AddPatientModal({ onClose, onSaved }: { onClose: () => void; onSaved: () => void }) {
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<NewPatientForm>();
-  const [err, setErr] = useState('');
   const createPatient = usePatientsStore((s) => s.create);
   const usersAll = useUsersStore((s) => s.items) as unknown as DoctorUserLite[];
   const fetchUsers = useUsersStore((s) => s.fetchList);
@@ -271,7 +267,6 @@ function AddPatientModal({ onClose, onSaved }: { onClose: () => void; onSaved: (
   }, [fetchUsers]);
 
   const onSubmit = async (form: NewPatientForm) => {
-    setErr('');
     const payload = {
       personalInfo: {
         name: form.name.trim(),
@@ -294,9 +289,10 @@ function AddPatientModal({ onClose, onSaved }: { onClose: () => void; onSaved: (
       },
       assignedDoctor: form.assignedDoctor,
     };
+    // Backend's "Patient … created successfully" + validation errors surface
+    // via the global axios toast interceptor.
     const result = await createPatient(payload as never);
     if (result) onSaved();
-    else setErr('Failed to save');
   };
 
   return (
@@ -312,7 +308,6 @@ function AddPatientModal({ onClose, onSaved }: { onClose: () => void; onSaved: (
         </div>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className={styles.modalBody}>
-            {err && <div className={styles.errorBox}><i className="ri-error-warning-line" style={{ fontSize: 16 }} />{err}</div>}
             <div className={styles.formGrid}>
               <div className="form-group">
                 <label className="form-label">Full Name *</label>

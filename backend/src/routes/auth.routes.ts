@@ -2,8 +2,8 @@ import { Router } from 'express';
 import {
   login, register, logout, refreshToken, getMe,
   forgotPassword, resetPassword, changePassword,
-  getAllUsers, getUserById, toggleUserStatus,
-  loginSchema, registerSchema,
+  getAllUsers, getUserById, toggleUserStatus, updateUser, deleteUser,
+  loginSchema, registerSchema, updateUserSchema,
 } from '../controllers/auth.controller';
 import { authenticate, authorize } from '../middleware/auth.middleware';
 import { validate } from '../middleware/validate.middleware';
@@ -325,5 +325,89 @@ router.get('/users/:id', authenticate, authorize(UserRole.SUPER_ADMIN, UserRole.
  *       404: { $ref: '#/components/responses/NotFound' }
  */
 router.patch('/users/:id/toggle-status', authenticate, authorize(UserRole.SUPER_ADMIN), toggleUserStatus);
+
+/**
+ * @openapi
+ * /auth/users/{id}:
+ *   put:
+ *     tags: [Auth]
+ *     summary: Update a user account (admin)
+ *     security: [{ BearerAuth: [] }]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name: { type: string }
+ *               email: { type: string, format: email }
+ *               phone: { type: string }
+ *               role:
+ *                 type: string
+ *                 enum: [super_admin, admin, doctor, receptionist, patient]
+ *               specialization: { type: string }
+ *               qualification: { type: string }
+ *               experience: { type: integer }
+ *               bio: { type: string }
+ *               isActive: { type: boolean }
+ *     responses:
+ *       200:
+ *         description: Updated user record
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiSuccess'
+ *                 - properties:
+ *                     data: { $ref: '#/components/schemas/AuthUser' }
+ *       400: { $ref: '#/components/responses/ValidationError' }
+ *       401: { $ref: '#/components/responses/Unauthorized' }
+ *       403: { $ref: '#/components/responses/Forbidden' }
+ *       404: { $ref: '#/components/responses/NotFound' }
+ *       409: { description: Email already registered }
+ */
+router.put(
+  '/users/:id',
+  authenticate,
+  authorize(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  validate(updateUserSchema),
+  updateUser,
+);
+
+/**
+ * @openapi
+ * /auth/users/{id}:
+ *   delete:
+ *     tags: [Auth]
+ *     summary: Permanently delete a user account (super admin)
+ *     security: [{ BearerAuth: [] }]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: User deleted
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/ApiSuccess' }
+ *       400: { description: Cannot delete own account or last super admin }
+ *       401: { $ref: '#/components/responses/Unauthorized' }
+ *       403: { $ref: '#/components/responses/Forbidden' }
+ *       404: { $ref: '#/components/responses/NotFound' }
+ */
+router.delete(
+  '/users/:id',
+  authenticate,
+  authorize(UserRole.SUPER_ADMIN),
+  deleteUser,
+);
 
 export default router;

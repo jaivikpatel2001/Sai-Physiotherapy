@@ -5,11 +5,16 @@
  *   • baseURL / timeout / JSON defaults
  *   • Request interceptor — attaches bearer token from localStorage
  *   • Response interceptor — refreshes the token once on 401, replays request
+ *   • Toast interceptor — fires success toasts on mutating requests using the
+ *     dynamic `message` returned by the backend, and error toasts using the
+ *     backend's `error` / `errors[]` envelope. Per-request opt-out via the
+ *     `silent: true` config flag (used by polling/list/silent-refresh calls).
  *
  * Components must never import this directly — they call store actions
  * which call services which call this client.
  */
-import axios, { AxiosError, type AxiosInstance, type AxiosRequestConfig } from 'axios';
+import axios, { AxiosError, type AxiosInstance, type AxiosRequestConfig, type AxiosResponse, type InternalAxiosRequestConfig } from 'axios';
+import { notifyFromError, notifyFromResponse } from '@/lib/toast';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
 
@@ -37,6 +42,40 @@ export const tokenStorage = {
   },
 };
 
+// ── Per-request toast control ─────────────────────────────────────────────
+export interface RequestMeta {
+  /** Suppress success + error toasts for this single request. */
+  silent?: boolean;
+  /** Suppress only the success toast (errors still surface). */
+  silentSuccess?: boolean;
+  /** Suppress only the error toast (success still surfaces). */
+  silentError?: boolean;
+}
+
+type ConfigWithMeta = (AxiosRequestConfig | InternalAxiosRequestConfig) & RequestMeta & { _retried?: boolean };
+
+/**
+ * Endpoints that should never auto-toast (backend chatter that the user
+ * does not need surfaced — refresh dance, /me poll, silent activity feed).
+ */
+const SILENT_PATH_PATTERNS: RegExp[] = [
+  /\/auth\/refresh-token$/,
+  /\/auth\/me$/,
+  /\/analytics\//,
+  /\/upload\//,
+];
+
+const MUTATING_METHODS = new Set(['post', 'put', 'patch', 'delete']);
+
+function isSilentByPath(url?: string): boolean {
+  if (!url) return false;
+  return SILENT_PATH_PATTERNS.some((re) => re.test(url));
+}
+
+function isMutation(method?: string): boolean {
+  return MUTATING_METHODS.has((method || 'get').toLowerCase());
+}
+
 export const apiClient: AxiosInstance = axios.create({
   baseURL: API_URL,
   timeout: 15_000,
@@ -53,7 +92,7 @@ apiClient.interceptors.request.use((config) => {
   return config;
 });
 
-// ── Response interceptor — refresh-once on 401 ─────────────────────────────
+// ── Response interceptor — refresh-once on 401 + global toasts ─────────────
 let refreshing: Promise<string | null> | null = null;
 
 async function refreshAccessToken(): Promise<string | null> {
@@ -71,29 +110,46 @@ async function refreshAccessToken(): Promise<string | null> {
 }
 
 apiClient.interceptors.response.use(
-  (r) => r,
+  (response: AxiosResponse) => {
+    const config = response.config as ConfigWithMeta;
+    if (
+      isMutation(config.method) &&
+      !isSilentByPath(config.url) &&
+      !config.silent &&
+      !config.silentSuccess
+    ) {
+      notifyFromResponse(response.data);
+    }
+    return response;
+  },
   async (error: AxiosError) => {
-    const original = error.config as (AxiosRequestConfig & { _retried?: boolean }) | undefined;
-    if (!original || original._retried || error.response?.status !== 401) {
-      return Promise.reject(error);
-    }
-    original._retried = true;
-    if (!refreshing) {
-      refreshing = refreshAccessToken().finally(() => {
-        refreshing = null;
-      });
-    }
-    const newToken = await refreshing;
-    if (!newToken) {
-      tokenStorage.clear();
-      if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login')) {
-        window.location.href = '/login';
+    const original = error.config as ConfigWithMeta | undefined;
+    if (original && original._retried !== true && error.response?.status === 401) {
+      original._retried = true;
+      if (!refreshing) {
+        refreshing = refreshAccessToken().finally(() => {
+          refreshing = null;
+        });
       }
-      return Promise.reject(error);
+      const newToken = await refreshing;
+      if (!newToken) {
+        tokenStorage.clear();
+        if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login')) {
+          window.location.href = '/login';
+        }
+        // Fall through and surface the 401 below.
+      } else {
+        original.headers = original.headers ?? {};
+        (original.headers as Record<string, string>).Authorization = `Bearer ${newToken}`;
+        return apiClient(original);
+      }
     }
-    original.headers = original.headers ?? {};
-    (original.headers as Record<string, string>).Authorization = `Bearer ${newToken}`;
-    return apiClient(original);
+
+    // Fire global error toast unless caller opted out.
+    if (!original?.silent && !original?.silentError && !isSilentByPath(original?.url)) {
+      notifyFromError(error);
+    }
+    return Promise.reject(error);
   },
 );
 

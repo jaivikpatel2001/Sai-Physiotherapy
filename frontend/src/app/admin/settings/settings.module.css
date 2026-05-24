@@ -1,0 +1,212 @@
+.cardHint {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+/* ── Hours grid ────────────────────────────────────────────────── */
+.hoursList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.hoursRow {
+  display: grid;
+  grid-template-columns: 140px 1fr auto;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-4);
+  background: var(--color-bg, #f8fbfc);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  transition: background var(--transition-fast), border-color var(--transition-fast), opacity var(--transition-fast);
+}
+
+.hoursRow:hover {
+  border-color: var(--color-border);
+}
+
+.hoursRowClosed {
+  background: var(--color-surface-soft);
+  opacity: 0.78;
+}
+
+.hoursDay {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.hoursDayLabel {
+  font-weight: 700;
+  font-size: var(--text-sm);
+  color: var(--color-text);
+  letter-spacing: -0.01em;
+}
+
+.hoursDayShort {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.hoursTimes {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.hoursDash {
+  color: var(--color-text-muted);
+  font-weight: 600;
+  user-select: none;
+}
+
+.hoursActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-shrink: 0;
+}
+
+.hoursToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  user-select: none;
+}
+
+.hoursToggle input { accent-color: var(--color-primary); cursor: pointer; }
+
+.hoursCopy {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: var(--radius-md);
+  background: white;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.hoursCopy:hover:not(:disabled) {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+  background: var(--color-tint-sky, #f0f7f9);
+}
+
+.hoursCopy:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── Time field (12h + AM/PM) ───────────────────────────────────── */
+.timeField {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.timeFieldLabel {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.timeFieldControls {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 6px;
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.timeSelect {
+  border: none;
+  background: transparent;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text);
+  cursor: pointer;
+  padding: 2px 4px;
+  appearance: none;
+  -webkit-appearance: none;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.timeSelect:focus { outline: none; }
+.timeSelect:disabled { color: var(--color-text-light, #9ca3af); cursor: not-allowed; }
+
+.timeColon {
+  font-weight: 700;
+  color: var(--color-text-muted);
+  user-select: none;
+}
+
+.periodToggle {
+  display: inline-flex;
+  margin-left: 4px;
+  background: var(--color-bg, #f3f4f6);
+  border-radius: 6px;
+  padding: 2px;
+}
+
+.periodBtn {
+  border: none;
+  background: transparent;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.periodBtn:hover:not(:disabled) {
+  color: var(--color-text);
+}
+
+.periodBtnActive {
+  background: var(--color-primary);
+  color: white;
+  box-shadow: 0 1px 2px rgba(70, 162, 183, 0.35);
+}
+
+.periodBtnActive:hover:not(:disabled) { color: white; }
+
+.periodBtn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+/* ── Responsive ────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .hoursRow {
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+  }
+  .hoursTimes { gap: var(--space-2); }
+  .hoursActions { justify-content: space-between; }
+}
+
+@media (max-width: 480px) {
+  .hoursTimes { flex-direction: column; align-items: stretch; }
+  .hoursDash { display: none; }
+  .timeField { width: 100%; }
+  .timeFieldControls { justify-content: space-between; }
+}

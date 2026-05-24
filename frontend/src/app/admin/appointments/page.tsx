@@ -54,7 +54,6 @@ interface ApptForm {
 export default function AppointmentsPage() {
   const data = useAppointmentsStore((s) => s.items) as unknown as Appt[];
   const loading = useAppointmentsStore((s) => s.status === 'loading');
-  const error = useAppointmentsStore((s) => s.error?.message ?? '');
   const fetchList = useAppointmentsStore((s) => s.fetchList);
   const updateApptStatus = useAppointmentsStore((s) => s.updateStatus);
   const removeAppt = useAppointmentsStore((s) => s.remove);
@@ -153,8 +152,6 @@ export default function AppointmentsPage() {
         subtitle="Manage scheduled, today, and upcoming appointments"
         actions={<AddButton label="New Appointment" onClick={() => setShowCreate(true)} />}
       />
-
-      {error && <div className={styles.errorBox}><i className="ri-error-warning-line" style={{ fontSize: 16 }} />{error}</div>}
 
       <div className={styles.adminCard}>
         <FilterToolbar
@@ -308,7 +305,6 @@ function ApptFormModal({
         }
       : { duration: 30, type: 'new' },
   });
-  const [submitErr, setSubmitErr] = useState('');
   const [patientQuery, setPatientQuery] = useState('');
 
   const services = useServicesStore((s) => s.items) as unknown as ServiceLite[];
@@ -337,13 +333,13 @@ function ApptFormModal({
   }, [patientQuery, searchPatients]);
 
   const onSubmit = async (form: ApptForm) => {
-    setSubmitErr('');
     const payload = { ...form, scheduledAt: new Date(form.scheduledAt).toISOString() };
+    // Backend's "Appointment <id> booked" / "Appointment updated" — and any
+    // validation/conflict errors — are toasted by the global axios interceptor.
     const result = isEdit && appt
       ? await updateAppointment(appt._id, payload as never)
       : await bookAppointment(payload as never);
     if (result) onSaved();
-    else setSubmitErr('Failed to save');
   };
 
   return (
@@ -355,7 +351,6 @@ function ApptFormModal({
         </div>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className={styles.modalBody}>
-            {submitErr && <div className={styles.errorBox}><i className="ri-error-warning-line" style={{ fontSize: 16 }} />{submitErr}</div>}
             <div className={styles.formGrid}>
               {!isEdit && (
                 <div className="form-group full">

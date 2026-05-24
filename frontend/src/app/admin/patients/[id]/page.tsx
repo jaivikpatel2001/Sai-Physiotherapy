@@ -68,7 +68,6 @@ export default function PatientDetailPage() {
     recovery: x.recoveryPercentage ?? 0,
   }));
   const loading = usePatientsStore((s) => s.status === 'loading');
-  const error = usePatientsStore((s) => s.error?.message ?? '');
   const fetchOne = usePatientsStore((s) => s.fetchOne);
   const fetchSessions = usePatientsStore((s) => s.fetchSessions);
   const fetchBills = usePatientsStore((s) => s.fetchBills);
@@ -108,8 +107,6 @@ export default function PatientDetailPage() {
           </button>
         )}
       </div>
-
-      {error && <div className={styles.errorBox}><i className="ri-error-warning-line" style={{ fontSize: 16 }} />{error}</div>}
 
       <div className={styles.tabs}>
         {TABS.map((t) => (
@@ -238,11 +235,9 @@ function AddSessionModal({ patientId, onClose, onSaved }: { patientId: string; o
   const { register, handleSubmit, formState: { isSubmitting } } = useForm<SessionForm>({
     defaultValues: { painScale: 5, recoveryPercentage: 0, date: new Date().toISOString().split('T')[0] },
   });
-  const [err, setErr] = useState('');
   const createSession = useSessionsStore((s) => s.create);
 
   const onSubmit = async (form: SessionForm) => {
-    setErr('');
     const payload = {
       patient: patientId,
       date: form.date,
@@ -258,9 +253,10 @@ function AddSessionModal({ patientId, onClose, onSaved }: { patientId: string; o
       exercisesPrescribed: form.exercises ? form.exercises.split(',').map((s) => s.trim()) : [],
       recoveryPercentage: Number(form.recoveryPercentage),
     };
+    // Backend's "Session #N recorded" + validation errors come through the
+    // global axios toast interceptor.
     const result = await createSession(payload as never);
     if (result) onSaved();
-    else setErr('Failed to save');
   };
 
   return (
@@ -276,7 +272,6 @@ function AddSessionModal({ patientId, onClose, onSaved }: { patientId: string; o
         </div>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className={styles.modalBody}>
-            {err && <div className={styles.errorBox}><i className="ri-error-warning-line" style={{ fontSize: 16 }} />{err}</div>}
             <div className={styles.formGrid}>
               <div className="form-group">
                 <label className="form-label">Date *</label>
